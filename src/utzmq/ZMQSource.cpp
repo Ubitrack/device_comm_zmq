@@ -45,12 +45,30 @@ static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.ZMQSo
 
 SourceModule::SourceModule( const SourceModuleKey& moduleKey, boost::shared_ptr< Graph::UTQLSubgraph >, FactoryHelper* pFactory )
 	: Module< SourceModuleKey, SourceComponentKey, SourceModule, SourceComponentBase >( moduleKey, pFactory )
-	, context(NULL)
-	, signals_socket(NULL)
+	, m_context(NULL)
+    , m_socket(NULL)
 	, m_io_threads(1)
-	, m_signals_url(ZMQSOURCE_SIGNALS_URL)
+    , m_bindTo(false)
+	, m_msgwait_timeout(100) // need to find out what the resolution of the timeout is
 {
 	stopModule();
+
+	Graph::UTQLSubgraph::NodePtr config;
+
+    // read configuration like bindTo from utql config
+
+
+    //	if ( subgraph->hasNode( "OptiTrack" ) )
+    //	  config = subgraph->getNode( "OptiTrack" );
+    //
+    //	if ( !config )
+    //	{
+    //	  UBITRACK_THROW( "NatNetTracker Pattern has no \"OptiTrack\" node");
+    //	}
+    //
+    //	m_clientName = config->getAttributeString( "clientName" );
+    //	config->getAttributeData("bindTo", m_bindTo);
+
 }
 
 
@@ -65,28 +83,38 @@ void SourceModule::startModule()
 	{
 		m_running = true;
 
-		LOG4CPP_DEBUG( logger, "Starting ZMQ Source module" );
+		LOG4CPP_DEBUG( logger, "Starting ZMQ Source module: " << m_moduleKey.get() );
 //		LOG4CPP_DEBUG( logger, "Creating receiver on port " << m_moduleKey );
 
-        context = new zmq::context_t(m_io_threads);
+        m_context = new zmq::context_t(m_io_threads);
+        m_socket = new zmq::socket_t(*m_context, ZMQ_SUB);
 
         try {
-            signals_socket->bind(m_signals_url.c_str());
-        } catch (zmq::error_t &e) {
-            delete signals_socket;
-            signals_socket = NULL;
+            if (m_bindTo) {
+                m_socket->bind(m_moduleKey.get().c_str());
+            } else {
+                m_socket->connect(m_moduleKey.get().c_str());
+            }
+            // only for ZMQ_PUB sockets
+            m_socket->setsockopt(ZMQ_SUBSCRIBE, "", 0);
+        }
+        catch (zmq::error_t &e) {
+            //ostringstream log;
+            //log << "Error initializing ZMQSource: " << std::endl;
+            //	log << "address: "  << m_address << std::endl;
+            //log << e.what() << std::endl;
+            //log << " ZMQSource is now DISABLED !!!" << std::endl;
+            //UBITRACK_LOG(log.str());
+            delete m_socket;
+            m_socket = NULL;
+
+            return;
         }
 
+		// network thread runs until module is stopped
+		LOG4CPP_DEBUG( logger, "Starting network receiver thread" );
+		m_NetworkThread = boost::shared_ptr< boost::thread >( new boost::thread( boost::bind( &SourceModule::startReceiver, this ) ) );
 
-
-//		m_Socket->async_receive_from(
-//			boost::asio::buffer( receive_data, max_receive_length ),
-//		sender_endpoint,
-//		boost::bind( &SourceModule::HandleReceive, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred ) );
-//
-//		// network thread runs until io_service is interrupted
-//		LOG4CPP_DEBUG( logger, "Starting network receiver thread" );
-//		m_NetworkThread = boost::shared_ptr< boost::thread >( new boost::thread( boost::bind( &boost::asio::io_service::run, m_IoService.get() ) ) );
 
 		LOG4CPP_DEBUG( logger, "ZMQ Source module started" );
 	}
@@ -97,132 +125,78 @@ void SourceModule::stopModule()
 
 	if ( m_running )
 	{
+
 		m_running = false;
 		LOG4CPP_NOTICE( logger, "Stopping ZMQ Source Module" );
 
-        // do something
+        // wait for thread
+        m_NetworkThread->join();
+
+        delete m_socket;
+        m_socket = NULL;
 
 	}
 	LOG4CPP_DEBUG( logger, "ZMQ Source Stopped" );
 }
 
+void SourceModule::receiverThread() {
+    int index = 0;
+    ComponentList allComponents( getAllComponents() );
 
-zmq::socket_t* SourceModule::createSocket(int type) {
-    return new zmq::socket_t(*context, type);
+    zmq::pollitem_t pollitems[1];
+    pollitems[0].socket = m_socket;
+    pollitems[0].events = ZMQ_POLLIN;
+
+    // main loop
+    while (m_running) {
+        // wait for messages
+        zmq::poll (pollitems, 2, m_msgwait_timeout);
+        Measurement::Timestamp ts = Measurement::now();
+
+        zmq::message_t message;
+        int flags = 0; // ZMQ_NOBLOCK
+        bool rc;
+
+        if (pollitems[0].revents & ZMQ_POLLIN) {
+
+            if (m_socket == NULL) {
+                return;
+            }
+
+            if((rc = m_socket->recv(&message, flags)) == true) {
+                LOG4CPP_DEBUG( logger, "Received " << message.size() << " bytes" );
+                try
+                {
+                    std::string data( static_cast<char*>(message.data()), message.size() );
+                    LOG4CPP_TRACE( logger, "data: " << data );
+                    std::istringstream stream( data );
+                    boost::archive::text_iarchive ar_message( stream );
+
+                    // parse packet
+                    std::string name;
+                    ar_message >> name;
+                    LOG4CPP_DEBUG( logger, "Message for component " << name );
+
+                    SourceComponentKey key( name );
+
+                    if ( hasComponent( key ) ) {
+                        boost::shared_ptr< SourceComponentBase > comp = getComponent( key );
+                        comp->parse( ar_message, ts );
+                    }
+                    else
+                        LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
+                }
+                catch ( const std::exception& e )
+                {
+                    LOG4CPP_ERROR( logger, "Caught exception " << e.what() );
+                }
+            } else {
+                LOG4CPP_ERROR( logger, "Error receiving zmq message" );
+            }
+            pollitems[0].revents = 0;
+        }
+    }
 }
-
-
-int SourceModule::sendSignal(unsigned int signal, unsigned int timestamp) {
-/*
-        if (!signals_socket) {
-                return -1;
-        }
-
-        MessageHeader::Signals header;
-
-        header.set_signal(signal);
-        header.set_timestamp(timestamp);
-        int header_size = header.ByteSize();
-        //prefix int(num bytes headers), headers_bytes + std:ends
-        zmq::message_t message(sizeof(int32_t) + header_size + 1);
-        int msg_offset = 0;
-
-        int32_t header_size_i32 = htonl (header_size);
-        memcpy ((char *)message.data(), &header_size_i32, sizeof (int32_t));
-        msg_offset += sizeof (int32_t);
-        char* message_buf = (char *)(message.data());
-
-        ostreambuf<char> msg_obuffer((char *)(message.data())+msg_offset, message.size()-msg_offset);
-        std::ostream msg_ostream(&msg_obuffer);
-        try {
-                header.SerializeToOstream(&msg_ostream);
-                msg_offset += header.ByteSize();
-                message_buf[msg_offset] = 0;
-                msg_offset += 1;
-        }
-        catch (...) {
-                ostringstream log;
-                log << "error serializing header: " << std::endl;
-                log << header.DebugString() << std::endl;
-                H3DZMQ_DEBUG_LOG_I(log.str());
-
-                // free any allocated vars here !!!
-                return -1;
-        }
-
-        try {
-                signals_socket->send(message, ZMQ_NOBLOCK);
-        }catch (...) {
-                ostringstream log;
-                log << "error sending signal: " << std::endl;
-                log << header.DebugString() << std::endl;
-                H3DZMQ_DEBUG_LOG_I(log.str());
-
-                // free any allocated vars here !!!
-                return -1;
-        }
-*/
-        return 0;
-}
-
-
-//void SourceModule::HandleReceive( const boost::system::error_code err, size_t length )
-//{
-//	Measurement::Timestamp recvtime = Measurement::now();
-//
-//	LOG4CPP_DEBUG( logger, "Received " << length << " bytes" );
-//
-//	// some error checking
-//	if ( err && err != boost::asio::error::message_size )
-//	{
-//		std::ostringstream msg;
-//		msg << "Error receiving from socket: \"" << err << "\"";
-//		LOG4CPP_ERROR( logger, msg.str() );
-//		UBITRACK_THROW( msg.str() );
-//	}
-//
-//	if (length >= max_receive_length)
-//	{
-//		LOG4CPP_ERROR( logger, "Too many bytes received" );
-//		UBITRACK_THROW( "FIXME: received more than max_receive_length bytes." );
-//	}
-//
-//	try
-//	{
-//		// make receive data null terminated and create a string stream
-//		receive_data[length] = 0;
-//		std::string data( receive_data );
-//		LOG4CPP_TRACE( logger, "data: " << data );
-//		std::istringstream stream( data );
-//		boost::archive::text_iarchive message( stream );
-//
-//		// parse packet
-//		std::string name;
-//		message >> name;
-//		LOG4CPP_DEBUG( logger, "Message for component " << name );
-//
-//		SourceComponentKey key( name );
-//
-//		if ( hasComponent( key ) ) {
-//			boost::shared_ptr< SourceComponentBase > comp = getComponent( key );
-//			comp->parse( message, recvtime );
-//		}
-//		else
-//			LOG4CPP_WARN( logger, "NetworkSink is sending with id=\"" << name << "\", found no corresponding NetworkSource pattern with same id."  );
-//	}
-//	catch ( const std::exception& e )
-//	{
-//		LOG4CPP_ERROR( logger, "Caught exception " << e.what() );
-//	}
-//
-//	// restart receiving new packet
-//	m_Socket->async_receive_from(
-//		boost::asio::buffer( receive_data, max_receive_length ),
-//		sender_endpoint,
-//		boost::bind( &SourceModule::HandleReceive, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred )
-//	);
-//}
-
 
 boost::shared_ptr< SourceComponentBase > SourceModule::createComponent( const std::string& type, const std::string& name,
 	boost::shared_ptr< Graph::UTQLSubgraph > config, const SourceModule::ComponentKey& key, SourceModule* pModule )

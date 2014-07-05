@@ -68,7 +68,7 @@ class SourceModuleKey
 {
 public:
     SourceModuleKey( boost::shared_ptr< Graph::UTQLSubgraph > subgraph )
-        : DataflowConfigurationAttributeKey< std::string >( subgraph, "domain", "ubitrack" )
+        : DataflowConfigurationAttributeKey< std::string >( subgraph, "address", "tcp://localhost:9977" )
     { }
 };
 
@@ -78,83 +78,21 @@ public:
  * Contains either the subgraph id or the value of the "senderId" dataflow attribute (if present)
  */
  class SourceComponentKey
+	: public std::string
 {
 public:
+	SourceComponentKey( const std::string& s )
+		: std::string( s )
+	{}
 
-    SourceComponentKey( boost::shared_ptr< Graph::UTQLSubgraph > subgraph )
-    : m_address( "tcp://localhost:9977" )
-    , m_senderId( "" )
-    , m_bindTo( false )
+	SourceComponentKey( boost::shared_ptr< Graph::UTQLSubgraph > subgraph )
     {
-      Graph::UTQLSubgraph::EdgePtr config;
-
-      if ( subgraph->hasEdge( "Output" ) )
-          config = subgraph->getEdge( "Output" );
-
-      if ( !config )
-      {
-          UBITRACK_THROW( "ZMQSource pattern has no \"Output\" edge");
-      }
-
-      config->getAttributeData( "zmqAddress", m_address );
-      if ( !config->hasAttribute( "zmqSenderId" ) ) {
-          m_senderId.assign(subgraph->m_ID);
-      } else {
-          config->getAttributeData( "zmqSenderId", m_senderId );
-      }
-      config->getAttributeData( "zmqBindTo", m_bindTo);
-
-    }
-
-    // construct from body number
-    SourceComponentKey( std::string a )
-        : m_address( a )
-        , m_senderId( "" )
-        , m_bindTo( false )
-     {}
-
-    // construct from body number and target type
-    SourceComponentKey( std::string a, std::string s )
-        : m_address( a )
-        , m_senderId( s )
-        , m_bindTo( false )
-    {}
-
-    std::string getAddress() const
-    {
-        return m_address;
-    }
-
-    std::string getSenderId() const
-    {
-        return m_senderId;
-    }
-
-    bool getBindTo() const
-    {
-        return m_bindTo;
-    }
-
-
-    // less than operator for map
-    bool operator<( const SourceComponentKey& b ) const
-    {
-        if ( m_address.compare(b.m_address) == 0 )
-            return m_senderId < b.m_senderId;
-        else
-            return m_address < b.m_address;
-    }
-
-protected:
-    std::string m_address;
-    std::string m_senderId;
-    bool m_bindTo;
+		if ( !subgraph->m_DataflowAttributes.hasAttribute( "senderId" ) )
+			assign( subgraph->m_ID );
+		else
+			assign( subgraph->m_DataflowAttributes.getAttributeString( "senderId" ) );
+	}
 };
-
- std::ostream& operator<<( std::ostream& s, const SourceComponentKey& k );
-
- 
-
 
 /**
  * Module for zmq source.
@@ -184,22 +122,26 @@ public:
     /** module start method */
     virtual void stopModule();
 
-    zmq::socket_t *createSocket(int type);
+
+    inline static void startReceiver(SourceModule* pModule) {
+        pModule->receiverThread();
+    }
+    void receiverThread();
 
 protected:
-    zmq::context_t *context;
-    zmq::socket_t  *signals_socket;
+
+    zmq::context_t *m_context;
+    zmq::socket_t* m_socket;
 
     int m_io_threads;
-    std::string m_signals_url;
 
-    int sendSignal(unsigned int signal, unsigned int timestamp = 0);
+    bool m_bindTo;
 
+    boost::shared_ptr< boost::thread > m_NetworkThread;
+    int m_msgwait_timeout;
 
-//    boost::shared_ptr< boost::thread > m_NetworkThread;
 
 };
-
 
 /**
  * Virtual base class for all other components
@@ -220,20 +162,6 @@ public:
 
     virtual void parse( boost::archive::text_iarchive& ar, Measurement::Timestamp recvtime )
     {}
-
-    /** component stop method */
-    virtual void startComponent();
-
-    /** component start method */
-    virtual void stopComponent();
-
-
-    inline const zmq::socket_t* getSocket() {
-        return m_socket;
-    }
-
-protected:
-    zmq::socket_t* m_socket;
 
 };
 

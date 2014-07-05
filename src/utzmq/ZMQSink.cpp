@@ -32,12 +32,12 @@
 // WARNING: all boost/serialization headers should be
 //          included AFTER all boost/archive headers
 
-#ifdef ___COMMENTED_OUT
-
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/utility.hpp>
+
+#include <zmq.hpp>
 
 #include <string>
 #include <cstdlib>
@@ -45,9 +45,6 @@
 #include <sstream>
 #include <iomanip>
 
-// on windows, asio must be included before anything that possible includes windows.h
-// don't ask why.
-#include <boost/asio.hpp>
 
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
@@ -62,7 +59,7 @@
 
 namespace Ubitrack { namespace Drivers {
 
-static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.NetworkSink" ) );
+static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.ZMQSink" ) );
 	
 /**
  * @ingroup dataflow_components
@@ -77,16 +74,15 @@ static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.Netwo
  * @par Configuration
  * - Edge configuration:
  * @verbatim
- * <Configuration port="..." destination="..."/>
+ * <Configuration socket_url="..." destination="..."/>
  * @endverbatim
- *   - \c port: the UDP target port, default 0x5554 ("UT")
- *   - \c destination: the target machine or ip, default 127.0.0.1
+ *   - \c socket_url: the zmq socket url,default tcp://localhost:9977
  *
  * @par Instances
  * Registered for the following EventTypes and names:
- * - Ubitrack::Measurement::Position: NetworkPositionSink
- * - Ubitrack::Measurement::Rotation: NetworkRotationSink
- * - Ubitrack::Measurement::Pose : NetworkPoseSink
+ * - Ubitrack::Measurement::Position: ZMQPositionSink
+ * - Ubitrack::Measurement::Rotation: ZMQRotationSink
+ * - Ubitrack::Measurement::Pose : ZMQPoseSink
  */
 template< class EventType >
 class SinkComponent
@@ -99,31 +95,43 @@ public:
 	SinkComponent( const std::string& name, boost::shared_ptr< Graph::UTQLSubgraph > pConfig )
 		: Dataflow::Component( name )
 		, m_inPort( "Input", *this, boost::bind( &SinkComponent::eventIn, this, _1 ) )
-		, m_IoService()
-		, m_UDPPort( 0x5554 ) // default port is 0x5554 (UT)
-		, m_Destination( "127.0.0.1" )
+		, m_context( NULL )
+		, m_socket( NULL )
+		, m_socket_url( "tcp://localhost:9977" )
+		, m_io_threads(1)
+		, m_bindTo(true)
 	{
-		using boost::asio::ip::udp;
 
 		// check for configuration
-		pConfig->m_DataflowAttributes.getAttributeData( "networkPort", m_UDPPort );
-		if ( pConfig->m_DataflowAttributes.hasAttribute( "networkDestination" ) )
-		{
-			m_Destination = pConfig->m_DataflowAttributes.getAttributeString( "networkDestination" );
-		}
+		pConfig->m_DataflowAttributes.getAttributeData( "socketUrl", m_socket_url );
+//		if ( pConfig->m_DataflowAttributes.hasAttribute( "networkDestination" ) )
+//		{
+//			m_Destination = pConfig->m_DataflowAttributes.getAttributeString( "networkDestination" );
+//		}
 
-		// open new socket which we use for sending stuff
-		m_SendSocket = boost::shared_ptr< udp::socket >( new udp::socket (m_IoService) );
-		m_SendSocket->open( udp::v4() );
+        m_context = new zmq::context_t(m_io_threads);
+        m_socket = new zmq::socket_t(*m_context, ZMQ_PUB);
 
-		// resolve destination pair and store the remote endpoint
-		udp::resolver resolver( m_IoService );
+        try {
+            if (m_bindTo) {
+                m_socket->bind(m_socket_url.c_str());
+            } else {
+                m_socket->connect(m_socket_url.c_str());
+            }
+        }
+        catch (zmq::error_t &e) {
+            //ostringstream log;
+            //log << "Error initializing ZMQSource: " << std::endl;
+            //	log << "address: "  << m_address << std::endl;
+            //log << e.what() << std::endl;
+            //log << " ZMQSource is now DISABLED !!!" << std::endl;
+            //UBITRACK_LOG(log.str());
+            delete m_socket;
+            m_socket = NULL;
 
-		std::ostringstream portString;
-		portString << m_UDPPort;
+            return;
+        }
 
-		udp::resolver::query query( udp::v4(), m_Destination, portString.str() );
-		m_SendEndpoint = boost::shared_ptr< udp::endpoint >( new udp::endpoint( *resolver.resolve( query ) ) );
 	}
 
 protected:
@@ -144,38 +152,44 @@ protected:
 		packet << sendtime;
 		packet << suffix;
 
-		m_SendSocket->send_to( boost::asio::buffer( stream.str().c_str(), stream.str().size() ), *m_SendEndpoint );
+        zmq::message_t message(stream.str().size());
+        memcpy(message.data(), stream.str().data(), stream.str().size() );
+
+        bool rc = m_socket->send(message);
+        // evaluate rc
 	}
 
 	// consumer port
 	Dataflow::PushConsumer< EventType > m_inPort;
 
-	boost::asio::io_service m_IoService;
+	std::string m_socket_url;
 
-	boost::shared_ptr< boost::asio::ip::udp::socket > m_SendSocket;
-	boost::shared_ptr< boost::asio::ip::udp::endpoint > m_SendEndpoint;
+    zmq::context_t *m_context;
+    zmq::socket_t* m_socket;
 
-	int m_UDPPort;
-	std::string m_Destination;
+    int m_io_threads;
+
+    bool m_bindTo;
+
+
 };
 
 
 // register module at factory
 UBITRACK_REGISTER_COMPONENT( Dataflow::ComponentFactory* const cf ) {
-	cf->registerComponent< SinkComponent< Measurement::Pose > > ( "NetworkPoseSink" );
-	cf->registerComponent< SinkComponent< Measurement::ErrorPose > > ( "NetworkErrorPoseSink" );
-	cf->registerComponent< SinkComponent< Measurement::Position > > ( "NetworkPositionSink" );
-	cf->registerComponent< SinkComponent< Measurement::Position2D > > ( "NetworkPosition2DSink" );
-	cf->registerComponent< SinkComponent< Measurement::Rotation > > ( "NetworkRotationSink" );
-	cf->registerComponent< SinkComponent< Measurement::PoseList > > ( "NetworkPoseListSink" );
-	cf->registerComponent< SinkComponent< Measurement::PositionList > > ( "NetworkPositionListSink" );
-	cf->registerComponent< SinkComponent< Measurement::PositionList2 > > ( "NetworkPositionList2Sink" );
-	cf->registerComponent< SinkComponent< Measurement::Button > > ( "NetworkEventSink" );
-	cf->registerComponent< SinkComponent< Measurement::Matrix3x3 > > ( "NetworkMatrix3x3Sink" );
-	cf->registerComponent< SinkComponent< Measurement::Matrix3x4 > > ( "NetworkMatrix3x4Sink" );
-	cf->registerComponent< SinkComponent< Measurement::Matrix4x4 > > ( "NetworkMatrix4x4Sink" );
+	cf->registerComponent< SinkComponent< Measurement::Pose > > ( "ZMQPoseSink" );
+	cf->registerComponent< SinkComponent< Measurement::ErrorPose > > ( "ZMQErrorPoseSink" );
+	cf->registerComponent< SinkComponent< Measurement::Position > > ( "ZMQPositionSink" );
+	cf->registerComponent< SinkComponent< Measurement::Position2D > > ( "ZMQPosition2DSink" );
+	cf->registerComponent< SinkComponent< Measurement::Rotation > > ( "ZMQRotationSink" );
+	cf->registerComponent< SinkComponent< Measurement::PoseList > > ( "ZMQPoseListSink" );
+	cf->registerComponent< SinkComponent< Measurement::PositionList > > ( "ZMQPositionListSink" );
+	cf->registerComponent< SinkComponent< Measurement::PositionList2 > > ( "ZMQPositionList2Sink" );
+	cf->registerComponent< SinkComponent< Measurement::Button > > ( "ZMQEventSink" );
+	cf->registerComponent< SinkComponent< Measurement::Matrix3x3 > > ( "ZMQMatrix3x3Sink" );
+	cf->registerComponent< SinkComponent< Measurement::Matrix3x4 > > ( "ZMQMatrix3x4Sink" );
+	cf->registerComponent< SinkComponent< Measurement::Matrix4x4 > > ( "ZMQMatrix4x4Sink" );
 }
 
 } } // namespace Ubitrack::Drivers
 
-#endif // COMMENTED_OUT
