@@ -28,9 +28,11 @@
 
 #include "ZMQSource.h"
 
-#include <iostream>
 #include <sstream>
+#include <iostream>
+#include <istream>
 
+#include <utUtil/OS.h>
 #include <utDataflow/ComponentFactory.h>
 #include <utMeasurement/Measurement.h>
 
@@ -99,12 +101,12 @@ void SourceModule::startModule()
             m_socket->setsockopt(ZMQ_SUBSCRIBE, "", 0);
         }
         catch (zmq::error_t &e) {
-            //ostringstream log;
-            //log << "Error initializing ZMQSource: " << std::endl;
-            //	log << "address: "  << m_address << std::endl;
-            //log << e.what() << std::endl;
-            //log << " ZMQSource is now DISABLED !!!" << std::endl;
-            //UBITRACK_LOG(log.str());
+            std::ostringstream log;
+            log << "Error initializing ZMQSource: " << std::endl;
+            log << "address: "  << m_moduleKey.get() << std::endl;
+            log << e.what() << std::endl;
+            LOG4CPP_ERROR( logger, log.str() );
+
             delete m_socket;
             m_socket = NULL;
 
@@ -114,7 +116,6 @@ void SourceModule::startModule()
 		// network thread runs until module is stopped
 		LOG4CPP_DEBUG( logger, "Starting network receiver thread" );
 		m_NetworkThread = boost::shared_ptr< boost::thread >( new boost::thread( boost::bind( &SourceModule::startReceiver, this ) ) );
-
 
 		LOG4CPP_DEBUG( logger, "ZMQ Source module started" );
 	}
@@ -144,13 +145,26 @@ void SourceModule::receiverThread() {
     ComponentList allComponents( getAllComponents() );
 
     zmq::pollitem_t pollitems[1];
-    pollitems[0].socket = m_socket;
+    pollitems[0].socket = *m_socket;
     pollitems[0].events = ZMQ_POLLIN;
 
     // main loop
     while (m_running) {
         // wait for messages
-        zmq::poll (pollitems, 2, m_msgwait_timeout);
+        try {
+            zmq::poll (pollitems, 1, m_msgwait_timeout);
+        } catch (zmq::error_t &e) {
+            std::ostringstream log;
+            log << "Error polling zmq socket: " << std::endl;
+            log << "address: "  << m_moduleKey.get() << std::endl;
+            log << e.what() << std::endl;
+            LOG4CPP_ERROR( logger, log.str() );
+
+            Ubitrack::Util::sleep(100);
+
+            continue;
+        }
+        // zmq_poll has returned
         Measurement::Timestamp ts = Measurement::now();
 
         zmq::message_t message;
@@ -158,10 +172,6 @@ void SourceModule::receiverThread() {
         bool rc;
 
         if (pollitems[0].revents & ZMQ_POLLIN) {
-
-            if (m_socket == NULL) {
-                return;
-            }
 
             if((rc = m_socket->recv(&message, flags)) == true) {
                 LOG4CPP_DEBUG( logger, "Received " << message.size() << " bytes" );

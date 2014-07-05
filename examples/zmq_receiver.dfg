@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<UTQLResponse name="zmq_receiver" xsi:schemaLocation="http://ar.in.tum.de/ubitrack/utql http://ar.in.tum.de/files/ubitrack/utql/utql_types.xsd" xmlns="http://ar.in.tum.de/ubitrack/utql" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Pattern name="ZMQSourcePose" displayName="test_pose" id="test_pose">
+        <Output>
+            <Node name="A" id="node_1">
+                <GuiPos x="448" y="258"/>
+            </Node>
+            <Node name="B" id="node_2">
+                <GuiPos x="388" y="478"/>
+            </Node>
+            <Edge name="Output" source="A" destination="B">
+                <Attribute xsi:type="utql:PrimitiveAttributeType" name="type" value="6D" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+                <Attribute xsi:type="utql:PrimitiveAttributeType" name="mode" value="push" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+            </Edge>
+        </Output>
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQSourcePose"/>
+            <Attribute xsi:type="utql:PrimitiveAttributeType" name="socketUrl" value="tcp://localhost:9977" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+            <Attribute xsi:type="utql:PrimitiveAttributeType" name="trackman-guipos" value="0 0" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+        </DataflowConfiguration>
+    </Pattern>
+    <Pattern name="PosePrintSink" id="pattern_2">
+        <Input>
+            <Node name="A" id="node_1">
+                <GuiPos x="448" y="258"/>
+            </Node>
+            <Node name="B" id="node_2">
+                <GuiPos x="388" y="478"/>
+            </Node>
+            <Edge name="Input" source="A" destination="B" pattern-ref="test_pose" edge-ref="Output">
+                <GuiLandmark x="754" y="387"/>
+                <GuiLabelPos x="774" y="420"/>
+                <Attribute xsi:type="utql:PrimitiveAttributeType" name="type" value="6D" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+                <Attribute xsi:type="utql:PrimitiveAttributeType" name="mode" value="push" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+            </Edge>
+        </Input>
+        <DataflowConfiguration>
+            <UbitrackLib class="PosePrintSink"/>
+            <Attribute xsi:type="utql:PrimitiveAttributeType" name="trackman-guipos" value="0 170" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+        </DataflowConfiguration>
+    </Pattern>
+</UTQLResponse>
