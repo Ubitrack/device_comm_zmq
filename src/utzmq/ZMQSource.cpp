@@ -106,11 +106,7 @@ void SourceModule::startModule()
             log << "address: "  << m_moduleKey.get() << std::endl;
             log << e.what() << std::endl;
             LOG4CPP_ERROR( logger, log.str() );
-
-            delete m_socket;
-            m_socket = NULL;
-
-            return;
+            UBITRACK_THROW("Error Initializing ZMQSource");
         }
 
 		// network thread runs until module is stopped

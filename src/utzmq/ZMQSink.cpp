@@ -85,16 +85,16 @@ static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.ZMQSi
  * - Ubitrack::Measurement::Pose : ZMQPoseSink
  */
 template< class EventType >
-class SinkComponent
+class ZMQSinkComponent
 	: public Dataflow::Component
 {
 
 public:
 
 	/** constructor */
-	SinkComponent( const std::string& name, boost::shared_ptr< Graph::UTQLSubgraph > pConfig )
+	ZMQSinkComponent( const std::string& name, boost::shared_ptr< Graph::UTQLSubgraph > pConfig )
 		: Dataflow::Component( name )
-		, m_inPort( "Input", *this, boost::bind( &SinkComponent::eventIn, this, _1 ) )
+		, m_inPort( "Input", *this, boost::bind( &ZMQSinkComponent::eventIn, this, _1 ) )
 		, m_context( NULL )
 		, m_socket( NULL )
 		, m_socket_url( "tcp://localhost:9977" )
@@ -109,6 +109,8 @@ public:
 //			m_Destination = pConfig->m_DataflowAttributes.getAttributeString( "networkDestination" );
 //		}
 
+        LOG4CPP_DEBUG( logger, "Initialize ZMQSink on socket: " << m_socket_url );
+
         m_context = new zmq::context_t(m_io_threads);
         m_socket = new zmq::socket_t(*m_context, ZMQ_PUB);
 
@@ -120,16 +122,13 @@ public:
             }
         }
         catch (zmq::error_t &e) {
-            //ostringstream log;
-            //log << "Error initializing ZMQSource: " << std::endl;
-            //	log << "address: "  << m_address << std::endl;
-            //log << e.what() << std::endl;
-            //log << " ZMQSource is now DISABLED !!!" << std::endl;
-            //UBITRACK_LOG(log.str());
-            delete m_socket;
-            m_socket = NULL;
+            std::ostringstream log;
+            log << "Error initializing ZMQSource: " << std::endl;
+            log << "address: "  << m_socket_url << std::endl;
+            log << e.what() << std::endl;
+            LOG4CPP_ERROR( logger, log.str() );
 
-            return;
+            UBITRACK_THROW("Error Initializing ZMQSink");
         }
 
 	}
@@ -156,6 +155,7 @@ protected:
         memcpy(message.data(), stream.str().data(), stream.str().size() );
 
         bool rc = m_socket->send(message);
+        LOG4CPP_DEBUG( logger, "Message sent on ZMQSink " << m_name );
         // evaluate rc
 	}
 
@@ -177,18 +177,18 @@ protected:
 
 // register module at factory
 UBITRACK_REGISTER_COMPONENT( Dataflow::ComponentFactory* const cf ) {
-	cf->registerComponent< SinkComponent< Measurement::Pose > > ( "ZMQPoseSink" );
-	cf->registerComponent< SinkComponent< Measurement::ErrorPose > > ( "ZMQErrorPoseSink" );
-	cf->registerComponent< SinkComponent< Measurement::Position > > ( "ZMQPositionSink" );
-	cf->registerComponent< SinkComponent< Measurement::Position2D > > ( "ZMQPosition2DSink" );
-	cf->registerComponent< SinkComponent< Measurement::Rotation > > ( "ZMQRotationSink" );
-	cf->registerComponent< SinkComponent< Measurement::PoseList > > ( "ZMQPoseListSink" );
-	cf->registerComponent< SinkComponent< Measurement::PositionList > > ( "ZMQPositionListSink" );
-	cf->registerComponent< SinkComponent< Measurement::PositionList2 > > ( "ZMQPositionList2Sink" );
-	cf->registerComponent< SinkComponent< Measurement::Button > > ( "ZMQEventSink" );
-	cf->registerComponent< SinkComponent< Measurement::Matrix3x3 > > ( "ZMQMatrix3x3Sink" );
-	cf->registerComponent< SinkComponent< Measurement::Matrix3x4 > > ( "ZMQMatrix3x4Sink" );
-	cf->registerComponent< SinkComponent< Measurement::Matrix4x4 > > ( "ZMQMatrix4x4Sink" );
+	cf->registerComponent< ZMQSinkComponent< Measurement::Pose > > ( "ZMQPoseSink" );
+	cf->registerComponent< ZMQSinkComponent< Measurement::ErrorPose > > ( "ZMQErrorPoseSink" );
+	cf->registerComponent< ZMQSinkComponent< Measurement::Position > > ( "ZMQPositionSink" );
+	cf->registerComponent< ZMQSinkComponent< Measurement::Position2D > > ( "ZMQPosition2DSink" );
+	cf->registerComponent< ZMQSinkComponent< Measurement::Rotation > > ( "ZMQRotationSink" );
+	cf->registerComponent< ZMQSinkComponent< Measurement::PoseList > > ( "ZMQPoseListSink" );
+	cf->registerComponent< ZMQSinkComponent< Measurement::PositionList > > ( "ZMQPositionListSink" );
+	cf->registerComponent< ZMQSinkComponent< Measurement::PositionList2 > > ( "ZMQPositionList2Sink" );
+	cf->registerComponent< ZMQSinkComponent< Measurement::Button > > ( "ZMQEventSink" );
+	cf->registerComponent< ZMQSinkComponent< Measurement::Matrix3x3 > > ( "ZMQMatrix3x3Sink" );
+	cf->registerComponent< ZMQSinkComponent< Measurement::Matrix3x4 > > ( "ZMQMatrix3x4Sink" );
+	cf->registerComponent< ZMQSinkComponent< Measurement::Matrix4x4 > > ( "ZMQMatrix4x4Sink" );
 }
 
 } } // namespace Ubitrack::Drivers

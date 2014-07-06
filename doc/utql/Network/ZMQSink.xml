@@ -21,7 +21,7 @@
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPoseSink"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
         </DataflowConfiguration>
     </Pattern>
@@ -41,7 +41,7 @@
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQErrorPoseSink"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
         </DataflowConfiguration>
     </Pattern>
@@ -61,7 +61,7 @@
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQErrorRotationSink"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
         </DataflowConfiguration>
     </Pattern>
@@ -81,7 +81,7 @@
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPositionSink"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
         </DataflowConfiguration>
     </Pattern>
@@ -101,7 +101,7 @@
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPoseListSink"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
         </DataflowConfiguration>
     </Pattern>
@@ -121,7 +121,7 @@
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPositionListSink"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
         </DataflowConfiguration>
     </Pattern>
@@ -141,7 +141,7 @@
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPositionList2Sink"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
         </DataflowConfiguration>
     </Pattern>
@@ -161,7 +161,7 @@
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQEventSink"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
         </DataflowConfiguration>
     </Pattern>
@@ -181,7 +181,7 @@
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPosition2DSink"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
         </DataflowConfiguration>
     </Pattern>
@@ -201,7 +201,7 @@
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQMatrix3x3Sink"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
         </DataflowConfiguration>
     </Pattern>
@@ -221,7 +221,7 @@
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQMatrix3x4Sink"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
         </DataflowConfiguration>
     </Pattern>
@@ -241,7 +241,7 @@
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQMatrix4x4Sink"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
         </DataflowConfiguration>
     </Pattern>
@@ -261,7 +261,7 @@
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQImageSink"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
         </DataflowConfiguration>
     </Pattern>
