@@ -25,7 +25,7 @@
 /**
  * @ingroup driver_components
  * @file
- * ZMQ Source
+ * ZMQ Network
  * This file contains the driver component to
  * receive measurements through a zeromq network connection.
  *
@@ -33,59 +33,74 @@
  * @author Ulrich Eck <ueck@net-labs.de>
  */
 
-#ifndef _ZMQSOURCE_H_
-#define _ZMQSOURCE_H_
+#ifndef _ZMQNETWORK_H_
+#define _ZMQNETWORK_H_
+
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/binary_object.hpp>
 
 #include <string>
 #include <cstdlib>
 
+#include <boost/shared_ptr.hpp>
 #include <zmq.hpp>
+
+#include <sstream>
+#include <iostream>
+#include <istream>
+
+#include <boost/array.hpp>
 
 #include <utDataflow/PushSupplier.h>
 #include <utDataflow/Component.h>
 #include <utDataflow/Module.h>
 #include <utMeasurement/Measurement.h>
 #include <utMeasurement/TimestampSync.h>
+#include <utDataflow/ComponentFactory.h>
+#include <utUtil/OS.h>
+
+
+#ifndef ZMQNETWORK_IOTHREADS
+  #define ZMQNETWORK_IOTHREADS 2
+#endif
 
 // have a logger..
-static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.ZMQSource" ) );
+static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.ZMQNetwork" ) );
+
 
 namespace Ubitrack { namespace Drivers {
 
 using namespace Dataflow;
 
-#define ZMQSOURCE_SIGNALS_URL "inproc://zmqsourcemodule-signals"
-
 // forward declaration
-class SourceComponentBase;
+class NetworkComponentBase;
 
-/**
- * Module key for zmq source.
- * Represents the zmq context.
- */
-class SourceModuleKey
+class NetworkModuleKey
     : public DataflowConfigurationAttributeKey< std::string >
 {
 public:
-    SourceModuleKey( boost::shared_ptr< Graph::UTQLSubgraph > subgraph )
+    NetworkModuleKey( boost::shared_ptr< Graph::UTQLSubgraph > subgraph )
         : DataflowConfigurationAttributeKey< std::string >( subgraph, "address", "tcp://localhost:9977" )
     { }
 };
 
 
 /**
- * Component key for zmq source.
+ * Component key for ZMQ Network.
  * Contains either the subgraph id or the value of the "senderId" dataflow attribute (if present)
  */
- class SourceComponentKey
+ class NetworkComponentKey
 	: public std::string
 {
 public:
-	SourceComponentKey( const std::string& s )
+    NetworkComponentKey( const std::string& s )
 		: std::string( s )
 	{}
 
-	SourceComponentKey( boost::shared_ptr< Graph::UTQLSubgraph > subgraph )
+    NetworkComponentKey( boost::shared_ptr< Graph::UTQLSubgraph > subgraph )
     {
 		if ( !subgraph->m_DataflowAttributes.hasAttribute( "senderId" ) )
 			assign( subgraph->m_ID );
@@ -95,25 +110,22 @@ public:
 };
 
 /**
- * Module for zmq source.
+ * Module for ZMQ Network.
  * owns context
  */
-class SourceModule
-    : public Module< SourceModuleKey, SourceComponentKey, SourceModule, SourceComponentBase >
+class NetworkModule
+    : public Module< NetworkModuleKey, NetworkComponentKey, NetworkModule, NetworkComponentBase >
 {
 public:
 
     /** constructor */
-    SourceModule( const SourceModuleKey& key, boost::shared_ptr< Graph::UTQLSubgraph > subgraph, FactoryHelper* pFactory );
+    NetworkModule( const NetworkModuleKey& key, boost::shared_ptr< Graph::UTQLSubgraph > subgraph, FactoryHelper* pFactory );
 
     /** destruktor */
-    ~SourceModule();
+    ~NetworkModule();
 
 
-    /** thread method */
-//    void HandleReceive (const boost::system::error_code err, size_t length);
-
-    boost::shared_ptr< SourceComponentBase > createComponent( const std::string& type, const std::string& name,
+    boost::shared_ptr< NetworkComponentBase > createComponent( const std::string& type, const std::string& name,
         boost::shared_ptr< Graph::UTQLSubgraph > subgraph, const ComponentKey& key, ModuleClass* pModule );
 
     /** module stop method */
@@ -123,23 +135,25 @@ public:
     virtual void stopModule();
 
 
-    inline static void startReceiver(SourceModule* pModule) {
+    inline static void startReceiver(NetworkModule* pModule) {
         pModule->receiverThread();
     }
     void receiverThread();
 
+
+
 protected:
+    static zmq::context_t m_context;
 
-    zmq::context_t *m_context;
-    zmq::socket_t* m_socket;
-
-    int m_io_threads;
+    boost::shared_ptr<zmq::socket_t> m_socket;
 
     bool m_bindTo;
 
     boost::shared_ptr< boost::thread > m_NetworkThread;
     int m_msgwait_timeout;
 
+    bool m_has_pushsink;
+    bool m_has_pushsource;
 
 };
 
@@ -147,34 +161,55 @@ protected:
  * Virtual base class for all other components
  * owns the zmq socket and receives messages from it
  */
-class SourceComponentBase
-    : public SourceModule::Component
+class NetworkComponentBase
+    : public NetworkModule::Component
 {
 public:
 
+    typedef enum { NOT_DEFINED, PUSH_SINK, PUSH_SOURCE } ComponentType;
+
     /** constructor */
-    SourceComponentBase( const std::string& name, boost::shared_ptr< Graph::UTQLSubgraph > subgraph, const SourceComponentKey& componentKey, SourceModule* pModule )
-        : SourceModule::Component( name, componentKey, pModule )
+    NetworkComponentBase( const std::string& name, boost::shared_ptr< Graph::UTQLSubgraph > subgraph, const NetworkComponentKey& componentKey, NetworkModule* pModule )
+        : NetworkModule::Component( name, componentKey, pModule )
     {}
 
-    virtual ~SourceComponentBase()
+    virtual ~NetworkComponentBase()
     {}
+
+    virtual void setupComponent(boost::shared_ptr<zmq::socket_t> &sock)
+    {
+        m_socket = sock;
+    }
+
+    virtual void teardownComponent()
+    {
+        m_socket.reset();
+    }
 
     virtual void parse( boost::archive::text_iarchive& ar, Measurement::Timestamp recvtime )
     {}
+
+    virtual NetworkComponentBase::ComponentType getComponentType() {
+        // should have
+        return NetworkComponentBase::NOT_DEFINED;
+    }
+
+
+protected:
+    boost::shared_ptr<zmq::socket_t> m_socket;
 
 };
 
 
 template< class EventType >
-class SourceComponent
-    : public SourceComponentBase
+class PushSourceComponent
+    : public NetworkComponentBase
 {
 
 public:
 
-    SourceComponent( const std::string& name, boost::shared_ptr< Graph::UTQLSubgraph > subgraph, const SourceComponentKey& key, SourceModule* module )
-        : SourceComponentBase( name, subgraph, key, module )
+    PushSourceComponent( const std::string& name, boost::shared_ptr< Graph::UTQLSubgraph > subgraph, const NetworkComponentKey& key, NetworkModule* module )
+        : NetworkComponentBase( name, subgraph, key, module )
         , m_port( "Output", *this )
         , m_synchronizer( 1e9 )
         , m_firstTimestamp( 0 )
@@ -207,11 +242,66 @@ public:
         m_port.send( EventType( correctedTime, mm ) );
     }
 
+    virtual ComponentType getComponentType() {
+        return NetworkComponentBase::PUSH_SOURCE;
+    }
+
 protected:
     PushSupplier< EventType > m_port;
     Measurement::TimestampSync m_synchronizer;
     Measurement::Timestamp m_firstTimestamp;
 };
+
+
+template< class EventType >
+class PushSinkComponent
+    : public NetworkComponentBase
+{
+
+public:
+
+    /** constructor */
+    PushSinkComponent( const std::string& name, boost::shared_ptr< Graph::UTQLSubgraph > subgraph, const NetworkComponentKey& key, NetworkModule* module )
+        : NetworkComponentBase( name, subgraph, key, module )
+        , m_inPort( "Input", *this, boost::bind( &PushSinkComponent::eventIn, this, _1 ) )
+    {
+    }
+
+    virtual ComponentType getComponentType() {
+        return NetworkComponentBase::PUSH_SINK;
+    }
+protected:
+
+    // receive a new pose from the dataflow
+    void eventIn( const EventType& m )
+    {
+        std::ostringstream stream;
+        boost::archive::text_oarchive packet( stream );
+
+        std::string suffix("\n");
+        Measurement::Timestamp sendtime;
+
+        // serialize the measurement, component name and current local time
+        packet << m_name;
+        packet << m;
+        sendtime = Measurement::now();
+        packet << sendtime;
+        packet << suffix;
+
+        zmq::message_t message(stream.str().size());
+        memcpy(message.data(), stream.str().data(), stream.str().size() );
+
+        if (m_socket) {
+            bool rc = m_socket->send(message);
+            LOG4CPP_DEBUG( logger, "Message sent on ZMQSink " << m_name );
+            // evaluate rc
+        }
+    }
+
+    // consumer port
+    Dataflow::PushConsumer< EventType > m_inPort;
+};
+
 
 
 
