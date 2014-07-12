@@ -109,7 +109,7 @@ void NetworkModule::startModule()
 
         m_running = true;
 
-        LOG4CPP_DEBUG( logger, "Starting ZMQNetwork module: " << m_moduleKey.get() );
+        LOG4CPP_INFO( logger, "Starting ZMQNetwork module: " << m_moduleKey.get() );
 
         int socket_type = ZMQ_SUB;
         if (m_has_pushsink) {

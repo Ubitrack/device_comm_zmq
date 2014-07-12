@@ -20,9 +20,10 @@
         </Input>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQPoseSink"/>
+            <UbitrackLib class="ZMQSinkPose"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -40,9 +41,10 @@
         </Input>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQErrorPoseSink"/>
+            <UbitrackLib class="ZMQSinkErrorPose"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -60,9 +62,10 @@
         </Input>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQErrorRotationSink"/>
+            <UbitrackLib class="ZMQSinkErrorRotation"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -80,9 +83,10 @@
         </Input>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQPositionSink"/>
+            <UbitrackLib class="ZMQSinkPosition"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -100,9 +104,10 @@
         </Input>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQPoseListSink"/>
+            <UbitrackLib class="ZMQSinkPoseList"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -120,9 +125,10 @@
         </Input>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQPositionListSink"/>
+            <UbitrackLib class="ZMQSinkPositionList"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -140,9 +146,10 @@
         </Input>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQPositionList2Sink"/>
+            <UbitrackLib class="ZMQSinkPositionList2"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
     
@@ -160,9 +167,10 @@
         </Input>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQEventSink"/>
+            <UbitrackLib class="ZMQSinkEvent"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -180,9 +188,10 @@
         </Input>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQPosition2DSink"/>
+            <UbitrackLib class="ZMQSinkPosition2D"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -200,9 +209,10 @@
         </Input>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQMatrix3x3Sink"/>
+            <UbitrackLib class="ZMQSinkMatrix3x3"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -220,9 +230,10 @@
         </Input>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQMatrix3x4Sink"/>
+            <UbitrackLib class="ZMQSinkMatrix3x4"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -240,9 +251,10 @@
         </Input>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQMatrix4x4Sink"/>
+            <UbitrackLib class="ZMQSinkMatrix4x4"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -260,9 +272,10 @@
         </Input>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQImageSink"/>
+            <UbitrackLib class="ZMQSinkImage"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -287,6 +300,13 @@
         <!-- Unfortunately, the xpointer used in Xinclude is currently restricted to the element scheme and absolute element indices in Xerces (and thus XMLBeans) -->
         <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/3/1)"/>
         <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/3/2)"/>
+
+        <Attribute name="bindTo" displayName="Bind to socket" default="false" xsi:type="EnumAttributeDeclarationType">
+            <Description><p xmlns="http://www.w3.org/1999/xhtml">Should the module bind the socket (true) or connect (false).</p></Description>
+            <EnumValue name="false" displayName="False"/>
+            <EnumValue name="true" displayName="True"/>
+        </Attribute>
+
     </GlobalDataflowAttributeDeclarations>
     
 </UTQLPatternTemplates>

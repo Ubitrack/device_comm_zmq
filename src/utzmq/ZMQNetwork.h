@@ -83,7 +83,7 @@ class NetworkModuleKey
 {
 public:
     NetworkModuleKey( boost::shared_ptr< Graph::UTQLSubgraph > subgraph )
-        : DataflowConfigurationAttributeKey< std::string >( subgraph, "address", "tcp://localhost:9977" )
+        : DataflowConfigurationAttributeKey< std::string >( subgraph, "socketUrl", "tcp://127.0.0.1:9977" )
     { }
 };
 

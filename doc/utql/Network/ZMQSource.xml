@@ -23,6 +23,7 @@
             <UbitrackLib class="ZMQSourcePose"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -43,6 +44,7 @@
             <UbitrackLib class="ZMQSourceErrorPose"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -63,6 +65,7 @@
             <UbitrackLib class="ZMQSourceRotation"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -83,6 +86,7 @@
             <UbitrackLib class="ZMQSourcePosition"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -103,6 +107,7 @@
             <UbitrackLib class="ZMQSourcePosition2D"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -125,6 +130,7 @@
             <UbitrackLib class="ZMQSourcePoseList"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -145,6 +151,7 @@
             <UbitrackLib class="ZMQSourcePositionList"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -165,6 +172,7 @@
             <UbitrackLib class="ZMQSourcePositionList2"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
     
@@ -185,6 +193,7 @@
             <UbitrackLib class="ZMQSourceEvent"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -205,6 +214,7 @@
             <UbitrackLib class="ZMQSourceMatrix3x3"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -225,6 +235,7 @@
             <UbitrackLib class="ZMQSourceMatrix3x4"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -245,10 +256,11 @@
             <UbitrackLib class="ZMQSourceMatrix4x4"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
-	<!--
-	<Pattern name="ZMQImageSource" displayName="ZMQ Source (Image)">
+    <!--
+    <Pattern name="ZMQImageSource" displayName="ZMQ Source (Image)">
         <Description><h:p>This pattern receives a Image via the selected transport from a <h:code>ZMQSinkEvent</h:code> having the same pattern ID</h:p></Description>
         
         <Output>
@@ -265,6 +277,7 @@
             <UbitrackLib class="ZMQImageSource"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
     -->
@@ -291,6 +304,13 @@
         <!-- Unfortunately, the xpointer used in Xinclude is currently restricted to the element scheme and absolute element indices in Xerces (and thus XMLBeans) -->
         <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/3/1)"/>
         <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/3/2)"/>
+
+        <Attribute name="bindTo" displayName="Bind to socket" default="false" xsi:type="EnumAttributeDeclarationType">
+            <Description><p xmlns="http://www.w3.org/1999/xhtml">Should the module bind the socket (true) or connect (false).</p></Description>
+            <EnumValue name="false" displayName="False"/>
+            <EnumValue name="true" displayName="True"/>
+        </Attribute>
+
     </GlobalDataflowAttributeDeclarations>
     
 </UTQLPatternTemplates>
