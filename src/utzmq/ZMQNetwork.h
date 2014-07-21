@@ -222,7 +222,10 @@ public:
         ar >> mm;
         ar >> sendtime;
 
-        LOG4CPP_DEBUG( logger, "perceived host clock offset: " << static_cast< long long >( recvtime - sendtime ) * 1e-6 << "ms" );
+		// XXX Needs a flag to disable timestamp correction (for cases where we work with multiple DFGs on one host)
+		// Furthermore, remove debug logging in favor to speed (maybe similar to OPT_LOGGER setup ??)
+
+		LOG4CPP_DEBUG( logger, "perceived host clock offset: " << static_cast< long long >( recvtime - sendtime ) * 1e-6 << "ms" );
 
         // subtract first timestamp to avoid losing timing precision
         if ( !m_firstTimestamp )
