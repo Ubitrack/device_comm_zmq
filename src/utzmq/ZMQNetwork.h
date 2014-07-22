@@ -148,6 +148,8 @@ protected:
     boost::shared_ptr<zmq::socket_t> m_socket;
 
     bool m_bindTo;
+    bool m_fixTimestamp;
+    bool m_verbose;
 
     boost::shared_ptr< boost::thread > m_NetworkThread;
     int m_msgwait_timeout;
@@ -171,6 +173,8 @@ public:
     /** constructor */
     NetworkComponentBase( const std::string& name, boost::shared_ptr< Graph::UTQLSubgraph > subgraph, const NetworkComponentKey& componentKey, NetworkModule* pModule )
         : NetworkModule::Component( name, componentKey, pModule )
+        , m_fixTimestamp(pModule->m_fixTimestamp)
+        , m_verbose(pModule->m_verbose)
     {}
 
     virtual ~NetworkComponentBase()
@@ -197,6 +201,8 @@ public:
 
 protected:
     boost::shared_ptr<zmq::socket_t> m_socket;
+    bool m_fixTimestamp;
+    bool m_verbose;
 
 };
 
@@ -222,27 +228,31 @@ public:
         ar >> mm;
         ar >> sendtime;
 
-		// XXX Needs a flag to disable timestamp correction (for cases where we work with multiple DFGs on one host)
-		// Furthermore, remove debug logging in favor to speed (maybe similar to OPT_LOGGER setup ??)
+        if (m_verbose) {
+            LOG4CPP_DEBUG( logger, "perceived host clock offset: " << static_cast< long long >( recvtime - sendtime ) * 1e-6 << "ms" );
+        }
 
-		LOG4CPP_DEBUG( logger, "perceived host clock offset: " << static_cast< long long >( recvtime - sendtime ) * 1e-6 << "ms" );
+        if (m_fixTimestamp) {
+            // subtract first timestamp to avoid losing timing precision
+            if ( !m_firstTimestamp )
+                m_firstTimestamp = sendtime;
 
-        // subtract first timestamp to avoid losing timing precision
-        if ( !m_firstTimestamp )
-            m_firstTimestamp = sendtime;
+            // synchronize sender time with receiver time
+            Measurement::Timestamp correctedTime = m_synchronizer.convertNativeToLocal( sendtime - double( m_firstTimestamp ), recvtime );
 
-        // synchronize sender time with receiver time
-        Measurement::Timestamp correctedTime = m_synchronizer.convertNativeToLocal( sendtime - double( m_firstTimestamp ), recvtime );
+            // add offset of individual measurements
+            correctedTime -= static_cast< long long >( sendtime - mm.time() );
 
-        // add offset of individual measurements
-        correctedTime -= static_cast< long long >( sendtime - mm.time() );
-
-        LOG4CPP_DEBUG( logger, "Timestamps measurement: " << Measurement::timestampToShortString( mm.time() )
-            << ", sent: " << Measurement::timestampToShortString( sendtime )
-            << ", arrival: " << Measurement::timestampToShortString( recvtime )
-            << ", corrected: " << Measurement::timestampToShortString( correctedTime ) );
-
-        m_port.send( EventType( correctedTime, mm ) );
+            if (m_verbose) {
+                LOG4CPP_DEBUG( logger, "Timestamps measurement: " << Measurement::timestampToShortString( mm.time() )
+                    << ", sent: " << Measurement::timestampToShortString( sendtime )
+                    << ", arrival: " << Measurement::timestampToShortString( recvtime )
+                    << ", corrected: " << Measurement::timestampToShortString( correctedTime ) );
+            }
+            m_port.send( EventType( correctedTime, mm ) );
+        } else {
+            m_port.send( mm );
+        }
     }
 
     virtual ComponentType getComponentType() {

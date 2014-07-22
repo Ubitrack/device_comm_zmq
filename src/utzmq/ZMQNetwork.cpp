@@ -51,13 +51,23 @@ zmq::context_t NetworkModule::m_context(ZMQNETWORK_IOTHREADS);
 NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_ptr< Graph::UTQLSubgraph > pConfig, FactoryHelper* pFactory )
     : Module< NetworkModuleKey, NetworkComponentKey, NetworkModule, NetworkComponentBase >( moduleKey, pFactory )
     , m_bindTo(false)
+    , m_fixTimestamp(true)
+    , m_verbose(true)
     , m_has_pushsink(false)
     , m_has_pushsource(false)
-    , m_msgwait_timeout(1000) // microseconds
+    , m_msgwait_timeout(100) // microseconds -- or are they milliseconds ?
 {
     if ( pConfig->m_DataflowAttributes.hasAttribute( "bindTo" ) )
     {
         m_bindTo = pConfig->m_DataflowAttributes.getAttributeString( "bindTo" ) == "true";
+    }
+    if ( pConfig->m_DataflowAttributes.hasAttribute( "fixTimestamp" ) )
+    {
+        m_fixTimestamp = pConfig->m_DataflowAttributes.getAttributeString( "fixTimestamp" ) == "true";
+    }
+    if ( pConfig->m_DataflowAttributes.hasAttribute( "verbose" ) )
+    {
+        m_verbose = pConfig->m_DataflowAttributes.getAttributeString( "verbose" ) == "true";
     }
 
 
@@ -209,7 +219,9 @@ void NetworkModule::receiverThread() {
             bool rc;
 
             if((rc = m_socket->recv(&message, flags)) == true) {
-                LOG4CPP_DEBUG( logger, "Received " << message.size() << " bytes" );
+                if (m_verbose) {
+                    LOG4CPP_DEBUG( logger, "Received " << message.size() << " bytes" );
+                }
                 try
                 {
                     std::string data( static_cast<char*>(message.data()), message.size() );
@@ -220,7 +232,9 @@ void NetworkModule::receiverThread() {
                     // parse packet
                     std::string name;
                     ar_message >> name;
-                    LOG4CPP_DEBUG( logger, "Message for component " << name );
+                    if (m_verbose) {
+                        LOG4CPP_DEBUG( logger, "Message for component " << name );
+                    }
 
                     NetworkComponentKey key( name );
 
@@ -228,8 +242,9 @@ void NetworkModule::receiverThread() {
                         boost::shared_ptr< NetworkComponentBase > comp = getComponent( key );
                         comp->parse( ar_message, ts );
                     }
-                    else
+                    else if (m_verbose) {
                         LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
+                    }
                 }
                 catch ( const std::exception& e )
                 {
