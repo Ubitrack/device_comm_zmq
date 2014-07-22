@@ -141,6 +141,15 @@ public:
     void receiverThread();
 
 
+    inline bool getFixTimestamp() {
+        return m_fixTimestamp;
+    }
+
+    inline bool getVerbose() {
+        return m_verbose;
+    }
+
+
 
 protected:
     static zmq::context_t m_context;
@@ -173,8 +182,8 @@ public:
     /** constructor */
     NetworkComponentBase( const std::string& name, boost::shared_ptr< Graph::UTQLSubgraph > subgraph, const NetworkComponentKey& componentKey, NetworkModule* pModule )
         : NetworkModule::Component( name, componentKey, pModule )
-        , m_fixTimestamp(pModule->m_fixTimestamp)
-        , m_verbose(pModule->m_verbose)
+        , m_fixTimestamp(pModule->getFixTimestamp())
+        , m_verbose(pModule->getVerbose())
     {}
 
     virtual ~NetworkComponentBase()
@@ -197,7 +206,6 @@ public:
         // should have
         return NetworkComponentBase::NOT_DEFINED;
     }
-
 
 protected:
     boost::shared_ptr<zmq::socket_t> m_socket;
