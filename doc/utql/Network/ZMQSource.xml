@@ -283,6 +283,30 @@
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
+
+	<Pattern name="ZMQSourceDistance" displayName="ZMQ Source (Distance)">
+        <Description><h:p>This pattern receives a distance via the selected transport from a <h:code>ZMQSinkDistance</h:code> having the same pattern ID</h:p></Description>
+        
+        <Output>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The distance pushed via zmq</h:p></Description>
+                <Attribute name="type" value="Distance" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
+        </Output>
+        
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQSourceDistance"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
     <!--
     <Pattern name="ZMQImageSource" displayName="ZMQ Source (Image)">
         <Description><h:p>This pattern receives a Image via the selected transport from a <h:code>ZMQSinkEvent</h:code> having the same pattern ID</h:p></Description>

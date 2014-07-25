@@ -285,6 +285,8 @@ boost::shared_ptr< NetworkComponentBase > NetworkModule::createComponent( const 
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Matrix3x4 >( name, config, key, pModule ) );
 	else if ( type == "ZMQSourceMatrix4x4" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Matrix4x4 >( name, config, key, pModule ) );
+	else if ( type == "ZMQSourceDistance" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Distance >( name, config, key, pModule ) );
 
     // new types
     else if ( type == "ZMQSourceVector4D" )
@@ -328,6 +330,8 @@ boost::shared_ptr< NetworkComponentBase > NetworkModule::createComponent( const 
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Matrix3x4 >( name, config, key, pModule ) );
     else if ( type == "ZMQSinkMatrix4x4" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Matrix4x4 >( name, config, key, pModule ) );
+    else if ( type == "ZMQSinkDistance" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Distance >( name, config, key, pModule ) );
 
     // new types
     else if ( type == "ZMQSinkVector4D" )
@@ -367,6 +371,7 @@ UBITRACK_REGISTER_COMPONENT( Dataflow::ComponentFactory* const cf ) {
     NetworkComponents.push_back( "ZMQSourceMatrix3x3" );
     NetworkComponents.push_back( "ZMQSourceMatrix3x4" );
     NetworkComponents.push_back( "ZMQSourceMatrix4x4" );
+    NetworkComponents.push_back( "ZMQSourceDistance" );
 
     NetworkComponents.push_back( "ZMQSourceVector4D" );
     NetworkComponents.push_back( "ZMQSourceVector8D" );
@@ -388,6 +393,7 @@ UBITRACK_REGISTER_COMPONENT( Dataflow::ComponentFactory* const cf ) {
     NetworkComponents.push_back( "ZMQSinkMatrix3x3" );
     NetworkComponents.push_back( "ZMQSinkMatrix3x4" );
     NetworkComponents.push_back( "ZMQSinkMatrix4x4" );
+    NetworkComponents.push_back( "ZMQSinkDistance" );
 
     NetworkComponents.push_back( "ZMQSinkVector4D" );
     NetworkComponents.push_back( "ZMQSinkVector8D" );

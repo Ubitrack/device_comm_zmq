@@ -282,6 +282,29 @@
         </DataflowConfiguration>
     </Pattern>
 	
+	<Pattern name="ZMQSinkDistance" displayName="ZMQ Sink (Distance)">
+        <Description><h:p>This pattern transmits a Distance via the selected transport to a ZMQSourceDistance having the same ID.</h:p></Description>
+        
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The Distance received via zmq</h:p></Description>
+                <Predicate>type=='Distance'&amp;&amp;mode=='push'</Predicate>
+
+            </Edge>
+        </Input>
+        
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQSinkDistance"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+	
     <!--
     <Pattern name="ZMQSinkImage" displayName="ZMQ Sink (Image)">
         <Description><h:p>This pattern transmits a Image via the selected transport to a ZMQSourceImage having the same ID.</h:p></Description>
