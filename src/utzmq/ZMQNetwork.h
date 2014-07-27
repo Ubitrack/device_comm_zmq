@@ -46,7 +46,7 @@
 #include <cstdlib>
 
 #include <boost/shared_ptr.hpp>
-#include <zmq.hpp>
+#include "zmq.hpp"
 
 #include <sstream>
 #include <iostream>
