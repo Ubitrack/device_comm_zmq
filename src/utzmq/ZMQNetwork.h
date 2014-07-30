@@ -46,7 +46,11 @@
 #include <cstdlib>
 
 #include <boost/shared_ptr.hpp>
-#include "zmq.hpp"
+#ifdef WIN32
+ #include "zmq.hpp"
+#else
+ #include <zmq.hpp>
+#endif
 
 #include <sstream>
 #include <iostream>
