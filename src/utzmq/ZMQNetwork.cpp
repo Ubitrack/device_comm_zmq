@@ -46,7 +46,7 @@ namespace Ubitrack { namespace Drivers {
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.ZMQNetwork" ) );
 
 // static zmq context as singleton
-zmq::context_t NetworkModule::m_context(ZMQNETWORK_IOTHREADS);
+boost::shared_ptr<zmq::context_t> NetworkModule::m_context(NULL);
 boost::atomic<int> NetworkModule::m_context_users(0);
 
 NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_ptr< Graph::UTQLSubgraph > pConfig, FactoryHelper* pFactory )
@@ -126,8 +126,13 @@ void NetworkModule::startModule()
         if (m_has_pushsink) {
             socket_type = ZMQ_PUB;
         }
-        m_socket = boost::shared_ptr< zmq::socket_t >( new zmq::socket_t(m_context, socket_type) );
-		m_context_users.fetch_add(1, boost::memory_order_relaxed);
+		if (m_context_users.fetch_add(1, boost::memory_order_relaxed) == 0) {
+			boost::atomic_thread_fence(boost::memory_order_acquire);
+			LOG4CPP_INFO( logger, "ZMQ Context create" );
+			m_context.reset( new zmq::context_t(ZMQNETWORK_IOTHREADS));
+		}
+        m_socket = boost::shared_ptr< zmq::socket_t >( new zmq::socket_t(*m_context, socket_type) );
+
 
         try {
             if (m_bindTo) {
@@ -187,7 +192,8 @@ void NetworkModule::stopModule()
 		if (m_context_users.fetch_sub(1, boost::memory_order_release) == 1) {
 			boost::atomic_thread_fence(boost::memory_order_acquire);
 			LOG4CPP_INFO( logger, "ZMQ Context close" );
-			m_context.close();
+			m_context->close();
+			m_context.reset();
 		}
 	}
     LOG4CPP_DEBUG( logger, "ZMQ Network Stopped" );

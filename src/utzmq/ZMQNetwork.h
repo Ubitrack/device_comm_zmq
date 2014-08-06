@@ -157,7 +157,7 @@ public:
 
 
 protected:
-    static zmq::context_t m_context;
+    static boost::shared_ptr<zmq::context_t> m_context;
 	static boost::atomic<int> m_context_users;
 
     boost::shared_ptr<zmq::socket_t> m_socket;
