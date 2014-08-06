@@ -47,6 +47,7 @@ static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.ZMQNe
 
 // static zmq context as singleton
 zmq::context_t NetworkModule::m_context(ZMQNETWORK_IOTHREADS);
+boost::atomic<int> NetworkModule::m_context_users(0);
 
 NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_ptr< Graph::UTQLSubgraph > pConfig, FactoryHelper* pFactory )
     : Module< NetworkModuleKey, NetworkComponentKey, NetworkModule, NetworkComponentBase >( moduleKey, pFactory )
@@ -126,6 +127,7 @@ void NetworkModule::startModule()
             socket_type = ZMQ_PUB;
         }
         m_socket = boost::shared_ptr< zmq::socket_t >( new zmq::socket_t(m_context, socket_type) );
+		m_context_users.fetch_add(1, boost::memory_order_relaxed);
 
         try {
             if (m_bindTo) {
@@ -170,7 +172,7 @@ void NetworkModule::stopModule()
 		m_running = false;
         LOG4CPP_NOTICE( logger, "Stopping ZMQ Network Module" );
 
-        if (m_NetworkThread) {
+        if (m_has_pushsource) {
             // wait for thread
             m_NetworkThread->join();
             m_NetworkThread.reset();
@@ -182,7 +184,11 @@ void NetworkModule::stopModule()
             (*it)->teardownComponent();
         }
         m_socket.reset();
-
+		if (m_context_users.fetch_sub(1, boost::memory_order_release) == 1) {
+			boost::atomic_thread_fence(boost::memory_order_acquire);
+			LOG4CPP_INFO( logger, "ZMQ Context close" );
+			m_context.close();
+		}
 	}
     LOG4CPP_DEBUG( logger, "ZMQ Network Stopped" );
 }

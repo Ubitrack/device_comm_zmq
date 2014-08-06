@@ -41,6 +41,7 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/binary_object.hpp>
+#include <boost/atomic.hpp>
 
 #include <string>
 #include <cstdlib>
@@ -157,6 +158,7 @@ public:
 
 protected:
     static zmq::context_t m_context;
+	static boost::atomic<int> m_context_users;
 
     boost::shared_ptr<zmq::socket_t> m_socket;
 
