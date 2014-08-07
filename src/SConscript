@@ -1,0 +1,10 @@
+import glob
+
+Import( '*' )
+
+# glob all SConscript files in subdirectories
+sconsfiles = globSourceFiles( "*/SConscript" )
+# recurse into subdirectories and export driver build environment
+SConscript( sconsfiles )
+success = True
+Return('success')

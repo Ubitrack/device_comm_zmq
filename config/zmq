@@ -1,0 +1,29 @@
+import os
+import sys
+
+# add configuration options
+Import( '*' )
+
+if platform == "android":
+	#already in build enviroment
+	zmq_options = {}
+	have_zmq = False
+else:
+
+	SConscript ( '#/config/libraryConfig.py' )
+	Import('standardLibFinder', 'standardLibConfig')
+
+	libName = "ZMQ"
+
+	compileSettings =[ {}, "zmq.h", "C++"]
+
+	libFinder = standardLibFinder(libName,compileSettings)
+
+	configHelper = standardLibConfig(libName, libFinder)
+
+	zmq_options = configHelper.getLibraryOptions()
+	have_zmq = configHelper.haveLib()
+
+
+# export results
+Export( [ 'zmq_options', 'have_zmq'] )
