@@ -46,7 +46,7 @@ namespace Ubitrack { namespace Drivers {
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.ZMQNetwork" ) );
 
 // static zmq context as singleton
-boost::shared_ptr<zmq::context_t> NetworkModule::m_context(NULL);
+boost::shared_ptr<zmq::context_t> NetworkModule::m_context;
 boost::atomic<int> NetworkModule::m_context_users(0);
 
 NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_ptr< Graph::UTQLSubgraph > pConfig, FactoryHelper* pFactory )
