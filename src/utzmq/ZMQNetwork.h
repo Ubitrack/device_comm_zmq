@@ -47,7 +47,7 @@
 #include <cstdlib>
 
 #include <boost/shared_ptr.hpp>
-#ifdef WIN32
+#if defined(WIN32) || defined(__APPLE__)
  #include "zmq.hpp"
 #else
  #include <zmq.hpp>
