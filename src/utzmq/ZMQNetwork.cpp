@@ -192,7 +192,8 @@ void NetworkModule::stopModule()
 		if (m_context_users.fetch_sub(1, boost::memory_order_release) == 1) {
 			boost::atomic_thread_fence(boost::memory_order_acquire);
 			LOG4CPP_INFO( logger, "ZMQ Context close" );
-			m_context->close();
+			// not all versions of zmq.hpp have a close method, but they should close when the instance is deleted...
+			//m_context->close();
 			m_context.reset();
 		}
 	}
