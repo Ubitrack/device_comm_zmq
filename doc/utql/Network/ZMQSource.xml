@@ -307,6 +307,29 @@
         </DataflowConfiguration>
     </Pattern>
 
+	<Pattern name="ZMQSourceCameraIntrinsics" displayName="ZMQ Source (CameraIntrinsics)">
+        <Description><h:p>This pattern receives CameraIntrinsics via the selected transport from a <h:code>ZMQSinkCameraIntrinsics</h:code> having the same pattern ID</h:p></Description>
+        
+        <Output>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The CameraIntrinsics pushed via zmq</h:p></Description>
+                <Attribute name="type" value="3x3Matrix" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
+        </Output>
+        
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQSourceCameraIntrinsics"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+	
     <!--
     <Pattern name="ZMQImageSource" displayName="ZMQ Source (Image)">
         <Description><h:p>This pattern receives a Image via the selected transport from a <h:code>ZMQSinkEvent</h:code> having the same pattern ID</h:p></Description>
