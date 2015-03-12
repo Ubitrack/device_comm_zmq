@@ -36,11 +36,13 @@
 #ifndef _ZMQNETWORK_H_
 #define _ZMQNETWORK_H_
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/binary_object.hpp>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
 #include <boost/atomic.hpp>
 
 #include <string>
@@ -207,7 +209,7 @@ public:
         m_socket.reset();
     }
 
-    virtual void parse( boost::archive::text_iarchive& ar, Measurement::Timestamp recvtime )
+	virtual void parse(boost::archive::binary_iarchive& ar, Measurement::Timestamp recvtime)
     {}
 
     virtual NetworkComponentBase::ComponentType getComponentType() {
@@ -237,7 +239,7 @@ public:
         , m_firstTimestamp( 0 )
     {}
 
-    void parse( boost::archive::text_iarchive& ar, Measurement::Timestamp recvtime )
+	void parse(boost::archive::binary_iarchive& ar, Measurement::Timestamp recvtime)
     {
         EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
         Measurement::Timestamp sendtime;
@@ -306,7 +308,8 @@ protected:
     void eventIn( const EventType& m )
     {
         std::ostringstream stream;
-        boost::archive::text_oarchive packet( stream );
+		std::mem
+        boost::archive::binary_oarchive packet( stream );
 
         std::string suffix("\n");
         Measurement::Timestamp sendtime;

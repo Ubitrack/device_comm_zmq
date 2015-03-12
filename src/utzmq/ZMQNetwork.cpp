@@ -21,16 +21,19 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/binary_object.hpp>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
 
 #include "ZMQNetwork.h"
 
 #include <sstream>
 #include <iostream>
 #include <istream>
+
 
 #include <utUtil/OS.h>
 #include <utDataflow/ComponentFactory.h>
@@ -238,13 +241,17 @@ void NetworkModule::receiverThread() {
                 }
                 try
                 {
-                    std::string data( static_cast<char*>(message.data()), message.size() );
-                    LOG4CPP_TRACE( logger, "data: " << data );
-                    std::istringstream stream( data );
-                    boost::archive::text_iarchive ar_message( stream );
+                   
+                    					
+					LOG4CPP_TRACE(logger, "data size: " << message.size());
+
+					typedef boost::iostreams::basic_array_source<char> Device;
+					boost::iostreams::stream_buffer<Device> buffer((char*)message.data(), message.size());
+					boost::archive::binary_iarchive ar_message(buffer);
+
 
                     // parse packet
-                    std::string name;
+                    std::string name;					
                     ar_message >> name;
                     if (m_verbose) {
                         LOG4CPP_DEBUG( logger, "Message for component " << name );
