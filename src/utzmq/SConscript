@@ -19,7 +19,7 @@ comp_sources = globSourceFiles( '*.cpp' )
 
 
 # setup environment
-env.AppendUnique( **mergeOptions(  utdataflow_all_options , zmq_options) )
+env.AppendUnique( **mergeOptions(  utdataflow_all_options , utvision_all_options, zmq_options) )
 
 # compile components as shared libraries
 setupComponentBuild(env, comp_sources, 'zmq')

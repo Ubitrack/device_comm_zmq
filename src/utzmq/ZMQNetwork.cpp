@@ -35,6 +35,7 @@
 #include <utUtil/OS.h>
 #include <utDataflow/ComponentFactory.h>
 #include <utMeasurement/Measurement.h>
+#include <utVision/Image.h>
 
 #include <boost/array.hpp>
 
@@ -318,6 +319,8 @@ boost::shared_ptr< NetworkComponentBase > NetworkModule::createComponent( const 
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPositionList >( name, config, key, pModule ) );
 	else if ( type == "ZMQSourceCameraIntrinsics" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::CameraIntrinsics >( name, config, key, pModule ) );
+	else if (type == "ZMQSourceImage")
+		return boost::shared_ptr< NetworkComponentBase >(new PushSourceComponent< Measurement::ImageMeasurement >(name, config, key, pModule));
 
 
     // sinks
@@ -365,6 +368,8 @@ boost::shared_ptr< NetworkComponentBase > NetworkModule::createComponent( const 
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPositionList >( name, config, key, pModule ) );
     else if ( type == "ZMQSinkCameraIntrinsics" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::CameraIntrinsics >( name, config, key, pModule ) );
+	else if (type == "ZMQSinkImage")
+		return boost::shared_ptr< NetworkComponentBase >(new PushSinkComponent< Measurement::ImageMeasurement >(name, config, key, pModule));
 
     UBITRACK_THROW( "Class " + type + " not supported by ZMQNetwork module." );
 }
@@ -398,6 +403,7 @@ UBITRACK_REGISTER_COMPONENT( Dataflow::ComponentFactory* const cf ) {
     NetworkComponents.push_back( "ZMQSourceErrorPositionList2" );
     NetworkComponents.push_back( "ZMQSourceErrorPositionList" );
     NetworkComponents.push_back( "ZMQSourceCameraIntrinsics" );
+	NetworkComponents.push_back("ZMQSourceImage");
 
     NetworkComponents.push_back( "ZMQSinkPose" );
     NetworkComponents.push_back( "ZMQSinkErrorPose" );
@@ -421,6 +427,7 @@ UBITRACK_REGISTER_COMPONENT( Dataflow::ComponentFactory* const cf ) {
     NetworkComponents.push_back( "ZMQSinkErrorPositionList2" );
     NetworkComponents.push_back( "ZMQSinkErrorPositionList" );
     NetworkComponents.push_back( "ZMQSinkCameraIntrinsics" );
+	NetworkComponents.push_back("ZMQSinkImage");
 
     cf->registerModule< NetworkModule >( NetworkComponents );
 }

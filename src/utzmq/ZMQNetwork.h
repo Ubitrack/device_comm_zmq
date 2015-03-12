@@ -68,6 +68,8 @@
 #include <utUtil/OS.h>
 
 
+
+
 #ifndef ZMQNETWORK_IOTHREADS
   #define ZMQNETWORK_IOTHREADS 2
 #endif
@@ -241,6 +243,7 @@ public:
         Measurement::Timestamp sendtime;
         ar >> mm;
         ar >> sendtime;
+		
 
         if (m_verbose) {
             LOG4CPP_DEBUG( logger, "perceived host clock offset: " << static_cast< long long >( recvtime - sendtime ) * 1e-6 << "ms" );
@@ -329,7 +332,30 @@ protected:
     Dataflow::PushConsumer< EventType > m_inPort;
 };
 
+/*
+void PushSinkComponent< Measurement::ImageMeasurement >::eventIn(const Measurement::ImageMeasurement& m) {
+	std::ostringstream stream;
+	boost::archive::text_oarchive packet(stream);
 
+	std::string suffix("\n");
+	Measurement::Timestamp sendtime;
+
+	// serialize the measurement, component name and current local time
+	packet << m_name;
+	packet << m;
+	sendtime = Measurement::now();
+	packet << sendtime;
+	packet << suffix;
+
+	zmq::message_t message(stream.str().size());
+	memcpy(message.data(), stream.str().data(), stream.str().size());
+
+	if (m_socket) {
+		bool rc = m_socket->send(message);
+		LOG4CPP_DEBUG(logger, "Message sent on ZMQSink " << m_name);
+		// evaluate rc
+	}
+}*/
 
 
 
