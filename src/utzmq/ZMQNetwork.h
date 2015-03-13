@@ -308,7 +308,6 @@ protected:
     void eventIn( const EventType& m )
     {
         std::ostringstream stream;
-		std::mem
         boost::archive::binary_oarchive packet( stream );
 
         std::string suffix("\n");
