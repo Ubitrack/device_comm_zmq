@@ -50,7 +50,12 @@
 
 #include <boost/shared_ptr.hpp>
 #if defined(WIN32) || defined(__APPLE__)
+ #include <zmq.h>
+ #if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4, 0, 0)
+ #include "zmq_4.hpp"
+ #else
  #include "zmq.hpp"
+ #endif
 #else
  #include <zmq.hpp>
 #endif
