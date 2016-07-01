@@ -47,6 +47,9 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/atomic.hpp>
 
+#include "portable_iarchive.hpp"
+#include "portable_oarchive.hpp"
+
 #include <string>
 #include <cstdlib>
 
@@ -137,7 +140,7 @@ public:
     enum SerializationMethod {
       SERIALIZE_BOOST_BINARY = 1,
       SERIALIZE_BOOST_TEXT = 2,
-      SERIALIZE_MSGPACK = 3
+      SERIALIZE_BOOST_PORTABLE = 3
     };
 
     /** constructor */
@@ -232,6 +235,9 @@ public:
 	virtual void parse_boost_archive(boost::archive::text_iarchive& ar, Measurement::Timestamp recvtime)
     {}
 
+    virtual void parse_boost_archive(eos::portable_iarchive& ar, Measurement::Timestamp recvtime)
+    {}
+
     virtual NetworkComponentBase::ComponentType getComponentType() {
         // should have
         return NetworkComponentBase::NOT_DEFINED;
@@ -265,33 +271,8 @@ public:
         Measurement::Timestamp sendtime;
         ar >> mm;
         ar >> sendtime;
-		
 
-        if (m_verbose) {
-            LOG4CPP_DEBUG( logger, "perceived host clock offset: " << static_cast< long long >( recvtime - sendtime ) * 1e-6 << "ms" );
-        }
-
-        if (m_fixTimestamp) {
-            // subtract first timestamp to avoid losing timing precision
-            if ( !m_firstTimestamp )
-                m_firstTimestamp = sendtime;
-
-            // synchronize sender time with receiver time
-            Measurement::Timestamp correctedTime = m_synchronizer.convertNativeToLocal( sendtime - double( m_firstTimestamp ), recvtime );
-
-            // add offset of individual measurements
-            correctedTime -= static_cast< long long >( sendtime - mm.time() );
-
-            if (m_verbose) {
-                LOG4CPP_DEBUG( logger, "Timestamps measurement: " << Measurement::timestampToShortString( mm.time() )
-                    << ", sent: " << Measurement::timestampToShortString( sendtime )
-                    << ", arrival: " << Measurement::timestampToShortString( recvtime )
-                    << ", corrected: " << Measurement::timestampToShortString( correctedTime ) );
-            }
-            m_port.send( EventType( correctedTime, mm ) );
-        } else {
-            m_port.send( mm );
-        }
+        send_message(mm, recvtime, sendtime);
     }
 
     void parse_boost_archive(boost::archive::text_iarchive& ar, Measurement::Timestamp recvtime)
@@ -301,6 +282,26 @@ public:
         ar >> mm;
         ar >> sendtime;
 
+        send_message(mm, recvtime, sendtime);
+    }
+
+    void parse_boost_archive(eos::portable_iarchive& ar, Measurement::Timestamp recvtime)
+    {
+        EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
+        Measurement::Timestamp sendtime;
+        ar >> mm;
+        ar >> sendtime;
+
+        send_message(mm, recvtime, sendtime);
+    }
+
+    virtual ComponentType getComponentType() {
+        return NetworkComponentBase::PUSH_SOURCE;
+    }
+
+protected:
+
+    void send_message(EventType& mm, Measurement::Timestamp recvtime, Measurement::Timestamp sendtime) {
 
         if (m_verbose) {
             LOG4CPP_DEBUG( logger, "perceived host clock offset: " << static_cast< long long >( recvtime - sendtime ) * 1e-6 << "ms" );
@@ -327,16 +328,13 @@ public:
         } else {
             m_port.send( mm );
         }
+
     }
 
-    virtual ComponentType getComponentType() {
-        return NetworkComponentBase::PUSH_SOURCE;
-    }
-
-protected:
     PushSupplier< EventType > m_port;
     Measurement::TimestampSync m_synchronizer;
     Measurement::Timestamp m_firstTimestamp;
+
 };
 
 
@@ -386,14 +384,18 @@ protected:
             tpacket << sendtime;
             tpacket << suffix;
 
-        } else if (sm == NetworkModule::SERIALIZE_MSGPACK) {
-            LOG4CPP_WARN( logger, "Msgpack serialization not yet implemented." );
-            return;
+        } else if (sm == NetworkModule::SERIALIZE_BOOST_PORTABLE) {
+            eos::portable_oarchive ppacket( stream );
+
+            // serialize the measurement, component name and current local time
+            ppacket << m_name;
+            ppacket << m;
+            ppacket << sendtime;
+            ppacket << suffix;
 
         } else {
             LOG4CPP_ERROR( logger, "Invalid serialization method." );
             return;
-
         }
 
         zmq::message_t message(stream.str().size());

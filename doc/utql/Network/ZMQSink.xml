@@ -437,7 +437,7 @@
             <Description><p xmlns="http://www.w3.org/1999/xhtml">Select serialization method (boost-binary).</p></Description>
             <EnumValue name="boost_binary" displayName="Boost-Binary"/>
             <EnumValue name="boost_text" displayName="Boost-Text"/>
-            <EnumValue name="msgpack" displayName="MsgPack"/>
+            <EnumValue name="boost_portable" displayName="Boost-Portable"/>
         </Attribute>
 
     </GlobalDataflowAttributeDeclarations>
