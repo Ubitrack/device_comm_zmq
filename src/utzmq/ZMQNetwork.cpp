@@ -77,7 +77,7 @@ NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_p
     }
     if ( pConfig->m_DataflowAttributes.hasAttribute( "serialization_method" ) )
     {
-        std::string sm_text = pConfig->m_DataflowAttributes.getAttributeString( "verbose" );
+        std::string sm_text = pConfig->m_DataflowAttributes.getAttributeString( "serialization_method" );
         if (sm_text  == "boost_binary") {
             m_serializationMethod = SERIALIZE_BOOST_BINARY;
         } else if (sm_text  == "boost_text") {
@@ -251,6 +251,7 @@ void NetworkModule::receiverThread() {
             if((rc = m_socket->recv(&message, flags)) == true) {
                 if (m_verbose) {
                     LOG4CPP_DEBUG( logger, "Received " << message.size() << " bytes" );
+
                 }
                 try
                 {
@@ -278,6 +279,8 @@ void NetworkModule::receiverThread() {
                         }
                     } else if (m_serializationMethod == SERIALIZE_BOOST_TEXT) {
                         std::string input_data_( (char*)message.data(), message.size() );
+	                    LOG4CPP_DEBUG( logger, "Received Text " << input_data_ );
+
                         std::istringstream buffer(input_data_);
                         boost::archive::text_iarchive ar_message(buffer);
 
@@ -298,7 +301,7 @@ void NetworkModule::receiverThread() {
                         }
                     } else if (m_serializationMethod == SERIALIZE_BOOST_PORTABLE) {
                         typedef boost::iostreams::basic_array_source<char> Device;
-                        boost::iostreams::stream_buffer<Device> buffer((char*)message.data(), message.size());
+						boost::iostreams::stream_buffer<Device> buffer((char*)message.data(), message.size());
                         eos::portable_iarchive ar_message(buffer);
 
                         // parse_boost_binary packet
