@@ -279,8 +279,6 @@ void NetworkModule::receiverThread() {
                         }
                     } else if (m_serializationMethod == SERIALIZE_BOOST_TEXT) {
                         std::string input_data_( (char*)message.data(), message.size() );
-	                    LOG4CPP_DEBUG( logger, "Received Text " << input_data_ );
-
                         std::istringstream buffer(input_data_);
                         boost::archive::text_iarchive ar_message(buffer);
 
