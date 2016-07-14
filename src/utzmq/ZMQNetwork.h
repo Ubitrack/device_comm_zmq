@@ -411,7 +411,7 @@ protected:
 
         if (m_socket) {
 #ifdef ENABLE_EVENT_TRACING
-            TRACEPOINT_MEASUREMENT_CREATE(getEventDomain(), m.time(), getName().c_str(), "NetworkSink")
+            TRACEPOINT_MEASUREMENT_RECEIVE(getEventDomain(), m.time(), getName().c_str(), "NetworkSink")
 #endif
             bool rc = m_socket->send(message);
             LOG4CPP_DEBUG( logger, "Message sent on ZMQSink " << m_name );
