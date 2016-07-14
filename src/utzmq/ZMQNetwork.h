@@ -78,6 +78,7 @@
 #include <utMeasurement/TimestampSync.h>
 #include <utDataflow/ComponentFactory.h>
 #include <utUtil/OS.h>
+#include <utUtil/TracingProvider.h>
 
 
 
@@ -324,8 +325,15 @@ protected:
                         << ", arrival: " << Measurement::timestampToShortString( recvtime )
                         << ", corrected: " << Measurement::timestampToShortString( correctedTime ) );
             }
+
+#ifdef ENABLE_EVENT_TRACING
+            TRACEPOINT_MEASUREMENT_CREATE(getEventDomain(), correctedTime, getName().c_str(), "NetworkSource")
+#endif
             m_port.send( EventType( correctedTime, mm ) );
         } else {
+#ifdef ENABLE_EVENT_TRACING
+            TRACEPOINT_MEASUREMENT_CREATE(getEventDomain(), mm.time(), getName().c_str(), "NetworkSource")
+#endif
             m_port.send( mm );
         }
 
@@ -402,6 +410,9 @@ protected:
         memcpy(message.data(), stream.str().data(), stream.str().size() );
 
         if (m_socket) {
+#ifdef ENABLE_EVENT_TRACING
+            TRACEPOINT_MEASUREMENT_CREATE(getEventDomain(), m.time(), getName().c_str(), "NetworkSink")
+#endif
             bool rc = m_socket->send(message);
             LOG4CPP_DEBUG( logger, "Message sent on ZMQSink " << m_name );
             // evaluate rc
