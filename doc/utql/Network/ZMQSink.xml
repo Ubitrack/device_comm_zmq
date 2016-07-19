@@ -26,6 +26,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -49,6 +50,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -72,6 +74,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -95,6 +98,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -118,6 +122,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -141,6 +146,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -164,6 +170,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -187,6 +194,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
     
@@ -210,6 +218,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -233,6 +242,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -256,6 +266,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -279,6 +290,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -302,6 +314,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -325,6 +338,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -349,6 +363,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 	
@@ -373,6 +388,7 @@
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
             <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
    
@@ -415,6 +431,13 @@
             <Description><p xmlns="http://www.w3.org/1999/xhtml">Enable verbose logging (true).</p></Description>
             <EnumValue name="false" displayName="False"/>
             <EnumValue name="true" displayName="True"/>
+        </Attribute>
+
+        <Attribute name="serialization_method" displayName="Serialization Method" default="boost_binary" xsi:type="EnumAttributeDeclarationType">
+            <Description><p xmlns="http://www.w3.org/1999/xhtml">Select serialization method (boost-binary).</p></Description>
+            <EnumValue name="boost_binary" displayName="Boost-Binary"/>
+            <EnumValue name="boost_text" displayName="Boost-Text"/>
+            <EnumValue name="boost_portable" displayName="Boost-Portable"/>
         </Attribute>
 
     </GlobalDataflowAttributeDeclarations>

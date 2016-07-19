@@ -38,12 +38,17 @@
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/atomic.hpp>
+
+#include "portable_iarchive.hpp"
+#include "portable_oarchive.hpp"
 
 #include <string>
 #include <cstdlib>
@@ -132,6 +137,12 @@ class NetworkModule
 {
 public:
 
+    enum SerializationMethod {
+      SERIALIZE_BOOST_BINARY = 1,
+      SERIALIZE_BOOST_TEXT = 2,
+      SERIALIZE_BOOST_PORTABLE = 3
+    };
+
     /** constructor */
     NetworkModule( const NetworkModuleKey& key, boost::shared_ptr< Graph::UTQLSubgraph > subgraph, FactoryHelper* pFactory );
 
@@ -163,7 +174,9 @@ public:
         return m_verbose;
     }
 
-
+    inline SerializationMethod getSerializationMethod() {
+        return m_serializationMethod;
+    }
 
 protected:
     static boost::shared_ptr<zmq::context_t> m_context;
@@ -174,6 +187,8 @@ protected:
     bool m_bindTo;
     bool m_fixTimestamp;
     bool m_verbose;
+
+    SerializationMethod m_serializationMethod;
 
     boost::shared_ptr< boost::thread > m_NetworkThread;
     int m_msgwait_timeout;
@@ -214,7 +229,13 @@ public:
         m_socket.reset();
     }
 
-	virtual void parse(boost::archive::binary_iarchive& ar, Measurement::Timestamp recvtime)
+    virtual void parse_boost_archive(boost::archive::binary_iarchive& ar, Measurement::Timestamp recvtime)
+    {}
+
+	virtual void parse_boost_archive(boost::archive::text_iarchive& ar, Measurement::Timestamp recvtime)
+    {}
+
+    virtual void parse_boost_archive(eos::portable_iarchive& ar, Measurement::Timestamp recvtime)
     {}
 
     virtual NetworkComponentBase::ComponentType getComponentType() {
@@ -244,13 +265,43 @@ public:
         , m_firstTimestamp( 0 )
     {}
 
-	void parse(boost::archive::binary_iarchive& ar, Measurement::Timestamp recvtime)
+	void parse_boost_archive(boost::archive::binary_iarchive& ar, Measurement::Timestamp recvtime)
     {
         EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
         Measurement::Timestamp sendtime;
         ar >> mm;
         ar >> sendtime;
-		
+
+        send_message(mm, recvtime, sendtime);
+    }
+
+    void parse_boost_archive(boost::archive::text_iarchive& ar, Measurement::Timestamp recvtime)
+    {
+        EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
+        Measurement::Timestamp sendtime;
+        ar >> mm;
+        ar >> sendtime;
+
+        send_message(mm, recvtime, sendtime);
+    }
+
+    void parse_boost_archive(eos::portable_iarchive& ar, Measurement::Timestamp recvtime)
+    {
+        EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
+        Measurement::Timestamp sendtime;
+        ar >> mm;
+        ar >> sendtime;
+
+        send_message(mm, recvtime, sendtime);
+    }
+
+    virtual ComponentType getComponentType() {
+        return NetworkComponentBase::PUSH_SOURCE;
+    }
+
+protected:
+
+    void send_message(EventType& mm, Measurement::Timestamp recvtime, Measurement::Timestamp sendtime) {
 
         if (m_verbose) {
             LOG4CPP_DEBUG( logger, "perceived host clock offset: " << static_cast< long long >( recvtime - sendtime ) * 1e-6 << "ms" );
@@ -269,24 +320,21 @@ public:
 
             if (m_verbose) {
                 LOG4CPP_DEBUG( logger, "Timestamps measurement: " << Measurement::timestampToShortString( mm.time() )
-                    << ", sent: " << Measurement::timestampToShortString( sendtime )
-                    << ", arrival: " << Measurement::timestampToShortString( recvtime )
-                    << ", corrected: " << Measurement::timestampToShortString( correctedTime ) );
+                        << ", sent: " << Measurement::timestampToShortString( sendtime )
+                        << ", arrival: " << Measurement::timestampToShortString( recvtime )
+                        << ", corrected: " << Measurement::timestampToShortString( correctedTime ) );
             }
             m_port.send( EventType( correctedTime, mm ) );
         } else {
             m_port.send( mm );
         }
+
     }
 
-    virtual ComponentType getComponentType() {
-        return NetworkComponentBase::PUSH_SOURCE;
-    }
-
-protected:
     PushSupplier< EventType > m_port;
     Measurement::TimestampSync m_synchronizer;
     Measurement::Timestamp m_firstTimestamp;
+
 };
 
 
@@ -313,17 +361,42 @@ protected:
     void eventIn( const EventType& m )
     {
         std::ostringstream stream;
-        boost::archive::binary_oarchive packet( stream );
-
         std::string suffix("\n");
         Measurement::Timestamp sendtime;
-
-        // serialize the measurement, component name and current local time
-        packet << m_name;
-        packet << m;
         sendtime = Measurement::now();
-        packet << sendtime;
-        packet << suffix;
+
+        NetworkModule::SerializationMethod sm = getModule().getSerializationMethod();
+        if (sm == NetworkModule::SERIALIZE_BOOST_BINARY) {
+            boost::archive::binary_oarchive bpacket( stream );
+
+            // serialize the measurement, component name and current local time
+            bpacket << m_name;
+            bpacket << m;
+            bpacket << sendtime;
+            bpacket << suffix;
+
+        } else if (sm == NetworkModule::SERIALIZE_BOOST_TEXT) {
+            boost::archive::text_oarchive tpacket( stream );
+
+            // serialize the measurement, component name and current local time
+            tpacket << m_name;
+            tpacket << m;
+            tpacket << sendtime;
+            tpacket << suffix;
+
+        } else if (sm == NetworkModule::SERIALIZE_BOOST_PORTABLE) {
+            eos::portable_oarchive ppacket( stream );
+
+            // serialize the measurement, component name and current local time
+            ppacket << m_name;
+            ppacket << m;
+            ppacket << sendtime;
+            ppacket << suffix;
+
+        } else {
+            LOG4CPP_ERROR( logger, "Invalid serialization method." );
+            return;
+        }
 
         zmq::message_t message(stream.str().size());
         memcpy(message.data(), stream.str().data(), stream.str().size() );
@@ -338,32 +411,6 @@ protected:
     // consumer port
     Dataflow::PushConsumer< EventType > m_inPort;
 };
-
-/*
-void PushSinkComponent< Measurement::ImageMeasurement >::eventIn(const Measurement::ImageMeasurement& m) {
-	std::ostringstream stream;
-	boost::archive::text_oarchive packet(stream);
-
-	std::string suffix("\n");
-	Measurement::Timestamp sendtime;
-
-	// serialize the measurement, component name and current local time
-	packet << m_name;
-	packet << m;
-	sendtime = Measurement::now();
-	packet << sendtime;
-	packet << suffix;
-
-	zmq::message_t message(stream.str().size());
-	memcpy(message.data(), stream.str().data(), stream.str().size());
-
-	if (m_socket) {
-		bool rc = m_socket->send(message);
-		LOG4CPP_DEBUG(logger, "Message sent on ZMQSink " << m_name);
-		// evaluate rc
-	}
-}*/
-
 
 
 } } // namespace Ubitrack::Drivers
