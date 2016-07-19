@@ -21,12 +21,6 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/binary_object.hpp>
-#include <boost/iostreams/device/array.hpp>
-#include <boost/iostreams/stream.hpp>
 
 #include "ZMQNetwork.h"
 
@@ -43,6 +37,7 @@
 #include <boost/array.hpp>
 
 #include <log4cpp/Category.hh>
+
 
 
 namespace Ubitrack { namespace Drivers {
@@ -298,7 +293,8 @@ void NetworkModule::receiverThread() {
                             LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
                         }
                     } else if (m_serializationMethod == SERIALIZE_BOOST_PORTABLE) {
-                        typedef boost::iostreams::basic_array_source<char> Device;
+#ifdef USE_PORTABLE_ARCHIVE
+	                    typedef boost::iostreams::basic_array_source<char> Device;
 						boost::iostreams::stream_buffer<Device> buffer((char*)message.data(), message.size());
                         eos::portable_iarchive ar_message(buffer);
 
@@ -317,6 +313,9 @@ void NetworkModule::receiverThread() {
                         else if (m_verbose) {
                             LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
                         }
+#else
+						LOG4CPP_ERROR(logger, "Invalid configuration: Portable Archive not supported in this build.");
+#endif
                     } else {
                         LOG4CPP_ERROR( logger, "Invalid serialization method." );
                     }
