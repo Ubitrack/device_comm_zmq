@@ -339,8 +339,6 @@ boost::shared_ptr< NetworkComponentBase > NetworkModule::createComponent( const 
 
 	if ( type == "ZMQSourceEvent" ) // @todo should be button to be consistent or rename buttopn after all
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Button >( name, config, key, pModule ) );
-	else if ( type == "ZMQSourceSkalar" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Distance >( name, config, key, pModule ) );
 	else if ( type == "ZMQSourceDistance" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Distance >( name, config, key, pModule ) );
 
