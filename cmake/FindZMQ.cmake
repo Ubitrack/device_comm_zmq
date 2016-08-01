@@ -22,6 +22,8 @@ else (ZMQ_LIBRARIES AND ZMQ_INCLUDE_DIRS)
     NAMES
       zmq.h
     PATHS
+      $ENV{ZMQ_DIR}/include
+      ${ZMQ_DIR}/include
       /usr/include
       /usr/local/include
       /opt/local/include
@@ -32,6 +34,8 @@ else (ZMQ_LIBRARIES AND ZMQ_INCLUDE_DIRS)
     NAMES
       zmq
     PATHS
+      $ENV{ZMQ_DIR}/lib
+      ${ZMQ_DIR}/lib
       /usr/lib
       /usr/local/lib
       /opt/local/lib
