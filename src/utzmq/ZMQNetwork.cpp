@@ -21,12 +21,6 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/binary_object.hpp>
-#include <boost/iostreams/device/array.hpp>
-#include <boost/iostreams/stream.hpp>
 
 #include "ZMQNetwork.h"
 
@@ -43,6 +37,7 @@
 #include <boost/array.hpp>
 
 #include <log4cpp/Category.hh>
+
 
 
 namespace Ubitrack { namespace Drivers {
@@ -298,7 +293,8 @@ void NetworkModule::receiverThread() {
                             LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
                         }
                     } else if (m_serializationMethod == SERIALIZE_BOOST_PORTABLE) {
-                        typedef boost::iostreams::basic_array_source<char> Device;
+#ifdef USE_PORTABLE_ARCHIVE
+	                    typedef boost::iostreams::basic_array_source<char> Device;
 						boost::iostreams::stream_buffer<Device> buffer((char*)message.data(), message.size());
                         eos::portable_iarchive ar_message(buffer);
 
@@ -317,6 +313,9 @@ void NetworkModule::receiverThread() {
                         else if (m_verbose) {
                             LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
                         }
+#else
+						LOG4CPP_ERROR(logger, "Invalid configuration: Portable Archive not supported in this build.");
+#endif
                     } else {
                         LOG4CPP_ERROR( logger, "Invalid serialization method." );
                     }
@@ -336,100 +335,138 @@ void NetworkModule::receiverThread() {
 boost::shared_ptr< NetworkComponentBase > NetworkModule::createComponent( const std::string& type, const std::string& name,
     boost::shared_ptr< Graph::UTQLSubgraph > config, const NetworkModule::ComponentKey& key, NetworkModule* pModule )
 {
-	if ( type == "ZMQSourcePose" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Pose >( name, config, key, pModule ) );
-	else if ( type == "ZMQSourceErrorPose" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPose >( name, config, key, pModule ) );
-	else if ( type == "ZMQSourceRotation" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Rotation >( name, config, key, pModule ) );
-	else if ( type == "ZMQSourcePosition" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Position >( name, config, key, pModule ) );
+
+	if ( type == "ZMQSourceEvent" ) // @todo should be button to be consistent or rename buttopn after all
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Button >( name, config, key, pModule ) );
+	else if ( type == "ZMQSourceDistance" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Distance >( name, config, key, pModule ) );
+
 	else if ( type == "ZMQSourcePosition2D" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Position2D >( name, config, key, pModule ) );
-	else if ( type == "ZMQSourcePoseList" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::PoseList >( name, config, key, pModule ) );
-	else if ( type == "ZMQSourcePositionList" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::PositionList >( name, config, key, pModule ) );
-	else if ( type == "ZMQSourcePositionList2" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::PositionList2 >( name, config, key, pModule ) );
-	else if ( type == "ZMQSourceEvent" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Button >( name, config, key, pModule ) );
+	else if ( type == "ZMQSourcePosition" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Position >( name, config, key, pModule ) );
+	else if ( type == "ZMQSourcePose" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Pose >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQSourceErrorPosition2" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPosition2 >( name, config, key, pModule ) );
+    else if ( type == "ZMQSourceErrorPosition" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPosition >( name, config, key, pModule ) );
+	else if ( type == "ZMQSourceErrorPose" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPose >( name, config, key, pModule ) );
+
+	else if ( type == "ZMQSourceRotation" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Rotation >( name, config, key, pModule ) );
+
 	else if ( type == "ZMQSourceMatrix3x3" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Matrix3x3 >( name, config, key, pModule ) );
 	else if ( type == "ZMQSourceMatrix3x4" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Matrix3x4 >( name, config, key, pModule ) );
 	else if ( type == "ZMQSourceMatrix4x4" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Matrix4x4 >( name, config, key, pModule ) );
-	else if ( type == "ZMQSourceDistance" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Distance >( name, config, key, pModule ) );
 
-    // new types
     else if ( type == "ZMQSourceVector4D" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Vector4D >( name, config, key, pModule ) );
     else if ( type == "ZMQSourceVector8D" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Vector8D >( name, config, key, pModule ) );
-    else if ( type == "ZMQSourceRotationVelocity" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::RotationVelocity >( name, config, key, pModule ) );
-    else if ( type == "ZMQSourceErrorPosition" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPosition >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQSourceEventList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ButtonList >( name, config, key, pModule ) );
     else if ( type == "ZMQSourceDistanceList" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::DistanceList >( name, config, key, pModule ) );
+
+	else if ( type == "ZMQSourcePositionList2" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::PositionList2 >( name, config, key, pModule ) );
+	else if ( type == "ZMQSourcePositionList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::PositionList >( name, config, key, pModule ) );
+	else if ( type == "ZMQSourcePoseList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::PoseList >( name, config, key, pModule ) );
+
+
     else if ( type == "ZMQSourceErrorPositionList2" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPositionList2 >( name, config, key, pModule ) );
     else if ( type == "ZMQSourceErrorPositionList" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPositionList >( name, config, key, pModule ) );
+    else if ( type == "ZMQSourceErrorPoseList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPoseList >( name, config, key, pModule ) );
+
+
 	else if ( type == "ZMQSourceCameraIntrinsics" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::CameraIntrinsics >( name, config, key, pModule ) );
-	else if (type == "ZMQSourceImage")
+
+    else if ( type == "ZMQSourceRotationVelocity" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::RotationVelocity >( name, config, key, pModule ) );
+
+    else if (type == "ZMQSourceImage")
 		return boost::shared_ptr< NetworkComponentBase >(new PushSourceComponent< Measurement::ImageMeasurement >(name, config, key, pModule));
 
 
     // sinks
-    else if ( type == "ZMQSinkPose" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Pose >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkErrorPose" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPose >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkPosition" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Position >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkPosition2D" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Position2D >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkRotation" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Rotation >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkPoseList" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::PoseList >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkPositionList" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::PositionList >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkPositionList2" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::PositionList2 >( name, config, key, pModule ) );
     else if ( type == "ZMQSinkEvent" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Button >( name, config, key, pModule ) );
+    else if ( type == "ZMQSinkDistance" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Distance >( name, config, key, pModule ) );
+
+
+    else if ( type == "ZMQSinkPosition2D" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Position2D >( name, config, key, pModule ) );
+    else if ( type == "ZMQSinkPosition" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Position >( name, config, key, pModule ) );
+    else if ( type == "ZMQSinkPose" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Pose >( name, config, key, pModule ) );
+
+
+    else if ( type == "ZMQSinkErrorPosition2" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPosition2 >( name, config, key, pModule ) );
+    else if ( type == "ZMQSinkErrorPosition" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPosition >( name, config, key, pModule ) );
+    else if ( type == "ZMQSinkErrorPose" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPose >( name, config, key, pModule ) );
+
+
+    else if ( type == "ZMQSinkRotation" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Rotation >( name, config, key, pModule ) );
+
     else if ( type == "ZMQSinkMatrix3x3" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Matrix3x3 >( name, config, key, pModule ) );
     else if ( type == "ZMQSinkMatrix3x4" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Matrix3x4 >( name, config, key, pModule ) );
     else if ( type == "ZMQSinkMatrix4x4" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Matrix4x4 >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkDistance" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Distance >( name, config, key, pModule ) );
 
-    // new types
     else if ( type == "ZMQSinkVector4D" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Vector4D >( name, config, key, pModule ) );
     else if ( type == "ZMQSinkVector8D" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Vector8D >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkRotationVelocity" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::RotationVelocity >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkErrorPosition" )
-        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPosition >( name, config, key, pModule ) );
+
+
+    else if ( type == "ZMQSinkEventList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ButtonList >( name, config, key, pModule ) );
     else if ( type == "ZMQSinkDistanceList" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::DistanceList >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQSinkPositionList2" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::PositionList2 >( name, config, key, pModule ) );
+    else if ( type == "ZMQSinkPositionList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::PositionList >( name, config, key, pModule ) );
+    else if ( type == "ZMQSinkPoseList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::PoseList >( name, config, key, pModule ) );
+
+
     else if ( type == "ZMQSinkErrorPositionList2" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPositionList2 >( name, config, key, pModule ) );
     else if ( type == "ZMQSinkErrorPositionList" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPositionList >( name, config, key, pModule ) );
+    else if ( type == "ZMQSinkErrorPoseList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPoseList >( name, config, key, pModule ) );
+
     else if ( type == "ZMQSinkCameraIntrinsics" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::CameraIntrinsics >( name, config, key, pModule ) );
-	else if (type == "ZMQSinkImage")
+
+    else if ( type == "ZMQSinkRotationVelocity" )
+        return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::RotationVelocity >( name, config, key, pModule ) );
+
+    else if (type == "ZMQSinkImage")
 		return boost::shared_ptr< NetworkComponentBase >(new PushSinkComponent< Measurement::ImageMeasurement >(name, config, key, pModule));
 
     UBITRACK_THROW( "Class " + type + " not supported by ZMQNetwork module." );

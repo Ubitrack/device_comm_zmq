@@ -47,8 +47,16 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/atomic.hpp>
 
+#if (_MSC_VER >= 1800) && (_MSC_VER < 1900) /*Visual Studio 2013*/
+// not supported for now
+#else /*(_MSC_VER >= 1800) && (_MSC_VER < 1900)*/
+#define USE_PORTABLE_ARCHIVE 1
+#endif /*(_MSC_VER >= 1800) && (_MSC_VER < 1900)*/
+
+#ifdef USE_PORTABLE_ARCHIVE
 #include "portable_iarchive.hpp"
 #include "portable_oarchive.hpp"
+#endif // USE_PORTABLE_ARCHIVE
 
 #include <string>
 #include <cstdlib>
@@ -236,8 +244,10 @@ public:
 	virtual void parse_boost_archive(boost::archive::text_iarchive& ar, Measurement::Timestamp recvtime)
     {}
 
-    virtual void parse_boost_archive(eos::portable_iarchive& ar, Measurement::Timestamp recvtime)
+#ifdef USE_PORTABLE_ARCHIVE
+	virtual void parse_boost_archive(eos::portable_iarchive& ar, Measurement::Timestamp recvtime)
     {}
+#endif
 
     virtual NetworkComponentBase::ComponentType getComponentType() {
         // should have
@@ -286,6 +296,7 @@ public:
         send_message(mm, recvtime, sendtime);
     }
 
+#ifdef USE_PORTABLE_ARCHIVE
     void parse_boost_archive(eos::portable_iarchive& ar, Measurement::Timestamp recvtime)
     {
         EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
@@ -295,6 +306,7 @@ public:
 
         send_message(mm, recvtime, sendtime);
     }
+#endif
 
     virtual ComponentType getComponentType() {
         return NetworkComponentBase::PUSH_SOURCE;
@@ -393,14 +405,17 @@ protected:
             tpacket << suffix;
 
         } else if (sm == NetworkModule::SERIALIZE_BOOST_PORTABLE) {
-            eos::portable_oarchive ppacket( stream );
+#ifdef USE_PORTABLE_ARCHIVE
+			eos::portable_oarchive ppacket( stream );
 
             // serialize the measurement, component name and current local time
             ppacket << m_name;
             ppacket << m;
             ppacket << sendtime;
             ppacket << suffix;
-
+#else
+			LOG4CPP_ERROR(logger, "Invalid configuration: Portable Archive not supported in this build.");
+#endif
         } else {
             LOG4CPP_ERROR( logger, "Invalid serialization method." );
             return;

@@ -7,7 +7,7 @@ SET(ZMQ_DIR ${EXTERNAL_LIBRARIES_DIR}/zmq)
 FIND_PACKAGE(ZMQ)
 
 IF(ZMQ_FOUND)
-  ut_component_include_directories("src/utzmq" ${ZMQ_INCLUDE_DIR} ${UBITRACK_CORE_DEPS_INCLUDE_DIR})
+  ut_component_include_directories("src/utzmq" ${ZMQ_INCLUDE_DIR} ${UBITRACK_CORE_DEPS_INCLUDE_DIR} ${OPENCV_INCLUDE_DIR})
   ut_glob_component_sources(HEADERS "src/utzmq/*.h" SOURCES "src/utzmq/*.cpp")
   ut_create_single_component(${ZMQ_LIBRARY})
 ENDIF(ZMQ_FOUND)
