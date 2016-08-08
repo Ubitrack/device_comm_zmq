@@ -454,7 +454,7 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQSourceErrorPoseList" displayName="ZMQ Source (PoseList)">
+    <Pattern name="ZMQSourceErrorPoseList" displayName="ZMQ Source (ErrorPoseList)">
         <Description><h:p>This pattern receives error pose data via the selected transport from a ZMQSinkErrorPoseList having the same ID</h:p></Description>
 
         <Output>

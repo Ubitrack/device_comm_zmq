@@ -50,7 +50,7 @@
 #if (_MSC_VER >= 1800) && (_MSC_VER < 1900) /*Visual Studio 2013*/
 // not supported for now
 #else /*(_MSC_VER >= 1800) && (_MSC_VER < 1900)*/
-#define USE_PORTABLE_ARCHIVE 1
+//#define USE_PORTABLE_ARCHIVE 1
 #endif /*(_MSC_VER >= 1800) && (_MSC_VER < 1900)*/
 
 #ifdef USE_PORTABLE_ARCHIVE
