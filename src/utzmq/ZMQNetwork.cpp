@@ -32,7 +32,10 @@
 #include <utUtil/OS.h>
 #include <utDataflow/ComponentFactory.h>
 #include <utMeasurement/Measurement.h>
+
+#ifdef HAVE_OPENCV
 #include <utVision/Image.h>
+#endif 
 
 #include <boost/array.hpp>
 
@@ -397,9 +400,10 @@ boost::shared_ptr< NetworkComponentBase > NetworkModule::createComponent( const 
     else if ( type == "ZMQSourceRotationVelocity" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::RotationVelocity >( name, config, key, pModule ) );
 
+#ifdef HAVE_OPENCV
     else if (type == "ZMQSourceImage")
 		return boost::shared_ptr< NetworkComponentBase >(new PushSourceComponent< Measurement::ImageMeasurement >(name, config, key, pModule));
-
+#endif
 
     // sinks
     else if ( type == "ZMQSinkEvent" )
@@ -466,8 +470,10 @@ boost::shared_ptr< NetworkComponentBase > NetworkModule::createComponent( const 
     else if ( type == "ZMQSinkRotationVelocity" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::RotationVelocity >( name, config, key, pModule ) );
 
+#ifdef HAVE_OPENCV
     else if (type == "ZMQSinkImage")
 		return boost::shared_ptr< NetworkComponentBase >(new PushSinkComponent< Measurement::ImageMeasurement >(name, config, key, pModule));
+#endif
 
     UBITRACK_THROW( "Class " + type + " not supported by ZMQNetwork module." );
 }
@@ -501,7 +507,9 @@ UBITRACK_REGISTER_COMPONENT( Dataflow::ComponentFactory* const cf ) {
     NetworkComponents.push_back( "ZMQSourceErrorPositionList2" );
     NetworkComponents.push_back( "ZMQSourceErrorPositionList" );
     NetworkComponents.push_back( "ZMQSourceCameraIntrinsics" );
+#ifdef HAVE_OPENCV
 	NetworkComponents.push_back("ZMQSourceImage");
+#endif
 
     NetworkComponents.push_back( "ZMQSinkPose" );
     NetworkComponents.push_back( "ZMQSinkErrorPose" );
@@ -525,8 +533,10 @@ UBITRACK_REGISTER_COMPONENT( Dataflow::ComponentFactory* const cf ) {
     NetworkComponents.push_back( "ZMQSinkErrorPositionList2" );
     NetworkComponents.push_back( "ZMQSinkErrorPositionList" );
     NetworkComponents.push_back( "ZMQSinkCameraIntrinsics" );
+#ifdef HAVE_OPENCV    
 	NetworkComponents.push_back("ZMQSinkImage");
-
+#endif
+    
     cf->registerModule< NetworkModule >( NetworkComponents );
 }
 
