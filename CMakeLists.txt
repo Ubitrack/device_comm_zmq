@@ -1,5 +1,5 @@
 set(the_description "The UbiTrack ZeroMQ Networking Component")
-ut_add_component(utzmq DEPS utcore utdataflow utvision )
+ut_add_component(device_comm_zmq DEPS utcore utdataflow utvision )
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
