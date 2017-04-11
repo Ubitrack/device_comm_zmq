@@ -80,8 +80,6 @@ NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_p
             m_serializationMethod = SERIALIZE_BOOST_BINARY;
         } else if (sm_text  == "boost_text") {
             m_serializationMethod = SERIALIZE_BOOST_TEXT;
-        } else if (sm_text  == "boost_portable") {
-            m_serializationMethod = SERIALIZE_BOOST_PORTABLE;
         } else {
             LOG4CPP_ERROR( logger, "Invalid Serialization Method - defaulting to Boost Serialization");
         }
@@ -295,30 +293,6 @@ void NetworkModule::receiverThread() {
                         else if (m_verbose) {
                             LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
                         }
-                    } else if (m_serializationMethod == SERIALIZE_BOOST_PORTABLE) {
-#ifdef USE_PORTABLE_ARCHIVE
-	                    typedef boost::iostreams::basic_array_source<char> Device;
-						boost::iostreams::stream_buffer<Device> buffer((char*)message.data(), message.size());
-                        eos::portable_iarchive ar_message(buffer);
-
-                        // parse_boost_binary packet
-                        std::string name;
-                        ar_message >> name;
-                        if (m_verbose) {
-                            LOG4CPP_DEBUG( logger, "Message for component " << name );
-                        }
-
-                        NetworkComponentKey key( name );
-                        if ( hasComponent( key ) ) {
-                            boost::shared_ptr< NetworkComponentBase > comp = getComponent( key );
-                            comp->parse_boost_archive(ar_message, ts);
-                        }
-                        else if (m_verbose) {
-                            LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
-                        }
-#else
-						LOG4CPP_ERROR(logger, "Invalid configuration: Portable Archive not supported in this build.");
-#endif
                     } else {
                         LOG4CPP_ERROR( logger, "Invalid serialization method." );
                     }
