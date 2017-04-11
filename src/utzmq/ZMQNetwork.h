@@ -80,7 +80,9 @@
 #include <utUtil/OS.h>
 #include <utUtil/TracingProvider.h>
 
-#include <utSerialization/Serialization.h>
+
+// @todo implement serialization using the new framework
+//#include <utSerialization/Serialization.h>
 
 
 
