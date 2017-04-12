@@ -81,9 +81,10 @@
 #include <utUtil/TracingProvider.h>
 
 
-// @todo implement serialization using the new framework
-//#include <utSerialization/Serialization.h>
-
+#include <utSerialization/Serialization.h>
+#ifdef HAVE_OPENCV
+#include <utVision/ImageSerialization.h>
+#endif // HAVE_OPENCV
 
 
 
@@ -142,12 +143,6 @@ class NetworkModule
 {
 public:
 
-    enum SerializationMethod {
-      SERIALIZE_BOOST_BINARY = 1,
-      SERIALIZE_BOOST_TEXT = 2,
-      SERIALIZE_BOOST_PORTABLE = 3
-    };
-
     /** constructor */
     NetworkModule( const NetworkModuleKey& key, boost::shared_ptr< Graph::UTQLSubgraph > subgraph, FactoryHelper* pFactory );
 
@@ -179,7 +174,7 @@ public:
         return m_verbose;
     }
 
-    inline SerializationMethod getSerializationMethod() {
+    inline Serialization::SerializationProtocol getSerializationMethod() {
         return m_serializationMethod;
     }
 
@@ -193,7 +188,7 @@ protected:
     bool m_fixTimestamp;
     bool m_verbose;
 
-    SerializationMethod m_serializationMethod;
+    Serialization::SerializationProtocol m_serializationMethod;
 
     boost::shared_ptr< boost::thread > m_NetworkThread;
     int m_msgwait_timeout;
@@ -240,6 +235,9 @@ public:
 	virtual void parse_boost_archive(boost::archive::text_iarchive& ar, Measurement::Timestamp recvtime)
     {}
 
+    virtual void parse_msgpack_archive(msgpack::unpacker& pac, Measurement::Timestamp recvtime)
+    {}
+
     virtual NetworkComponentBase::ComponentType getComponentType() {
         // should have
         return NetworkComponentBase::NOT_DEFINED;
@@ -271,8 +269,8 @@ public:
     {
         EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
         Measurement::Timestamp sendtime;
-        ar >> mm;
-        ar >> sendtime;
+        Serialization::BoostArchive::deserialize(ar, mm);
+        Serialization::BoostArchive::deserialize(ar, sendtime);
 
         send_message(mm, recvtime, sendtime);
     }
@@ -281,11 +279,23 @@ public:
     {
         EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
         Measurement::Timestamp sendtime;
-        ar >> mm;
-        ar >> sendtime;
+        Serialization::BoostArchive::deserialize(ar, mm);
+        Serialization::BoostArchive::deserialize(ar, sendtime);
 
         send_message(mm, recvtime, sendtime);
     }
+
+#ifdef HAVE_MSGPACK
+    virtual void parse_msgpack_archive(msgpack::unpacker& pac, Measurement::Timestamp recvtime)
+    {
+        EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
+        Measurement::Timestamp sendtime;
+        Serialization::MsgpackArchive::deserialize(pac, mm);
+        Serialization::MsgpackArchive::deserialize(pac, sendtime);
+
+        send_message(mm, recvtime, sendtime);
+    }
+#endif // HAVE_MSGPACK
 
     virtual ComponentType getComponentType() {
         return NetworkComponentBase::PUSH_SOURCE;
@@ -364,27 +374,34 @@ protected:
         Measurement::Timestamp sendtime;
         sendtime = Measurement::now();
 
-        NetworkModule::SerializationMethod sm = getModule().getSerializationMethod();
-        if (sm == NetworkModule::SERIALIZE_BOOST_BINARY) {
+        Serialization::SerializationProtocol sm = getModule().getSerializationMethod();
+        if (sm == Serialization::SerializationProtocol::PROTOCOL_BOOST_BINARY) {
             boost::archive::binary_oarchive bpacket( stream );
 
-            // serialize the measurement, component name and current local time
-            bpacket << m_name;
-            bpacket << m;
-            bpacket << sendtime;
-            bpacket << suffix;
+            Serialization::BoostArchive::serialize(bpacket, m_name);
+            Serialization::BoostArchive::serialize(bpacket, m);
+            Serialization::BoostArchive::serialize(bpacket, sendtime);
+            Serialization::BoostArchive::serialize(bpacket, suffix);
 
-        } else if (sm == NetworkModule::SERIALIZE_BOOST_TEXT) {
+        } else if (sm == Serialization::SerializationProtocol::PROTOCOL_BOOST_TEXT) {
             boost::archive::text_oarchive tpacket( stream );
 
-            // serialize the measurement, component name and current local time
-            tpacket << m_name;
-            tpacket << m;
-            tpacket << sendtime;
-            tpacket << suffix;
+            Serialization::BoostArchive::serialize(tpacket, m_name);
+            Serialization::BoostArchive::serialize(tpacket, m);
+            Serialization::BoostArchive::serialize(tpacket, sendtime);
+            Serialization::BoostArchive::serialize(tpacket, suffix);
+
+#ifdef HAVE_MSGPACK
+        } else if (sm == Serialization::SerializationProtocol::PROTOCOL_MSGPACK) {
+            msgpack::packer<std::ostringstream> pk(&stream);
+
+            Serialization::MsgpackArchive::serialize(pk, m_name);
+            Serialization::MsgpackArchive::serialize(pk, m);
+            Serialization::MsgpackArchive::serialize(pk, sendtime);
+#endif // HAVE_MSGPACK
 
         } else {
-            LOG4CPP_ERROR( logger, "Invalid serialization method." );
+            LOG4CPP_ERROR( logger, "Invalid serialization protocol." );
             return;
         }
 

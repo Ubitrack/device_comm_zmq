@@ -557,13 +557,13 @@
             <EnumValue name="true" displayName="True"/>
         </Attribute>
 
-        <Attribute name="fixTimestamp" displayName="Fix measurement timestamp on receive" default="true" xsi:type="EnumAttributeDeclarationType">
+        <Attribute name="fixTimestamp" displayName="Fix measurement timestamp on receive" default="false" xsi:type="EnumAttributeDeclarationType">
             <Description><p xmlns="http://www.w3.org/1999/xhtml">Should timestamps of received packages be fixed using a synchronizer (true).</p></Description>
             <EnumValue name="false" displayName="False"/>
             <EnumValue name="true" displayName="True"/>
         </Attribute>
 
-        <Attribute name="verbose" displayName="Verbose logging enabled" default="true" xsi:type="EnumAttributeDeclarationType">
+        <Attribute name="verbose" displayName="Verbose logging enabled" default="false" xsi:type="EnumAttributeDeclarationType">
             <Description><p xmlns="http://www.w3.org/1999/xhtml">Enable verbose logging (true).</p></Description>
             <EnumValue name="false" displayName="False"/>
             <EnumValue name="true" displayName="True"/>
@@ -573,7 +573,7 @@
             <Description><p xmlns="http://www.w3.org/1999/xhtml">Select serialization method (boost-binary).</p></Description>
             <EnumValue name="boost_binary" displayName="Boost-Binary"/>
             <EnumValue name="boost_text" displayName="Boost-Text"/>
-            <EnumValue name="boost_portable" displayName="Boost-Portable"/>
+            <EnumValue name="msgpack" displayName="MessagePack"/>
         </Attribute>
 
     </GlobalDataflowAttributeDeclarations>

@@ -56,7 +56,7 @@ NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_p
     , m_bindTo(false)
     , m_fixTimestamp(true)
     , m_verbose(true)
-    , m_serializationMethod(SERIALIZE_BOOST_BINARY)
+    , m_serializationMethod(Serialization::PROTOCOL_BOOST_BINARY)
     , m_has_pushsink(false)
     , m_has_pushsource(false)
     , m_msgwait_timeout(100) // microseconds -- or are they milliseconds ?
@@ -77,11 +77,13 @@ NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_p
     {
         std::string sm_text = pConfig->m_DataflowAttributes.getAttributeString( "serialization_method" );
         if (sm_text  == "boost_binary") {
-            m_serializationMethod = SERIALIZE_BOOST_BINARY;
+            m_serializationMethod = Serialization::PROTOCOL_BOOST_BINARY;
         } else if (sm_text  == "boost_text") {
-            m_serializationMethod = SERIALIZE_BOOST_TEXT;
+            m_serializationMethod = Serialization::PROTOCOL_BOOST_TEXT;
+        } else if (sm_text  == "msgpack") {
+            m_serializationMethod = Serialization::PROTOCOL_MSGPACK;
         } else {
-            LOG4CPP_ERROR( logger, "Invalid Serialization Method - defaulting to Boost Serialization");
+            LOG4CPP_ERROR( logger, "Invalid Serialization Method - defaulting to Boost Binary Serialization");
         }
     }
 
@@ -253,14 +255,14 @@ void NetworkModule::receiverThread() {
                 {
 					LOG4CPP_TRACE(logger, "data size: " << message.size());
 
-                    if (m_serializationMethod == SERIALIZE_BOOST_BINARY) {
+                    if (m_serializationMethod == Serialization::PROTOCOL_BOOST_BINARY) {
                         typedef boost::iostreams::basic_array_source<char> Device;
                         boost::iostreams::stream_buffer<Device> buffer((char*)message.data(), message.size());
                         boost::archive::binary_iarchive ar_message(buffer);
 
                         // parse_boost_binary packet
                         std::string name;
-                        ar_message >> name;
+                        Serialization::BoostArchive::deserialize(ar_message, name);
                         if (m_verbose) {
                             LOG4CPP_DEBUG( logger, "Message for component " << name );
                         }
@@ -273,14 +275,14 @@ void NetworkModule::receiverThread() {
                         else if (m_verbose) {
                             LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
                         }
-                    } else if (m_serializationMethod == SERIALIZE_BOOST_TEXT) {
+                    } else if (m_serializationMethod == Serialization::PROTOCOL_BOOST_TEXT) {
                         std::string input_data_( (char*)message.data(), message.size() );
                         std::istringstream buffer(input_data_);
                         boost::archive::text_iarchive ar_message(buffer);
 
                         // parse_boost_binary packet
                         std::string name;
-                        ar_message >> name;
+                        Serialization::BoostArchive::deserialize(ar_message, name);
                         if (m_verbose) {
                             LOG4CPP_DEBUG( logger, "Message for component " << name );
                         }
@@ -289,6 +291,29 @@ void NetworkModule::receiverThread() {
                         if ( hasComponent( key ) ) {
                             boost::shared_ptr< NetworkComponentBase > comp = getComponent( key );
                             comp->parse_boost_archive(ar_message, ts);
+                        }
+                        else if (m_verbose) {
+                            LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
+                        }
+#ifdef HAVE_MSGPACK
+                    } else if (m_serializationMethod == Serialization::PROTOCOL_MSGPACK) {
+                        msgpack::unpacker pac;
+                        pac.reserve_buffer(message.size());
+                        // @todo find a way to do this without copying !!!
+                        memcpy(pac.buffer(), message.data(), message.size() );
+                        pac.buffer_consumed(message.size());
+
+                        // parse_boost_binary packet
+                        std::string name;
+                        Serialization::MsgpackArchive::deserialize(pac, name);
+                        if (m_verbose) {
+                            LOG4CPP_DEBUG( logger, "Message for component " << name );
+                        }
+
+                        NetworkComponentKey key( name );
+                        if ( hasComponent( key ) ) {
+                            boost::shared_ptr< NetworkComponentBase > comp = getComponent( key );
+                            comp->parse_msgpack_archive(pac, ts);
                         }
                         else if (m_verbose) {
                             LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
@@ -301,6 +326,7 @@ void NetworkModule::receiverThread() {
                 {
                     LOG4CPP_ERROR( logger, "Caught exception " << e.what() );
                 }
+#endif // HAVE_MSGPACK
             } else {
                 LOG4CPP_ERROR( logger, "Error receiving zmq message" );
             }
