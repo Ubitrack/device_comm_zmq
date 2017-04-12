@@ -276,6 +276,7 @@ void NetworkModule::receiverThread() {
                             LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
                         }
                     } else if (m_serializationMethod == Serialization::PROTOCOL_BOOST_TEXT) {
+                        // @todo find a way to do this without copying !!!
                         std::string input_data_( (char*)message.data(), message.size() );
                         std::istringstream buffer(input_data_);
                         boost::archive::text_iarchive ar_message(buffer);
