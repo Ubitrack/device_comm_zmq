@@ -19,11 +19,13 @@ class UbitrackCoreConan(ConanFile):
         "cppzmq/[>=4.2.2]@camposs/stable",
 
         "ubitrack_core/%s@ubitrack/stable" % version,
+        "ubitrack_vision/%s@ubitrack/stable" % version,
         "ubitrack_dataflow/%s@ubitrack/stable" % version,
        )
 
     default_options = (
         "ubitrack_core:shared=True",
+        "ubitrack_vision:shared=True",
         "ubitrack_dataflow:shared=True",
         "zmq:shared=True",
         "with_msgpack=True",
