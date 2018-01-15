@@ -12,7 +12,6 @@ class UbitrackCoreConan(ConanFile):
     short_paths = True
     settings = "os", "compiler", "build_type", "arch"
     options = {"with_msgpack": [True, False]}
-    default_options = "with_msgpack=True"
     generators = "cmake"
 
     requires = (
@@ -27,6 +26,7 @@ class UbitrackCoreConan(ConanFile):
         "ubitrack_core:shared=True",
         "ubitrack_dataflow:shared=True",
         "zmq:shared=True",
+        "with_msgpack=True",
         )
 
     # all sources are deployed with the package
@@ -34,7 +34,7 @@ class UbitrackCoreConan(ConanFile):
 
     def requirements(self):
         if self.options.with_msgpack:
-            self.requires("msgpack/{>=2.1.5]@camposs/stable")
+            self.requires("msgpack/[>=2.1.5]@camposs/stable")
 
     def imports(self):
         self.copy(pattern="*.dll", dst="bin", src="bin") # From bin to bin
