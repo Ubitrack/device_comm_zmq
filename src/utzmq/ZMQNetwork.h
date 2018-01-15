@@ -53,17 +53,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-// @todo review this include
-#if defined(WIN32) || defined(__APPLE__)
- #include <zmq.h>
- #if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4, 0, 0)
- #include "zmq_4.hpp"
- #else
- #include "zmq.hpp"
- #endif
-#else
- #include <zmq.hpp>
-#endif
+#include <zmq.hpp>
 
 #include <sstream>
 #include <iostream>
