@@ -225,8 +225,10 @@ public:
 	virtual void parse_boost_archive(boost::archive::text_iarchive& ar, Measurement::Timestamp recvtime)
     {}
 
+#ifdef HAVE_MSGPACK
     virtual void parse_msgpack_archive(msgpack::unpacker& pac, Measurement::Timestamp recvtime)
     {}
+#endif
 
     virtual NetworkComponentBase::ComponentType getComponentType() {
         // should have

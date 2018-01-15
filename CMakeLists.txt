@@ -8,6 +8,9 @@ conan_basic_setup(KEEP_RPATHS)
 include(GNUInstallDirs)
 include(cmake/UbitrackConfig)
 
+if(WITH_MSGPACK)
+  set(UBITRACK_COMPILE_DEFINITIONS ${UBITRACK_COMPILE_DEFINITIONS} "HAVE_MSGPACK")
+endif(WITH_MSGPACK)
 
 add_subdirectory(src/utzmq)
 
