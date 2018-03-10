@@ -17,6 +17,12 @@ if(MSVC)
   set_target_properties(${UBITRACK_LIBRARY_NAME} PROPERTIES LINK_FLAGS "/NODEFAULTLIB:libc /DEBUG")
 endif()
 
+if(WIN32)
+    if(MSVC)
+        set(UBITRACK_COMPILE_FLAGS ${UBITRACK_COMPILE_FLAGS} "/bigobj ")
+    endif(MSVC)
+endif(WIN32)
+
 foreach(_flag ${UBITRACK_COMPILE_FLAGS})
   set_target_properties(${UBITRACK_LIBRARY_NAME} PROPERTIES COMPILE_FLAGS "${_flag}")
 endforeach()
