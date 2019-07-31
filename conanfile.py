@@ -15,14 +15,14 @@ class UbitrackCoreConan(ConanFile):
                 "workspaceBuild" : [True, False],}
     generators = "cmake"
 
-    default_options = (
+    default_options = {
         "ubitrack_core:shared" : True,
         "ubitrack_vision:shared" : True,
         "ubitrack_dataflow:shared" : True,
         "zmq:shared" : True,
         "with_msgpack" : True,
         "workspaceBuild" : False,
-        )
+        }
 
     # all sources are deployed with the package
     exports_sources = "doc/*", "src/*", "CMakeLists.txt"
