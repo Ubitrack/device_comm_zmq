@@ -28,9 +28,6 @@ class UbitrackCoreConan(ConanFile):
     exports_sources = "doc/*", "src/*", "CMakeLists.txt"
 
     def requirements(self):
-        
-
-    def requirements(self):
 
         userChannel = "ubitrack/stable"
         if self.options.workspaceBuild:
