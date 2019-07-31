@@ -11,30 +11,38 @@ class UbitrackCoreConan(ConanFile):
 
     short_paths = True
     settings = "os", "compiler", "build_type", "arch"
-    options = {"with_msgpack": [True, False]}
+    options = {"with_msgpack": [True, False],
+                "workspaceBuild" : [True, False],}
     generators = "cmake"
 
-    requires = (
-        "zmq/[>=4.2.2]@camposs/stable",
-        "cppzmq/[>=4.2.2]@camposs/stable",
-
-        "ubitrack_core/%s@ubitrack/stable" % version,
-        "ubitrack_vision/%s@ubitrack/stable" % version,
-        "ubitrack_dataflow/%s@ubitrack/stable" % version,
-       )
-
     default_options = (
-        "ubitrack_core:shared=True",
-        "ubitrack_vision:shared=True",
-        "ubitrack_dataflow:shared=True",
-        "zmq:shared=True",
-        "with_msgpack=True",
+        "ubitrack_core:shared" : True,
+        "ubitrack_vision:shared" : True,
+        "ubitrack_dataflow:shared" : True,
+        "zmq:shared" : True,
+        "with_msgpack" : True,
+        "workspaceBuild" : False,
         )
 
     # all sources are deployed with the package
     exports_sources = "doc/*", "src/*", "CMakeLists.txt"
 
     def requirements(self):
+        
+
+    def requirements(self):
+
+        userChannel = "ubitrack/stable"
+        if self.options.workspaceBuild:
+            userChannel = "user/testing"
+
+        self.requires("ubitrack_core/%s@%s" % (self.version, userChannel))
+        self.requires("ubitrack_vision/%s@%s" % (self.version, userChannel))
+        self.requires("ubitrack_dataflow/%s@%s" % (self.version, userChannel))
+
+        self.requires("zmq/[>=4.2.2]@camposs/stable")
+        self.requires("cppzmq/[>=4.2.2]@camposs/stable")
+
         if self.options.with_msgpack:
             self.requires("msgpack/[>=2.1.5]@camposs/stable")
 
