@@ -31,7 +31,7 @@ class UbitrackCoreConan(ConanFile):
 
         userChannel = "ubitrack/stable"
         if self.options.workspaceBuild:
-            userChannel = "user/testing"
+            userChannel = "local/dev"
 
         self.requires("ubitrack_core/%s@%s" % (self.version, userChannel))
         self.requires("ubitrack_vision/%s@%s" % (self.version, userChannel))
