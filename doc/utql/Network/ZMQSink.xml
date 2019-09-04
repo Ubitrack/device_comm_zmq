@@ -487,7 +487,7 @@
             <Node name="B" displayName="B"/>
             <Edge name="Input" source="A" destination="B" displayName="Input">
                 <Description><h:p>The CameraIntrinsics received via zmq</h:p></Description>
-                <Predicate>type=='3x3Matrix'&amp;&amp;mode=='push'</Predicate>
+                <Predicate>type=='Intrinsics'&amp;&amp;mode=='push'</Predicate>
 
             </Edge>
         </Input>
