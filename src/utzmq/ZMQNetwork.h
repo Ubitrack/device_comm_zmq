@@ -408,7 +408,7 @@ protected:
 #ifdef ENABLE_EVENT_TRACING
             TRACEPOINT_MEASUREMENT_RECEIVE(getEventDomain(), m.time(), getName().c_str(), "NetworkSink")
 #endif
-            bool rc = m_socket->send(message);
+            bool rc = m_socket->send(message, zmq::send_flags::dontwait);
             LOG4CPP_DEBUG( logger, "Message sent on ZMQSink " << m_name );
             // evaluate rc
         }

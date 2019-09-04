@@ -37,11 +37,11 @@ class UbitrackCoreConan(ConanFile):
         self.requires("ubitrack_vision/%s@%s" % (self.version, userChannel))
         self.requires("ubitrack_dataflow/%s@%s" % (self.version, userChannel))
 
-        self.requires("zmq/[>=4.2.2]@camposs/stable")
-        self.requires("cppzmq/[>=4.2.2]@camposs/stable")
+        self.requires("zmq/[>=4.3.2]@camposs/stable")
+        self.requires("cppzmq/[>=4.4.1]@camposs/stable")
 
         if self.options.with_msgpack:
-            self.requires("msgpack/[>=2.1.5]@camposs/stable")
+            self.requires("msgpack/[>=3.2.0]@camposs/stable")
 
     # def imports(self):
     #     self.copy(pattern="*.dll", dst="bin", src="bin") # From bin to bin
