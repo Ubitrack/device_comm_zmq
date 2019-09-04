@@ -38,7 +38,7 @@ class UbitrackCoreConan(ConanFile):
         self.requires("ubitrack_dataflow/%s@%s" % (self.version, userChannel))
 
         self.requires("zmq/[>=4.3.2]@camposs/stable")
-        self.requires("cppzmq/[>=4.4.1]@camposs/stable")
+        self.requires("azmq/1.0.3@camposs/stable")
 
         if self.options.with_msgpack:
             self.requires("msgpack/[>=3.2.0]@camposs/stable")

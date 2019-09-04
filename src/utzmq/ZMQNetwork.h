@@ -53,7 +53,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <zmq.hpp>
+#include <boost/asio.hpp>
+#include <azmq/socket.hpp>
 
 #include <sstream>
 #include <iostream>
@@ -150,11 +151,7 @@ public:
     virtual void stopModule();
 
 
-    inline static void startReceiver(NetworkModule* pModule) {
-        pModule->receiverThread();
-    }
-    void receiverThread();
-
+    void receiveMessage();
 
     inline bool getFixTimestamp() {
         return m_fixTimestamp;
@@ -169,10 +166,14 @@ public:
     }
 
 protected:
-    static boost::shared_ptr<zmq::context_t> m_context;
-	static boost::atomic<int> m_context_users;
 
-    boost::shared_ptr<zmq::socket_t> m_socket;
+    boost::shared_ptr< boost::thread > m_NetworkThread;
+
+    // globally shared between all zmq modules
+    static boost::shared_ptr<boost::asio::io_service> m_ioservice;
+	static boost::atomic<int> m_ioservice_users;
+
+    boost::shared_ptr<azmq::socket> m_socket;
 
     bool m_bindTo;
     bool m_fixTimestamp;
@@ -180,7 +181,6 @@ protected:
 
     Serialization::SerializationProtocol m_serializationMethod;
 
-    boost::shared_ptr< boost::thread > m_NetworkThread;
     int m_msgwait_timeout;
 
     bool m_has_pushsink;
@@ -209,7 +209,7 @@ public:
     virtual ~NetworkComponentBase()
     {}
 
-    virtual void setupComponent(boost::shared_ptr<zmq::socket_t> &sock)
+    virtual void setupComponent(boost::shared_ptr<azmq::socket> &sock)
     {
         m_socket = sock;
     }
@@ -236,7 +236,7 @@ public:
     }
 
 protected:
-    boost::shared_ptr<zmq::socket_t> m_socket;
+    boost::shared_ptr<azmq::socket> m_socket;
     bool m_fixTimestamp;
     bool m_verbose;
 
@@ -361,14 +361,16 @@ protected:
     // receive a new pose from the dataflow
     void eventIn( const EventType& m )
     {
-        std::ostringstream stream;
+        // needed to avoid copying the message before sending...
+        auto stream_ptr = new boost::shared_ptr<std::ostringstream>(new std::ostringstream);
+        auto stream = *stream_ptr;
         std::string suffix("\n");
         Measurement::Timestamp sendtime;
         sendtime = Measurement::now();
 
         Serialization::SerializationProtocol sm = getModule().getSerializationMethod();
         if (sm == Serialization::SerializationProtocol::PROTOCOL_BOOST_BINARY) {
-            boost::archive::binary_oarchive bpacket( stream );
+            boost::archive::binary_oarchive bpacket( *stream );
 
             Serialization::BoostArchive::serialize(bpacket, m_name);
             Serialization::BoostArchive::serialize(bpacket, m);
@@ -376,7 +378,7 @@ protected:
             Serialization::BoostArchive::serialize(bpacket, suffix);
 
         } else if (sm == Serialization::SerializationProtocol::PROTOCOL_BOOST_TEXT) {
-            boost::archive::text_oarchive tpacket( stream );
+            boost::archive::text_oarchive tpacket( *stream );
 
             Serialization::BoostArchive::serialize(tpacket, m_name);
             Serialization::BoostArchive::serialize(tpacket, m);
@@ -385,7 +387,7 @@ protected:
 
 #ifdef HAVE_MSGPACK
         } else if (sm == Serialization::SerializationProtocol::PROTOCOL_MSGPACK) {
-            msgpack::packer<std::ostringstream> pk(&stream);
+            msgpack::packer<std::ostringstream> pk(stream.get());
 
             Serialization::MsgpackArchive::serialize(pk, m_name);
             Serialization::MsgpackArchive::serialize(pk, m);
@@ -397,19 +399,28 @@ protected:
             return;
         }
 
-        // also look at zones for msgpack
-        // https://github.com/msgpack/msgpack-c/wiki/v2_0_cpp_object
+        // blackmagic .. remove const from ostringstream result without copying ..
+        auto const_message_str = new std::string(stream->str().data(), stream->str().size());
+        auto message_ptr = const_cast<std::string*>(const_message_str);
 
-        // what about msg.add_raw(buffer.data(), buffer.size()); ??
-        zmq::message_t message(stream.str().size());
-        memcpy(message.data(), stream.str().data(), stream.str().size() );
+        azmq::message message(azmq::nocopy, boost::asio::buffer(*message_ptr), (void*)stream_ptr, [](void *buf, void *hint){
+            if (hint != nullptr) {
+                auto b = static_cast<std::shared_ptr<std::ostringstream>*>(hint);
+                delete b;
+            }
+        });
 
         if (m_socket) {
 #ifdef ENABLE_EVENT_TRACING
             TRACEPOINT_MEASUREMENT_RECEIVE(getEventDomain(), m.time(), getName().c_str(), "NetworkSink")
 #endif
-            bool rc = m_socket->send(message, zmq::send_flags::dontwait);
-            LOG4CPP_DEBUG( logger, "Message sent on ZMQSink " << m_name );
+            m_socket->async_send(message, [&] (boost::system::error_code const& ec, size_t bytes_transferred) {
+                if (ec != boost::system::error_code()) {
+                    LOG4CPP_ERROR( logger, "Error sending message on ZMQSink " << m_name << " - " << ec.message());
+                } else {
+                    LOG4CPP_DEBUG( logger, "Message sent on ZMQSink " << m_name );
+                }
+            });
             // evaluate rc
         }
     }

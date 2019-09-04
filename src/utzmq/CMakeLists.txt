@@ -11,7 +11,8 @@ target_link_libraries(${UBITRACK_LIBRARY_NAME}
     CONAN_PKG::ubitrack_core
     CONAN_PKG::ubitrack_vision
     CONAN_PKG::ubitrack_dataflow
-    CONAN_PKG::cppzmq
+    CONAN_PKG::zmq
+    CONAN_PKG::azmq
     )
 
 # do not create symlinks to versioned names of component libraries

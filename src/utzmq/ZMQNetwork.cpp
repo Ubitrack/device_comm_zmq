@@ -48,8 +48,8 @@ namespace Ubitrack { namespace Drivers {
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.ZMQNetwork" ) );
 
 // static zmq context as singleton
-boost::shared_ptr<zmq::context_t> NetworkModule::m_context;
-boost::atomic<int> NetworkModule::m_context_users(0);
+boost::shared_ptr<boost::asio::io_service> NetworkModule::m_ioservice;
+boost::atomic<int> NetworkModule::m_ioservice_users(0);
 
 NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_ptr< Graph::UTQLSubgraph > pConfig, FactoryHelper* pFactory )
     : Module< NetworkModuleKey, NetworkComponentKey, NetworkModule, NetworkComponentBase >( moduleKey, pFactory )
@@ -141,12 +141,13 @@ void NetworkModule::startModule()
         if (m_has_pushsink) {
             socket_type = ZMQ_PUB;
         }
-		if (m_context_users.fetch_add(1, boost::memory_order_relaxed) == 0) {
+		if (m_ioservice_users.fetch_add(1, boost::memory_order_relaxed) == 0) {
 			boost::atomic_thread_fence(boost::memory_order_acquire);
-			LOG4CPP_INFO( logger, "ZMQ Context create" );
-			m_context.reset( new zmq::context_t(ZMQNETWORK_IOTHREADS));
+			LOG4CPP_INFO( logger, "Start IOService" );
+			m_ioservice.reset(new boost::asio::io_service());
+            m_NetworkThread = boost::shared_ptr< boost::thread >( new boost::thread( boost::bind( &boost::asio::io_service::run, m_ioservice.get() ) ) );
 		}
-        m_socket = boost::shared_ptr< zmq::socket_t >( new zmq::socket_t(*m_context, socket_type) );
+        m_socket = boost::shared_ptr< azmq::socket >( new azmq::socket(*m_ioservice, socket_type) );
 
 
         try {
@@ -157,10 +158,10 @@ void NetworkModule::startModule()
             }
             // only for ZMQ_SUB sockets
             if (m_has_pushsource) {
-                m_socket->setsockopt(ZMQ_SUBSCRIBE, "", 0);
+                m_socket->set_option(azmq::socket::subscribe(""));
             }
         }
-        catch (zmq::error_t &e) {
+        catch (boost::system::system_error &e) {
             std::ostringstream log;
             log << "Error initializing ZMQNetwork: " << std::endl;
             log << "address: "  << m_moduleKey.get() << std::endl;
@@ -175,8 +176,8 @@ void NetworkModule::startModule()
 
         if (m_has_pushsource) {
             // network thread runs until module is stopped
-            LOG4CPP_DEBUG( logger, "Starting network receiver thread" );
-            m_NetworkThread = boost::shared_ptr< boost::thread >( new boost::thread( boost::bind( &NetworkModule::startReceiver, this ) ) );
+            LOG4CPP_DEBUG( logger, "Starting listening for messages" );
+            receiveMessage();
         }
 
         LOG4CPP_DEBUG( logger, "ZMQ Network module started" );
@@ -192,148 +193,117 @@ void NetworkModule::stopModule()
 		m_running = false;
         LOG4CPP_NOTICE( logger, "Stopping ZMQ Network Module" );
 
-        if (m_has_pushsource) {
-            // wait for thread
-            m_NetworkThread->join();
-            m_NetworkThread.reset();
-        }
-
         ComponentList allComponents( getAllComponents() );
 
         for ( ComponentList::iterator it = allComponents.begin(); it != allComponents.end(); it++ ) {
             (*it)->teardownComponent();
         }
         m_socket.reset();
-		if (m_context_users.fetch_sub(1, boost::memory_order_release) == 1) {
+		if (m_ioservice_users.fetch_sub(1, boost::memory_order_release) == 1) {
 			boost::atomic_thread_fence(boost::memory_order_acquire);
-			LOG4CPP_INFO( logger, "ZMQ Context close" );
-			// not all versions of zmq.hpp have a close method, but they should close when the instance is deleted...
-			//m_context->close();
-			m_context.reset();
+			LOG4CPP_INFO( logger, "Stop IOService" );
+            m_ioservice->stop();
+            m_NetworkThread->join();
+            m_NetworkThread.reset();
+			m_ioservice.reset();
 		}
 	}
     LOG4CPP_DEBUG( logger, "ZMQ Network Stopped" );
 }
 
-void NetworkModule::receiverThread() {
-    zmq::pollitem_t pollitems[1];
-    pollitems[0].socket = *m_socket;
-    pollitems[0].events = ZMQ_POLLIN;
-
-    // main loop
-    while (m_running) {
-        // wait for messages
-        try {
-            zmq::poll (pollitems, 1, m_msgwait_timeout);
-        } catch (zmq::error_t &e) {
-            std::ostringstream log;
-            log << "Error polling zmq socket: " << std::endl;
-            log << "address: "  << m_moduleKey.get() << std::endl;
-            log << e.what() << std::endl;
-            LOG4CPP_ERROR( logger, log.str() );
-
-            Ubitrack::Util::sleep(100);
-
-            continue;
-        }
-
-        if (pollitems[0].revents & ZMQ_POLLIN) {
-
-            // zmq_poll has returned
+void NetworkModule::receiveMessage() {
+    LOG4CPP_DEBUG( logger, "Schedule async receive .." );
+    m_socket->async_receive([this] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
+        if (!error) {
             Measurement::Timestamp ts = Measurement::now();
 
-            zmq::message_t message;
-            int flags = 0; // ZMQ_NOBLOCK
-            bool rc;
-
-            if((rc = m_socket->recv(&message, flags)) == true) {
-                if (m_verbose) {
-                    LOG4CPP_DEBUG( logger, "Received " << message.size() << " bytes" );
-
-                }
-                try
-                {
-					LOG4CPP_TRACE(logger, "data size: " << message.size());
-
-                    if (m_serializationMethod == Serialization::PROTOCOL_BOOST_BINARY) {
-                        typedef boost::iostreams::basic_array_source<char> Device;
-                        boost::iostreams::stream_buffer<Device> buffer((char*)message.data(), message.size());
-                        boost::archive::binary_iarchive ar_message(buffer);
-
-                        // parse_boost_binary packet
-                        std::string name;
-                        Serialization::BoostArchive::deserialize(ar_message, name);
-                        if (m_verbose) {
-                            LOG4CPP_DEBUG( logger, "Message for component " << name );
-                        }
-
-                        NetworkComponentKey key( name );
-                        if ( hasComponent( key ) ) {
-                            boost::shared_ptr< NetworkComponentBase > comp = getComponent( key );
-                            comp->parse_boost_archive(ar_message, ts);
-                        }
-                        else if (m_verbose) {
-                            LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
-                        }
-                    } else if (m_serializationMethod == Serialization::PROTOCOL_BOOST_TEXT) {
-                        // @todo find a way to do this without copying !!!
-                        std::string input_data_( (char*)message.data(), message.size() );
-                        std::istringstream buffer(input_data_);
-                        boost::archive::text_iarchive ar_message(buffer);
-
-                        // parse_boost_binary packet
-                        std::string name;
-                        Serialization::BoostArchive::deserialize(ar_message, name);
-                        if (m_verbose) {
-                            LOG4CPP_DEBUG( logger, "Message for component " << name );
-                        }
-
-                        NetworkComponentKey key( name );
-                        if ( hasComponent( key ) ) {
-                            boost::shared_ptr< NetworkComponentBase > comp = getComponent( key );
-                            comp->parse_boost_archive(ar_message, ts);
-                        }
-                        else if (m_verbose) {
-                            LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
-                        }
-#ifdef HAVE_MSGPACK
-                    } else if (m_serializationMethod == Serialization::PROTOCOL_MSGPACK) {
-                        msgpack::unpacker pac;
-                        pac.reserve_buffer(message.size());
-                        // @todo find a way to do this without copying !!!
-                        memcpy(pac.buffer(), message.data(), message.size() );
-                        pac.buffer_consumed(message.size());
-
-                        // parse_boost_binary packet
-                        std::string name;
-                        Serialization::MsgpackArchive::deserialize(pac, name);
-                        if (m_verbose) {
-                            LOG4CPP_DEBUG( logger, "Message for component " << name );
-                        }
-
-                        NetworkComponentKey key( name );
-                        if ( hasComponent( key ) ) {
-                            boost::shared_ptr< NetworkComponentBase > comp = getComponent( key );
-                            comp->parse_msgpack_archive(pac, ts);
-                        }
-                        else if (m_verbose) {
-                            LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
-                        }
-                    } else {
-                        LOG4CPP_ERROR( logger, "Invalid serialization method." );
-                    }
-                }
-                catch ( const std::exception& e )
-                {
-                    LOG4CPP_ERROR( logger, "Caught exception " << e.what() );
-                }
-#endif // HAVE_MSGPACK
-            } else {
-                LOG4CPP_ERROR( logger, "Error receiving zmq message" );
+            if (m_verbose) {
+                LOG4CPP_DEBUG( logger, "Received " << message.size() << " bytes" );
             }
-            pollitems[0].revents = 0;
+            try
+            {
+                LOG4CPP_TRACE(logger, "data size: " << message.size());
+
+                if (m_serializationMethod == Serialization::PROTOCOL_BOOST_BINARY) {
+                    typedef boost::iostreams::basic_array_source<char> Device;
+                    boost::iostreams::stream_buffer<Device> buffer((char*)message.data(), message.size());
+                    boost::archive::binary_iarchive ar_message(buffer);
+
+                    // parse_boost_binary packet
+                    std::string name;
+                    Serialization::BoostArchive::deserialize(ar_message, name);
+                    if (m_verbose) {
+                        LOG4CPP_DEBUG( logger, "Message for component " << name );
+                    }
+
+                    NetworkComponentKey key( name );
+                    if ( hasComponent( key ) ) {
+                        boost::shared_ptr< NetworkComponentBase > comp = getComponent( key );
+                        comp->parse_boost_archive(ar_message, ts);
+                    } else if (m_verbose) {
+                        LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
+                    }
+                } else if (m_serializationMethod == Serialization::PROTOCOL_BOOST_TEXT) {
+                    // @todo find a way to do this without copying !!!
+                    std::string input_data_( (char*)message.data(), message.size() );
+                    std::istringstream buffer(input_data_);
+                    boost::archive::text_iarchive ar_message(buffer);
+
+                    // parse_boost_binary packet
+                    std::string name;
+                    Serialization::BoostArchive::deserialize(ar_message, name);
+                    if (m_verbose) {
+                        LOG4CPP_DEBUG( logger, "Message for component " << name );
+                    }
+
+                    NetworkComponentKey key( name );
+                    if ( hasComponent( key ) ) {
+                        boost::shared_ptr< NetworkComponentBase > comp = getComponent( key );
+                        comp->parse_boost_archive(ar_message, ts);
+                    } else if (m_verbose) {
+                        LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
+                    }
+#ifdef HAVE_MSGPACK
+                } else if (m_serializationMethod == Serialization::PROTOCOL_MSGPACK) {
+                    msgpack::unpacker pac;
+                    pac.reserve_buffer(message.size());
+                    // @todo find a way to do this without copying !!!
+                    memcpy(pac.buffer(), message.data(), message.size() );
+                    pac.buffer_consumed(message.size());
+
+                    // parse_boost_binary packet
+                    std::string name;
+                    Serialization::MsgpackArchive::deserialize(pac, name);
+                    if (m_verbose) {
+                        LOG4CPP_DEBUG( logger, "Message for component " << name );
+                    }
+
+                    NetworkComponentKey key( name );
+                    if ( hasComponent( key ) ) {
+                        boost::shared_ptr< NetworkComponentBase > comp = getComponent( key );
+                        comp->parse_msgpack_archive(pac, ts);
+                    } else if (m_verbose) {
+                        LOG4CPP_WARN( logger, "ZMQSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
+                    }
+                } else {
+                    LOG4CPP_ERROR( logger, "Invalid serialization method." );
+                }
+            }
+            catch ( const std::exception& e )
+            {
+                LOG4CPP_ERROR( logger, "Caught exception " << e.what() );
+            }
+#endif // HAVE_MSGPACK
+
+
+        } else {
+            LOG4CPP_ERROR( logger, "Error receiving zmq message" << error.message());
         }
-    }
+
+        // wait for next message
+        receiveMessage();
+    });
+
 }
 
 boost::shared_ptr< NetworkComponentBase > NetworkModule::createComponent( const std::string& type, const std::string& name,
@@ -352,9 +322,9 @@ boost::shared_ptr< NetworkComponentBase > NetworkModule::createComponent( const 
 	else if ( type == "ZMQSourcePose" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Pose >( name, config, key, pModule ) );
 
-    else if ( type == "ZMQSourceErrorPosition2" )
+	else if ( type == "ZMQSourceErrorPosition2" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPosition2 >( name, config, key, pModule ) );
-    else if ( type == "ZMQSourceErrorPosition" )
+	else if ( type == "ZMQSourceErrorPosition" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPosition >( name, config, key, pModule ) );
 	else if ( type == "ZMQSourceErrorPose" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPose >( name, config, key, pModule ) );
@@ -369,14 +339,14 @@ boost::shared_ptr< NetworkComponentBase > NetworkModule::createComponent( const 
 	else if ( type == "ZMQSourceMatrix4x4" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Matrix4x4 >( name, config, key, pModule ) );
 
-    else if ( type == "ZMQSourceVector4D" )
+	else if ( type == "ZMQSourceVector4D" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Vector4D >( name, config, key, pModule ) );
-    else if ( type == "ZMQSourceVector8D" )
+	else if ( type == "ZMQSourceVector8D" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::Vector8D >( name, config, key, pModule ) );
 
-    else if ( type == "ZMQSourceEventList" )
+	else if ( type == "ZMQSourceEventList" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ButtonList >( name, config, key, pModule ) );
-    else if ( type == "ZMQSourceDistanceList" )
+	else if ( type == "ZMQSourceDistanceList" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::DistanceList >( name, config, key, pModule ) );
 
 	else if ( type == "ZMQSourcePositionList2" )
@@ -387,88 +357,88 @@ boost::shared_ptr< NetworkComponentBase > NetworkModule::createComponent( const 
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::PoseList >( name, config, key, pModule ) );
 
 
-    else if ( type == "ZMQSourceErrorPositionList2" )
+	else if ( type == "ZMQSourceErrorPositionList2" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPositionList2 >( name, config, key, pModule ) );
-    else if ( type == "ZMQSourceErrorPositionList" )
+	else if ( type == "ZMQSourceErrorPositionList" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPositionList >( name, config, key, pModule ) );
-    else if ( type == "ZMQSourceErrorPoseList" )
+	else if ( type == "ZMQSourceErrorPoseList" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::ErrorPoseList >( name, config, key, pModule ) );
 
 
 	else if ( type == "ZMQSourceCameraIntrinsics" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::CameraIntrinsics >( name, config, key, pModule ) );
 
-    else if ( type == "ZMQSourceRotationVelocity" )
+	else if ( type == "ZMQSourceRotationVelocity" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSourceComponent< Measurement::RotationVelocity >( name, config, key, pModule ) );
 
 #ifdef HAVE_OPENCV
-    else if (type == "ZMQSourceImage")
+	else if (type == "ZMQSourceImage")
 		return boost::shared_ptr< NetworkComponentBase >(new PushSourceComponent< Measurement::ImageMeasurement >(name, config, key, pModule));
 #endif
 
     // sinks
-    else if ( type == "ZMQSinkEvent" )
+	else if ( type == "ZMQSinkEvent" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Button >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkDistance" )
+	else if ( type == "ZMQSinkDistance" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Distance >( name, config, key, pModule ) );
 
 
-    else if ( type == "ZMQSinkPosition2D" )
+	else if ( type == "ZMQSinkPosition2D" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Position2D >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkPosition" )
+	else if ( type == "ZMQSinkPosition" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Position >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkPose" )
+	else if ( type == "ZMQSinkPose" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Pose >( name, config, key, pModule ) );
 
 
-    else if ( type == "ZMQSinkErrorPosition2" )
+	else if ( type == "ZMQSinkErrorPosition2" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPosition2 >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkErrorPosition" )
+	else if ( type == "ZMQSinkErrorPosition" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPosition >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkErrorPose" )
+	else if ( type == "ZMQSinkErrorPose" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPose >( name, config, key, pModule ) );
 
 
-    else if ( type == "ZMQSinkRotation" )
+	else if ( type == "ZMQSinkRotation" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Rotation >( name, config, key, pModule ) );
 
-    else if ( type == "ZMQSinkMatrix3x3" )
+	else if ( type == "ZMQSinkMatrix3x3" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Matrix3x3 >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkMatrix3x4" )
+	else if ( type == "ZMQSinkMatrix3x4" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Matrix3x4 >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkMatrix4x4" )
+	else if ( type == "ZMQSinkMatrix4x4" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Matrix4x4 >( name, config, key, pModule ) );
 
-    else if ( type == "ZMQSinkVector4D" )
+	else if ( type == "ZMQSinkVector4D" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Vector4D >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkVector8D" )
+	else if ( type == "ZMQSinkVector8D" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::Vector8D >( name, config, key, pModule ) );
 
 
-    else if ( type == "ZMQSinkEventList" )
+	else if ( type == "ZMQSinkEventList" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ButtonList >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkDistanceList" )
+	else if ( type == "ZMQSinkDistanceList" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::DistanceList >( name, config, key, pModule ) );
 
-    else if ( type == "ZMQSinkPositionList2" )
+	else if ( type == "ZMQSinkPositionList2" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::PositionList2 >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkPositionList" )
+	else if ( type == "ZMQSinkPositionList" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::PositionList >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkPoseList" )
+	else if ( type == "ZMQSinkPoseList" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::PoseList >( name, config, key, pModule ) );
 
 
-    else if ( type == "ZMQSinkErrorPositionList2" )
+	else if ( type == "ZMQSinkErrorPositionList2" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPositionList2 >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkErrorPositionList" )
+	else if ( type == "ZMQSinkErrorPositionList" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPositionList >( name, config, key, pModule ) );
-    else if ( type == "ZMQSinkErrorPoseList" )
+	else if ( type == "ZMQSinkErrorPoseList" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::ErrorPoseList >( name, config, key, pModule ) );
 
-    else if ( type == "ZMQSinkCameraIntrinsics" )
+	else if ( type == "ZMQSinkCameraIntrinsics" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::CameraIntrinsics >( name, config, key, pModule ) );
 
-    else if ( type == "ZMQSinkRotationVelocity" )
+	else if ( type == "ZMQSinkRotationVelocity" )
         return boost::shared_ptr< NetworkComponentBase >( new PushSinkComponent< Measurement::RotationVelocity >( name, config, key, pModule ) );
 
 #ifdef HAVE_OPENCV
