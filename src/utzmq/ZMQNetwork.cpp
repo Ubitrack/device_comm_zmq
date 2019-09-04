@@ -141,11 +141,12 @@ void NetworkModule::startModule()
         if (m_has_pushsink) {
             socket_type = ZMQ_PUB;
         }
+        bool need_ioservice_start{false};
 		if (m_ioservice_users.fetch_add(1, boost::memory_order_relaxed) == 0) {
 			boost::atomic_thread_fence(boost::memory_order_acquire);
 			LOG4CPP_INFO( logger, "Start IOService" );
 			m_ioservice.reset(new boost::asio::io_service());
-            m_NetworkThread = boost::shared_ptr< boost::thread >( new boost::thread( boost::bind( &boost::asio::io_service::run, m_ioservice.get() ) ) );
+            need_ioservice_start = true;
 		}
         m_socket = boost::shared_ptr< azmq::socket >( new azmq::socket(*m_ioservice, socket_type) );
 
@@ -178,6 +179,8 @@ void NetworkModule::startModule()
             // network thread runs until module is stopped
             LOG4CPP_DEBUG( logger, "Starting listening for messages" );
             receiveMessage();
+            // need to start ioservice when there is a listener !!!
+            m_NetworkThread = boost::shared_ptr< boost::thread >( new boost::thread( boost::bind( &boost::asio::io_service::run, m_ioservice.get() ) ) );
         }
 
         LOG4CPP_DEBUG( logger, "ZMQ Network module started" );
