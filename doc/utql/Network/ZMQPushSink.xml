@@ -7,7 +7,7 @@
                       xsi:schemaLocation='http://ar.in.tum.de/ubitrack/utql ../../schema/utql_templates.xsd'>
 
 
-    <Pattern name="ZMQPushSinkEvent" displayName="ZMQ Sink (Event)">
+    <Pattern name="ZMQPushSinkEvent" displayName="ZMQ PushSink (Event)">
         <Description><h:p>This pattern transmits a button event via the selected transport to a ZMQPushSourcePosition2List having the same ID.</h:p></Description>
 
         <Input>
@@ -31,7 +31,7 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQPushSinkDistance" displayName="ZMQ Sink (Distance)">
+    <Pattern name="ZMQPushSinkDistance" displayName="ZMQ PushSink (Distance)">
         <Description><h:p>This pattern transmits a Distance via the selected transport to a ZMQPushSourceDistance having the same ID.</h:p></Description>
 
         <Input>
@@ -57,7 +57,7 @@
 
 
 
-    <Pattern name="ZMQPushSinkPosition2D" displayName="ZMQ Sink (Position 2D)">
+    <Pattern name="ZMQPushSinkPosition2D" displayName="ZMQ PushSink (Position 2D)">
         <Description><h:p>This pattern transmits a 2D position via the selected transport to a ZMQPushSourcePosition2D having the same ID.</h:p></Description>
 
         <Input>
@@ -81,7 +81,7 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQPushSinkPosition" displayName="ZMQ Sink (Position)">
+    <Pattern name="ZMQPushSinkPosition" displayName="ZMQ PushSink (Position)">
         <Description><h:p>This pattern transmits position data via the selected transport to a ZMQPushSourcePosition having the same ID.</h:p></Description>
 
         <Input>
@@ -105,7 +105,7 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQPushSinkPose" displayName="ZMQ Sink (Pose)">
+    <Pattern name="ZMQPushSinkPose" displayName="ZMQ PushSink (Pose)">
         <Description><h:p>This pattern transmits pose data via the selected transport to a ZMQPushSourcePose having the same ID.</h:p></Description>
         
         <Input>
@@ -131,7 +131,7 @@
 
 
 
-    <Pattern name="ZMQPushSinkErrorPosition2" displayName="ZMQ Sink (ErrorPosition2)">
+    <Pattern name="ZMQPushSinkErrorPosition2" displayName="ZMQ PushSink (ErrorPosition2)">
         <Description><h:p>This pattern transmits error position2 data via the selected transport to a ZMQPushSourceErrorPosition2 having the same ID.</h:p></Description>
 
         <Input>
@@ -155,7 +155,7 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQPushSinkErrorPosition" displayName="ZMQ Sink (ErrorPosition)">
+    <Pattern name="ZMQPushSinkErrorPosition" displayName="ZMQ PushSink (ErrorPosition)">
         <Description><h:p>This pattern transmits position data via the selected transport to a ZMQPushSourceErrorPosition having the same ID.</h:p></Description>
 
         <Input>
@@ -179,7 +179,7 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQPushSinkErrorPose" displayName="ZMQ Sink (ErrorPose)">
+    <Pattern name="ZMQPushSinkErrorPose" displayName="ZMQ PushSink (ErrorPose)">
         <Description><h:p>This pattern transmits a pose and its covariance data via the selected transport to a ZMQPushSourceErrorPose having the same ID.</h:p></Description>
         
         <Input>
@@ -206,7 +206,7 @@
 
 
 
-	<Pattern name="ZMQPushSinkRotation" displayName="ZMQ Sink (Rotation)">
+	<Pattern name="ZMQPushSinkRotation" displayName="ZMQ PushSink (Rotation)">
         <Description><h:p>This pattern transmits a rotation data via the selected transport to a ZMQPushSourceRotation having the same ID.</h:p></Description>
         
         <Input>
@@ -231,7 +231,7 @@
     </Pattern>
 
 
-    <Pattern name="ZMQPushSinkMatrix3x3" displayName="ZMQ Sink (Matrix 3x3)">
+    <Pattern name="ZMQPushSinkMatrix3x3" displayName="ZMQ PushSink (Matrix 3x3)">
         <Description><h:p>This pattern transmits a 3x3 Matrix via the selected transport to a ZMQPushSourceMatrix3x3 having the same ID.</h:p></Description>
 
         <Input>
@@ -255,7 +255,7 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQPushSinkMatrix3x4" displayName="ZMQ Sink (Matrix 3x4)">
+    <Pattern name="ZMQPushSinkMatrix3x4" displayName="ZMQ PushSink (Matrix 3x4)">
         <Description><h:p>This pattern transmits a 3x4 Matrix via the selected transport to a ZMQPushSourceMatrix3x4 having the same ID.</h:p></Description>
 
         <Input>
@@ -279,7 +279,7 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQPushSinkMatrix4x4" displayName="ZMQ Sink (Matrix 4x4)">
+    <Pattern name="ZMQPushSinkMatrix4x4" displayName="ZMQ PushSink (Matrix 4x4)">
         <Description><h:p>This pattern transmits a 4x4 Matrix via the selected transport to a ZMQPushSourceMatrix4x4 having the same ID.</h:p></Description>
 
         <Input>
@@ -305,7 +305,7 @@
 
 
 
-    <Pattern name="ZMQPushSinkVector4D" displayName="ZMQ Sink (Vector4D)">
+    <Pattern name="ZMQPushSinkVector4D" displayName="ZMQ PushSink (Vector4D)">
         <Description><h:p>This pattern transmits a list of 4D vector data via the selected transport to a ZMQPushSourceVector4D having the same ID.</h:p></Description>
 
         <Input>
@@ -331,7 +331,7 @@
 
 
 
-    <Pattern name="ZMQPushSink2DPositionList" displayName="ZMQ Sink (2DPositionList)">
+    <Pattern name="ZMQPushSink2DPositionList" displayName="ZMQ PushSink (2DPositionList)">
         <Description><h:p>This pattern transmits a list of 2D positions data via the selected transport to a ZMQPushSourcePosition2List having the same ID.</h:p></Description>
 
         <Input>
@@ -355,7 +355,7 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQPushSinkPositionList" displayName="ZMQ Sink (PositionList)">
+    <Pattern name="ZMQPushSinkPositionList" displayName="ZMQ PushSink (PositionList)">
         <Description><h:p>This pattern transmits a list of positions data via the selected transport to a ZMQPushSourcePositionList having the same ID.</h:p></Description>
 
         <Input>
@@ -379,7 +379,7 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQPushSinkPoseList" displayName="ZMQ Sink (PoseList)">
+    <Pattern name="ZMQPushSinkPoseList" displayName="ZMQ PushSink (PoseList)">
         <Description><h:p>This pattern transmits poselists data via the selected transport to a ZMQPushSourcePoseList having the same ID.</h:p></Description>
         
         <Input>
@@ -404,7 +404,7 @@
     </Pattern>
 
 
-    <Pattern name="ZMQPushSink2DErrorPositionList" displayName="ZMQ Sink (2DErrorPositionList)">
+    <Pattern name="ZMQPushSink2DErrorPositionList" displayName="ZMQ PushSink (2DErrorPositionList)">
         <Description><h:p>This pattern transmits a list of 2D error positions data via the selected transport to a ZMQPushSourceErrorPosition2List having the same ID.</h:p></Description>
 
         <Input>
@@ -428,7 +428,7 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQPushSinkErrorPositionList" displayName="ZMQ Sink (ErrorPositionList)">
+    <Pattern name="ZMQPushSinkErrorPositionList" displayName="ZMQ PushSink (ErrorPositionList)">
         <Description><h:p>This pattern transmits a list of error positions data via the selected transport to a ZMQPushSourceErrorPositionList having the same ID.</h:p></Description>
 
         <Input>
@@ -452,7 +452,7 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQPushSinkErrorPoseList" displayName="ZMQ Sink (ErrorPoseList)">
+    <Pattern name="ZMQPushSinkErrorPoseList" displayName="ZMQ PushSink (ErrorPoseList)">
         <Description><h:p>This pattern transmits error poselists data via the selected transport to a ZMQPushSourceErrorPoseList having the same ID.</h:p></Description>
 
         <Input>
@@ -479,7 +479,7 @@
 
 
 
-    <Pattern name="ZMQPushSinkCameraIntrinsics" displayName="ZMQ Sink (CameraIntrinsics)">
+    <Pattern name="ZMQPushSinkCameraIntrinsics" displayName="ZMQ PushSink (CameraIntrinsics)">
         <Description><h:p>This pattern transmits CameraIntrinsics via the selected transport to a ZMQPushSourceCameraIntrinsics having the same ID.</h:p></Description>
         
         <Input>
@@ -504,7 +504,7 @@
     </Pattern>
 	
     
-    <Pattern name="ZMQPushSinkImage" displayName="ZMQ Sink (Image)">
+    <Pattern name="ZMQPushSinkImage" displayName="ZMQ PushSink (Image)">
         <Description><h:p>This pattern transmits a Image via the selected transport to a ZMQPushSourceImage having the same ID.</h:p></Description>
         
         <Input>

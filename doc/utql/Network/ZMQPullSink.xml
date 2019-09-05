@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<UTQLPatternTemplates xmlns='http://ar.in.tum.de/ubitrack/utql'
+                      xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+                      xmlns:xi='http://www.w3.org/2001/XInclude'
+                      xmlns:h="http://www.w3.org/1999/xhtml"
+                      xsi:schemaLocation='http://ar.in.tum.de/ubitrack/utql ../../schema/utql_templates.xsd'>
+
+
+    <Pattern name="ZMQPullSinkEvent" displayName="ZMQ PullSink (Event)">
+        <Description><h:p>This pattern transmits a button event via the selected transport to a ZMQPullSourcePosition2List having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The button event received via zmq</h:p></Description>
+                <Predicate>type=='Button'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkEvent"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+    <Pattern name="ZMQPullSinkDistance" displayName="ZMQ PullSink (Distance)">
+        <Description><h:p>This pattern transmits a Distance via the selected transport to a ZMQPullSourceDistance having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The Distance received via zmq</h:p></Description>
+                <Predicate>type=='Distance'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkDistance"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+
+
+    <Pattern name="ZMQPullSinkPosition2D" displayName="ZMQ PullSink (Position 2D)">
+        <Description><h:p>This pattern transmits a 2D position via the selected transport to a ZMQPullSourcePosition2D having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The 2D position received via zmq</h:p></Description>
+                <Predicate>type=='2DPosition'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkPosition2D"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+    <Pattern name="ZMQPullSinkPosition" displayName="ZMQ PullSink (Position)">
+        <Description><h:p>This pattern transmits position data via the selected transport to a ZMQPullSourcePosition having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The position received via zmq</h:p></Description>
+                <Predicate>type=='3DPosition'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkPosition"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+    <Pattern name="ZMQPullSinkPose" displayName="ZMQ PullSink (Pose)">
+        <Description><h:p>This pattern transmits pose data via the selected transport to a ZMQPullSourcePose having the same ID.</h:p></Description>
+        
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The pose received via zmq</h:p></Description>
+                <Predicate>type=='6D'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+        
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkPose"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+
+
+    <Pattern name="ZMQPullSinkErrorPosition2" displayName="ZMQ PullSink (ErrorPosition2)">
+        <Description><h:p>This pattern transmits error position2 data via the selected transport to a ZMQPullSourceErrorPosition2 having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The error position2 received via zmq</h:p></Description>
+                <Predicate>type=='2DPositionError'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkErrorPosition2"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+    <Pattern name="ZMQPullSinkErrorPosition" displayName="ZMQ PullSink (ErrorPosition)">
+        <Description><h:p>This pattern transmits position data via the selected transport to a ZMQPullSourceErrorPosition having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The position received via zmq</h:p></Description>
+                <Predicate>type=='3DPositionError'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkErrorPosition"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+    <Pattern name="ZMQPullSinkErrorPose" displayName="ZMQ PullSink (ErrorPose)">
+        <Description><h:p>This pattern transmits a pose and its covariance data via the selected transport to a ZMQPullSourceErrorPose having the same ID.</h:p></Description>
+        
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The errorpose received via zmq</h:p></Description>
+                <Predicate>type=='6DError'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+        
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkErrorPose"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+
+
+
+	<Pattern name="ZMQPullSinkRotation" displayName="ZMQ PullSink (Rotation)">
+        <Description><h:p>This pattern transmits a rotation data via the selected transport to a ZMQPullSourceRotation having the same ID.</h:p></Description>
+        
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The rotation received via zmq</h:p></Description>
+                <Predicate>type=='3DRotation'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+        
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkRotation"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+
+    <Pattern name="ZMQPullSinkMatrix3x3" displayName="ZMQ PullSink (Matrix 3x3)">
+        <Description><h:p>This pattern transmits a 3x3 Matrix via the selected transport to a ZMQPullSourceMatrix3x3 having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The 3x3 Matrix received via zmq</h:p></Description>
+                <Predicate>type=='3x3Matrix'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkMatrix3x3"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+    <Pattern name="ZMQPullSinkMatrix3x4" displayName="ZMQ PullSink (Matrix 3x4)">
+        <Description><h:p>This pattern transmits a 3x4 Matrix via the selected transport to a ZMQPullSourceMatrix3x4 having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The 3x4 Matrix received via zmq</h:p></Description>
+                <Predicate>type=='3x4Matrix'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkMatrix3x4"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+    <Pattern name="ZMQPullSinkMatrix4x4" displayName="ZMQ PullSink (Matrix 4x4)">
+        <Description><h:p>This pattern transmits a 4x4 Matrix via the selected transport to a ZMQPullSourceMatrix4x4 having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The 4x4 Matrix received via zmq</h:p></Description>
+                <Predicate>type=='4x4Matrix'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkMatrix4x4"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+
+
+    <Pattern name="ZMQPullSinkVector4D" displayName="ZMQ PullSink (Vector4D)">
+        <Description><h:p>This pattern transmits a list of 4D vector data via the selected transport to a ZMQPullSourceVector4D having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The 4D vector received via zmq</h:p></Description>
+                <Predicate>type=='4DVector'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkVector4D"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+
+
+    <Pattern name="ZMQPullSink2DPositionList" displayName="ZMQ PullSink (2DPositionList)">
+        <Description><h:p>This pattern transmits a list of 2D positions data via the selected transport to a ZMQPullSourcePosition2List having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The 2D positionlist received via zmq</h:p></Description>
+                <Predicate>type=='2DPositionList'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkPositionList2"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+    <Pattern name="ZMQPullSinkPositionList" displayName="ZMQ PullSink (PositionList)">
+        <Description><h:p>This pattern transmits a list of positions data via the selected transport to a ZMQPullSourcePositionList having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The positionlist received via zmq</h:p></Description>
+                <Predicate>type=='3DPositionList'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkPositionList"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+    <Pattern name="ZMQPullSinkPoseList" displayName="ZMQ PullSink (PoseList)">
+        <Description><h:p>This pattern transmits poselists data via the selected transport to a ZMQPullSourcePoseList having the same ID.</h:p></Description>
+        
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The pose received via zmq</h:p></Description>
+                <Predicate>type=='PoseList'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+        
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkPoseList"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+
+    <Pattern name="ZMQPullSink2DErrorPositionList" displayName="ZMQ PullSink (2DErrorPositionList)">
+        <Description><h:p>This pattern transmits a list of 2D error positions data via the selected transport to a ZMQPullSourceErrorPosition2List having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The 2D error positionlist received via zmq</h:p></Description>
+                <Predicate>type=='2DErrorPositionList'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkErrorPositionList2"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+    <Pattern name="ZMQPullSinkErrorPositionList" displayName="ZMQ PullSink (ErrorPositionList)">
+        <Description><h:p>This pattern transmits a list of error positions data via the selected transport to a ZMQPullSourceErrorPositionList having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The error positionlist received via zmq</h:p></Description>
+                <Predicate>type=='3DErrorPositionList'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkErrorPositionList"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+    <Pattern name="ZMQPullSinkErrorPoseList" displayName="ZMQ PullSink (ErrorPoseList)">
+        <Description><h:p>This pattern transmits error poselists data via the selected transport to a ZMQPullSourceErrorPoseList having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The error pose received via zmq</h:p></Description>
+                <Predicate>type=='ErrorPoseList'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkErrorPoseList"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+
+
+
+    <Pattern name="ZMQPullSinkCameraIntrinsics" displayName="ZMQ PullSink (CameraIntrinsics)">
+        <Description><h:p>This pattern transmits CameraIntrinsics via the selected transport to a ZMQPullSourceCameraIntrinsics having the same ID.</h:p></Description>
+        
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The CameraIntrinsics received via zmq</h:p></Description>
+                <Predicate>type=='Intrinsics'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+        
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkCameraIntrinsics"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+	
+    
+    <Pattern name="ZMQPullSinkImage" displayName="ZMQ PullSink (Image)">
+        <Description><h:p>This pattern transmits a Image via the selected transport to a ZMQPullSourceImage having the same ID.</h:p></Description>
+        
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The Image received via zmq</h:p></Description>
+                <Predicate>type=='Image'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+        
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkImage"/>
+            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType">
+            </Attribute>
+            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+        </DataflowConfiguration>
+    </Pattern>
+   
+
+    <!-- Attribute declarations -->
+    
+    <GlobalNodeAttributeDeclarations>
+        <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/1/1)"/>
+    </GlobalNodeAttributeDeclarations>
+    
+    <GlobalEdgeAttributeDeclarations>
+        <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/2/1)"/>
+        <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/2/2)"/>
+        <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/2/3)"/>
+        <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/2/4)"/>
+        <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/2/5)"/>
+        <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/2/6)"/>
+        <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/2/7)"/>
+        <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/2/8)"/>
+    </GlobalEdgeAttributeDeclarations> 
+    
+    <GlobalDataflowAttributeDeclarations>
+        <!-- Unfortunately, the xpointer used in Xinclude is currently restricted to the element scheme and absolute element indices in Xerces (and thus XMLBeans) -->
+        <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/3/1)"/>
+        <xi:include href="file:GlobalAttrSpec.xml" xpointer="element(/1/3/2)"/>
+
+        <Attribute name="bindTo" displayName="Bind to socket" default="false" xsi:type="EnumAttributeDeclarationType">
+            <Description><p xmlns="http://www.w3.org/1999/xhtml">Should the module bind the socket (true) or connect (false).</p></Description>
+            <EnumValue name="false" displayName="False"/>
+            <EnumValue name="true" displayName="True"/>
+        </Attribute>
+
+        <Attribute name="fixTimestamp" displayName="Fix measurement timestamp on receive" default="false" xsi:type="EnumAttributeDeclarationType">
+            <Description><p xmlns="http://www.w3.org/1999/xhtml">Should timestamps of received packages be fixed using a synchronizer (true).</p></Description>
+            <EnumValue name="false" displayName="False"/>
+            <EnumValue name="true" displayName="True"/>
+        </Attribute>
+
+        <Attribute name="verbose" displayName="Verbose logging enabled" default="false" xsi:type="EnumAttributeDeclarationType">
+            <Description><p xmlns="http://www.w3.org/1999/xhtml">Enable verbose logging (true).</p></Description>
+            <EnumValue name="false" displayName="False"/>
+            <EnumValue name="true" displayName="True"/>
+        </Attribute>
+
+        <Attribute name="serialization_method" displayName="Serialization Method" default="boost_binary" xsi:type="EnumAttributeDeclarationType">
+            <Description><p xmlns="http://www.w3.org/1999/xhtml">Select serialization method (boost-binary).</p></Description>
+            <EnumValue name="boost_binary" displayName="Boost-Binary"/>
+            <EnumValue name="boost_text" displayName="Boost-Text"/>
+            <EnumValue name="msgpack" displayName="MessagePack"/>
+        </Attribute>
+
+    </GlobalDataflowAttributeDeclarations>
+    
+</UTQLPatternTemplates>
