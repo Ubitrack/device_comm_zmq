@@ -7,8 +7,8 @@
                       xsi:schemaLocation='http://ar.in.tum.de/ubitrack/utql ../../schema/utql_templates.xsd'>
 
 
-    <Pattern name="ZMQSourceEvent" displayName="ZMQ Source (Event)">
-        <Description><h:p>This pattern receives a button event via the selected transport from a <h:code>ZMQSinkEvent</h:code> having the same pattern ID</h:p></Description>
+    <Pattern name="ZMQPushSourceEvent" displayName="ZMQ Source (Event)">
+        <Description><h:p>This pattern receives a button event via the selected transport from a <h:code>ZMQPushSinkEvent</h:code> having the same pattern ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -21,7 +21,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceEvent"/>
+            <UbitrackLib class="ZMQPushSourceEvent"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -31,8 +31,8 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQSourceDistance" displayName="ZMQ Source (Distance)">
-        <Description><h:p>This pattern receives a distance via the selected transport from a <h:code>ZMQSinkDistance</h:code> having the same pattern ID</h:p></Description>
+    <Pattern name="ZMQPushSourceDistance" displayName="ZMQ Source (Distance)">
+        <Description><h:p>This pattern receives a distance via the selected transport from a <h:code>ZMQPushSinkDistance</h:code> having the same pattern ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -45,7 +45,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceDistance"/>
+            <UbitrackLib class="ZMQPushSourceDistance"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -58,8 +58,8 @@
 
 
 
-    <Pattern name="ZMQSourcePosition2D" displayName="ZMQ Source (Position 2D)">
-        <Description><h:p>This pattern receives 2D position data via the selected transport from a ZMQSinkPosition2D having the same ID</h:p></Description>
+    <Pattern name="ZMQPushSourcePosition2D" displayName="ZMQ Source (Position 2D)">
+        <Description><h:p>This pattern receives 2D position data via the selected transport from a ZMQPushSinkPosition2D having the same ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -72,7 +72,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourcePosition2D"/>
+            <UbitrackLib class="ZMQPushSourcePosition2D"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -82,8 +82,8 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQSourcePosition" displayName="ZMQ Source (Position)">
-        <Description><h:p>This pattern receives position data via the selected transport from a ZMQSinkPosition having the same ID</h:p></Description>
+    <Pattern name="ZMQPushSourcePosition" displayName="ZMQ Source (Position)">
+        <Description><h:p>This pattern receives position data via the selected transport from a ZMQPushSinkPosition having the same ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -96,7 +96,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourcePosition"/>
+            <UbitrackLib class="ZMQPushSourcePosition"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -106,8 +106,8 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQSourcePose" displayName="ZMQ Source (Pose)">
-        <Description><h:p>This pattern receives pose data via the selected transport from a ZMQSinkPose having the same ID</h:p></Description>
+    <Pattern name="ZMQPushSourcePose" displayName="ZMQ Source (Pose)">
+        <Description><h:p>This pattern receives pose data via the selected transport from a ZMQPushSinkPose having the same ID</h:p></Description>
         
         <Output>
             <Node name="A" displayName="A"/>
@@ -120,7 +120,7 @@
         </Output>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourcePose"/>
+            <UbitrackLib class="ZMQPushSourcePose"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -134,8 +134,8 @@
 
 
 
-    <Pattern name="ZMQSourceErrorPosition2" displayName="ZMQ Source (ErrorPosition2)">
-        <Description><h:p>This pattern receives position data via the selected transport from a ZMQSinkPosition2 having the same ID</h:p></Description>
+    <Pattern name="ZMQPushSourceErrorPosition2" displayName="ZMQ Source (ErrorPosition2)">
+        <Description><h:p>This pattern receives position data via the selected transport from a ZMQPushSinkPosition2 having the same ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -148,7 +148,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceErrorPosition2"/>
+            <UbitrackLib class="ZMQPushSourceErrorPosition2"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -158,8 +158,8 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQSourceErrorPosition" displayName="ZMQ Source (ErrorPosition)">
-        <Description><h:p>This pattern receives position data via the selected transport from a ZMQSinkPosition having the same ID</h:p></Description>
+    <Pattern name="ZMQPushSourceErrorPosition" displayName="ZMQ Source (ErrorPosition)">
+        <Description><h:p>This pattern receives position data via the selected transport from a ZMQPushSinkPosition having the same ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -172,7 +172,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceErrorPosition"/>
+            <UbitrackLib class="ZMQPushSourceErrorPosition"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -182,8 +182,8 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQSourceErrorPose" displayName="ZMQ Source (ErrorPose)">
-        <Description><h:p>This pattern receives a pose with its 6D error covariances data via the selected transport from a ZMQSinkErrorPose having the same ID</h:p></Description>
+    <Pattern name="ZMQPushSourceErrorPose" displayName="ZMQ Source (ErrorPose)">
+        <Description><h:p>This pattern receives a pose with its 6D error covariances data via the selected transport from a ZMQPushSinkErrorPose having the same ID</h:p></Description>
         
         <Output>
             <Node name="A" displayName="A"/>
@@ -196,7 +196,7 @@
         </Output>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceErrorPose"/>
+            <UbitrackLib class="ZMQPushSourceErrorPose"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -208,8 +208,8 @@
 
 
 
-	<Pattern name="ZMQSourceRotation" displayName="ZMQ Source (Rotation)">
-        <Description><h:p>This pattern receives rotation data via the selected transport from a ZMQSinkRotation having the same ID</h:p></Description>
+	<Pattern name="ZMQPushSourceRotation" displayName="ZMQ Source (Rotation)">
+        <Description><h:p>This pattern receives rotation data via the selected transport from a ZMQPushSinkRotation having the same ID</h:p></Description>
         
         <Output>
             <Node name="A" displayName="A"/>
@@ -222,7 +222,7 @@
         </Output>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceRotation"/>
+            <UbitrackLib class="ZMQPushSourceRotation"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -233,8 +233,8 @@
     </Pattern>
 
 
-    <Pattern name="ZMQSourceMatrix3x3" displayName="ZMQ Source (Matrix 3x3)">
-        <Description><h:p>This pattern receives a 3x3 matrix via the selected transport from a <h:code>ZMQSinkMatrix3x3</h:code> having the same pattern ID</h:p></Description>
+    <Pattern name="ZMQPushSourceMatrix3x3" displayName="ZMQ Source (Matrix 3x3)">
+        <Description><h:p>This pattern receives a 3x3 matrix via the selected transport from a <h:code>ZMQPushSinkMatrix3x3</h:code> having the same pattern ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -247,7 +247,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceMatrix3x3"/>
+            <UbitrackLib class="ZMQPushSourceMatrix3x3"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -257,8 +257,8 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQSourceMatrix3x4" displayName="ZMQ Source (Matrix 3x4)">
-        <Description><h:p>This pattern receives a 3x4 matrix via the selected transport from a <h:code>ZMQSinkMatrix3x4</h:code> having the same pattern ID</h:p></Description>
+    <Pattern name="ZMQPushSourceMatrix3x4" displayName="ZMQ Source (Matrix 3x4)">
+        <Description><h:p>This pattern receives a 3x4 matrix via the selected transport from a <h:code>ZMQPushSinkMatrix3x4</h:code> having the same pattern ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -271,7 +271,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceMatrix3x4"/>
+            <UbitrackLib class="ZMQPushSourceMatrix3x4"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -281,8 +281,8 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQSourceMatrix4x4" displayName="ZMQ Source (Matrix 4x4)">
-        <Description><h:p>This pattern receives a 4x4 matrix via the selected transport from a <h:code>ZMQSinkMatrix4x4</h:code> having the same pattern ID</h:p></Description>
+    <Pattern name="ZMQPushSourceMatrix4x4" displayName="ZMQ Source (Matrix 4x4)">
+        <Description><h:p>This pattern receives a 4x4 matrix via the selected transport from a <h:code>ZMQPushSinkMatrix4x4</h:code> having the same pattern ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -295,7 +295,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceMatrix4x4"/>
+            <UbitrackLib class="ZMQPushSourceMatrix4x4"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -306,8 +306,8 @@
     </Pattern>
 
 
-    <Pattern name="ZMQSourceVector4D" displayName="ZMQ Source (Vector4D)">
-        <Description><h:p>This pattern receives a list of 4D vector via the selected transport from a ZMQSinkVector4D having the same ID</h:p></Description>
+    <Pattern name="ZMQPushSourceVector4D" displayName="ZMQ Source (Vector4D)">
+        <Description><h:p>This pattern receives a list of 4D vector via the selected transport from a ZMQPushSinkVector4D having the same ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -320,7 +320,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceVector4D"/>
+            <UbitrackLib class="ZMQPushSourceVector4D"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -332,8 +332,8 @@
 
 
 
-    <Pattern name="ZMQSource2DPositionList" displayName="ZMQ Source (2DPositionList)">
-        <Description><h:p>This pattern receives a list of 2D positions data via the selected transport from a ZMQSinkPositionList2 having the same ID</h:p></Description>
+    <Pattern name="ZMQPushSource2DPositionList" displayName="ZMQ Source (2DPositionList)">
+        <Description><h:p>This pattern receives a list of 2D positions data via the selected transport from a ZMQPushSinkPositionList2 having the same ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -346,7 +346,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourcePositionList2"/>
+            <UbitrackLib class="ZMQPushSourcePositionList2"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -356,8 +356,8 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQSourcePositionList" displayName="ZMQ Source (PositionList)">
-        <Description><h:p>This pattern receives a list of positions data via the selected transport from a ZMQSinkPositionList having the same ID</h:p></Description>
+    <Pattern name="ZMQPushSourcePositionList" displayName="ZMQ Source (PositionList)">
+        <Description><h:p>This pattern receives a list of positions data via the selected transport from a ZMQPushSinkPositionList having the same ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -370,7 +370,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourcePositionList"/>
+            <UbitrackLib class="ZMQPushSourcePositionList"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -380,8 +380,8 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQSourcePoseList" displayName="ZMQ Source (PoseList)">
-        <Description><h:p>This pattern receives pose data via the selected transport from a ZMQSinkPoseList having the same ID</h:p></Description>
+    <Pattern name="ZMQPushSourcePoseList" displayName="ZMQ Source (PoseList)">
+        <Description><h:p>This pattern receives pose data via the selected transport from a ZMQPushSinkPoseList having the same ID</h:p></Description>
         
         <Output>
             <Node name="A" displayName="A"/>
@@ -394,7 +394,7 @@
         </Output>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourcePoseList"/>
+            <UbitrackLib class="ZMQPushSourcePoseList"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -406,8 +406,8 @@
 
 
 
-    <Pattern name="ZMQSource2DErrorPositionList" displayName="ZMQ Source (2DErrorPositionList)">
-        <Description><h:p>This pattern receives a list of 2D error positions data via the selected transport from a ZMQSinkErrorPositionList2 having the same ID</h:p></Description>
+    <Pattern name="ZMQPushSource2DErrorPositionList" displayName="ZMQ Source (2DErrorPositionList)">
+        <Description><h:p>This pattern receives a list of 2D error positions data via the selected transport from a ZMQPushSinkErrorPositionList2 having the same ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -420,7 +420,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceErrorPositionList2"/>
+            <UbitrackLib class="ZMQPushSourceErrorPositionList2"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -430,8 +430,8 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQSourceErrorPositionList" displayName="ZMQ Source (ErrorPositionList)">
-        <Description><h:p>This pattern receives a list of error positions data via the selected transport from a ZMQSinkErrorPositionList having the same ID</h:p></Description>
+    <Pattern name="ZMQPushSourceErrorPositionList" displayName="ZMQ Source (ErrorPositionList)">
+        <Description><h:p>This pattern receives a list of error positions data via the selected transport from a ZMQPushSinkErrorPositionList having the same ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -444,7 +444,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceErrorPositionList"/>
+            <UbitrackLib class="ZMQPushSourceErrorPositionList"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -454,8 +454,8 @@
         </DataflowConfiguration>
     </Pattern>
 
-    <Pattern name="ZMQSourceErrorPoseList" displayName="ZMQ Source (ErrorPoseList)">
-        <Description><h:p>This pattern receives error pose data via the selected transport from a ZMQSinkErrorPoseList having the same ID</h:p></Description>
+    <Pattern name="ZMQPushSourceErrorPoseList" displayName="ZMQ Source (ErrorPoseList)">
+        <Description><h:p>This pattern receives error pose data via the selected transport from a ZMQPushSinkErrorPoseList having the same ID</h:p></Description>
 
         <Output>
             <Node name="A" displayName="A"/>
@@ -468,7 +468,7 @@
         </Output>
 
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceErrorPoseList"/>
+            <UbitrackLib class="ZMQPushSourceErrorPoseList"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -480,8 +480,8 @@
 
 
 
-    <Pattern name="ZMQSourceCameraIntrinsics" displayName="ZMQ Source (CameraIntrinsics)">
-        <Description><h:p>This pattern receives CameraIntrinsics via the selected transport from a <h:code>ZMQSinkCameraIntrinsics</h:code> having the same pattern ID</h:p></Description>
+    <Pattern name="ZMQPushSourceCameraIntrinsics" displayName="ZMQ Source (CameraIntrinsics)">
+        <Description><h:p>This pattern receives CameraIntrinsics via the selected transport from a <h:code>ZMQPushSinkCameraIntrinsics</h:code> having the same pattern ID</h:p></Description>
         
         <Output>
             <Node name="A" displayName="A"/>
@@ -494,7 +494,7 @@
         </Output>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceCameraIntrinsics"/>
+            <UbitrackLib class="ZMQPushSourceCameraIntrinsics"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
@@ -505,8 +505,8 @@
     </Pattern>
 	
    
-    <Pattern name="ZMQSourceImage" displayName="ZMQ Source (Image)">
-        <Description><h:p>This pattern receives a Image via the selected transport from a <h:code>ZMQSinkEvent</h:code> having the same pattern ID</h:p></Description>
+    <Pattern name="ZMQPushSourceImage" displayName="ZMQ Source (Image)">
+        <Description><h:p>This pattern receives a Image via the selected transport from a <h:code>ZMQPushSinkEvent</h:code> having the same pattern ID</h:p></Description>
         
         <Output>
             <Node name="A" displayName="A"/>
@@ -519,7 +519,7 @@
         </Output>
         
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourceImage"/>
+            <UbitrackLib class="ZMQPushSourceImage"/>
             <Attribute name="socketUrl" displayName="Socket URL" default="tcp://127.0.0.1:9977" xsi:type="StringAttributeDeclarationType">
             </Attribute>
             <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
