@@ -405,7 +405,9 @@ void NetworkModule::handlePullRequest() {
                     boost::archive::binary_iarchive ar_message(buffer);
 
                     // parse_boost_binary packet
-                    Serialization::BoostArchive::deserialize(ar_message, request_component_name);
+                    std::string name;
+                    Serialization::BoostArchive::deserialize(ar_message, name);
+                    request_component_name = name;
                     if (m_verbose) {
                         LOG4CPP_DEBUG( logger, "Request for component " << request_component_name );
                     }
@@ -441,7 +443,9 @@ void NetworkModule::handlePullRequest() {
                     boost::archive::text_iarchive ar_message(buffer);
 
                     // parse_boost_binary packet
-                    Serialization::BoostArchive::deserialize(ar_message, request_component_name);
+                    std::string name;
+                    Serialization::BoostArchive::deserialize(ar_message, name);
+                    request_component_name = name;
                     if (m_verbose) {
                         LOG4CPP_DEBUG( logger, "Request for component " << request_component_name );
                     }
@@ -477,7 +481,9 @@ void NetworkModule::handlePullRequest() {
                     pac.buffer_consumed(message.size());
 
                     // parse_boost_binary packet
-                    Serialization::MsgpackArchive::deserialize(pac, request_component_name);
+                    std::string name;
+                    Serialization::MsgpackArchive::deserialize(pac, name);
+                    request_component_name = name;
                     if (m_verbose) {
                         LOG4CPP_DEBUG( logger, "Request for component " << request_component_name );
                     }
@@ -511,6 +517,8 @@ void NetworkModule::handlePullRequest() {
             catch ( const std::exception& e )
             {
                 LOG4CPP_ERROR( logger, "Caught exception " << e.what() );
+                // std::string msgdata((char*)message.data(), message.size());
+                // LOG4CPP_DEBUG( logger, "Message Data: " << std::hex << msgdata);
             }
 #endif // HAVE_MSGPACK
         } else {
