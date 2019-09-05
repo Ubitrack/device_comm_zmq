@@ -717,6 +717,146 @@ boost::shared_ptr< NetworkComponentBase > NetworkModule::createComponent( const 
 		return boost::shared_ptr< NetworkComponentBase >(new PushSinkComponent< Measurement::ImageMeasurement >(name, config, key, pModule));
 #endif
 
+
+
+    if ( type == "ZMQPullSourceEvent" ) // @todo should be button to be consistent or rename buttopn after all
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::Button >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSourceDistance" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::Distance >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQPullSourcePosition2D" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::Position2D >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSourcePosition" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::Position >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSourcePose" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::Pose >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQPullSourceErrorPosition2" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::ErrorPosition2 >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSourceErrorPosition" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::ErrorPosition >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSourceErrorPose" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::ErrorPose >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQPullSourceRotation" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::Rotation >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQPullSourceMatrix3x3" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::Matrix3x3 >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSourceMatrix3x4" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::Matrix3x4 >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSourceMatrix4x4" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::Matrix4x4 >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQPullSourceVector4D" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::Vector4D >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSourceVector8D" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::Vector8D >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQPullSourceEventList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::ButtonList >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSourceDistanceList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::DistanceList >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQPullSourcePositionList2" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::PositionList2 >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSourcePositionList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::PositionList >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSourcePoseList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::PoseList >( name, config, key, pModule ) );
+
+
+    else if ( type == "ZMQPullSourceErrorPositionList2" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::ErrorPositionList2 >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSourceErrorPositionList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::ErrorPositionList >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSourceErrorPoseList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::ErrorPoseList >( name, config, key, pModule ) );
+
+
+    else if ( type == "ZMQPullSourceCameraIntrinsics" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::CameraIntrinsics >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQPullSourceRotationVelocity" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSourceComponent< Measurement::RotationVelocity >( name, config, key, pModule ) );
+
+#ifdef HAVE_OPENCV
+    else if (type == "ZMQPullSourceImage")
+        return boost::shared_ptr< NetworkComponentBase >(new PullSourceComponent< Measurement::ImageMeasurement >(name, config, key, pModule));
+#endif
+
+    // sinks
+    else if ( type == "ZMQPullSinkEvent" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::Button >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSinkDistance" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::Distance >( name, config, key, pModule ) );
+
+
+    else if ( type == "ZMQPullSinkPosition2D" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::Position2D >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSinkPosition" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::Position >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSinkPose" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::Pose >( name, config, key, pModule ) );
+
+
+    else if ( type == "ZMQPullSinkErrorPosition2" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::ErrorPosition2 >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSinkErrorPosition" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::ErrorPosition >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSinkErrorPose" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::ErrorPose >( name, config, key, pModule ) );
+
+
+    else if ( type == "ZMQPullSinkRotation" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::Rotation >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQPullSinkMatrix3x3" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::Matrix3x3 >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSinkMatrix3x4" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::Matrix3x4 >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSinkMatrix4x4" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::Matrix4x4 >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQPullSinkVector4D" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::Vector4D >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSinkVector8D" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::Vector8D >( name, config, key, pModule ) );
+
+
+    else if ( type == "ZMQPullSinkEventList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::ButtonList >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSinkDistanceList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::DistanceList >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQPullSinkPositionList2" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::PositionList2 >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSinkPositionList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::PositionList >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSinkPoseList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::PoseList >( name, config, key, pModule ) );
+
+
+    else if ( type == "ZMQPullSinkErrorPositionList2" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::ErrorPositionList2 >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSinkErrorPositionList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::ErrorPositionList >( name, config, key, pModule ) );
+    else if ( type == "ZMQPullSinkErrorPoseList" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::ErrorPoseList >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQPullSinkCameraIntrinsics" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::CameraIntrinsics >( name, config, key, pModule ) );
+
+    else if ( type == "ZMQPullSinkRotationVelocity" )
+        return boost::shared_ptr< NetworkComponentBase >( new PullSinkComponent< Measurement::RotationVelocity >( name, config, key, pModule ) );
+
+#ifdef HAVE_OPENCV
+    else if (type == "ZMQPullSinkImage")
+        return boost::shared_ptr< NetworkComponentBase >(new PullSinkComponent< Measurement::ImageMeasurement >(name, config, key, pModule));
+#endif
+
+
+
     UBITRACK_THROW( "Class " + type + " not supported by ZMQNetwork module." );
 }
 
@@ -778,6 +918,59 @@ UBITRACK_REGISTER_COMPONENT( Dataflow::ComponentFactory* const cf ) {
 #ifdef HAVE_OPENCV    
 	NetworkComponents.push_back("ZMQPushSinkImage");
 #endif
+
+    NetworkComponents.push_back( "ZMQPullSourcePose" );
+    NetworkComponents.push_back( "ZMQPullSourceErrorPose" );
+    NetworkComponents.push_back( "ZMQPullSourceRotation" );
+    NetworkComponents.push_back( "ZMQPullSourcePosition" );
+    NetworkComponents.push_back( "ZMQPullSourcePosition2D" );
+    NetworkComponents.push_back( "ZMQPullSourcePoseList" );
+    NetworkComponents.push_back( "ZMQPullSourcePositionList" );
+    NetworkComponents.push_back( "ZMQPullSourcePositionList2" );
+    NetworkComponents.push_back( "ZMQPullSourceEvent" );
+    NetworkComponents.push_back( "ZMQPullSourceMatrix3x3" );
+    NetworkComponents.push_back( "ZMQPullSourceMatrix3x4" );
+    NetworkComponents.push_back( "ZMQPullSourceMatrix4x4" );
+    NetworkComponents.push_back( "ZMQPullSourceDistance" );
+
+    NetworkComponents.push_back( "ZMQPullSourceVector4D" );
+    NetworkComponents.push_back( "ZMQPullSourceVector8D" );
+    NetworkComponents.push_back( "ZMQPullSourceRotationVelocity" );
+    NetworkComponents.push_back( "ZMQPullSourceErrorPosition" );
+    NetworkComponents.push_back( "ZMQPullSourceDistanceList" );
+    NetworkComponents.push_back( "ZMQPullSourceErrorPositionList2" );
+    NetworkComponents.push_back( "ZMQPullSourceErrorPositionList" );
+    NetworkComponents.push_back( "ZMQPullSourceCameraIntrinsics" );
+#ifdef HAVE_OPENCV
+    NetworkComponents.push_back("ZMQPullSourceImage");
+#endif
+
+    NetworkComponents.push_back( "ZMQPullSinkPose" );
+    NetworkComponents.push_back( "ZMQPullSinkErrorPose" );
+    NetworkComponents.push_back( "ZMQPullSinkPosition" );
+    NetworkComponents.push_back( "ZMQPullSinkPosition2D" );
+    NetworkComponents.push_back( "ZMQPullSinkRotation" );
+    NetworkComponents.push_back( "ZMQPullSinkPoseList" );
+    NetworkComponents.push_back( "ZMQPullSinkPositionList" );
+    NetworkComponents.push_back( "ZMQPullSinkPositionList2" );
+    NetworkComponents.push_back( "ZMQPullSinkEvent" );
+    NetworkComponents.push_back( "ZMQPullSinkMatrix3x3" );
+    NetworkComponents.push_back( "ZMQPullSinkMatrix3x4" );
+    NetworkComponents.push_back( "ZMQPullSinkMatrix4x4" );
+    NetworkComponents.push_back( "ZMQPullSinkDistance" );
+
+    NetworkComponents.push_back( "ZMQPullSinkVector4D" );
+    NetworkComponents.push_back( "ZMQPullSinkVector8D" );
+    NetworkComponents.push_back( "ZMQPullSinkRotationVelocity" );
+    NetworkComponents.push_back( "ZMQPullSinkErrorPosition" );
+    NetworkComponents.push_back( "ZMQPullSinkDistanceList" );
+    NetworkComponents.push_back( "ZMQPullSinkErrorPositionList2" );
+    NetworkComponents.push_back( "ZMQPullSinkErrorPositionList" );
+    NetworkComponents.push_back( "ZMQPullSinkCameraIntrinsics" );
+#ifdef HAVE_OPENCV    
+    NetworkComponents.push_back("ZMQPullSinkImage");
+#endif
+
     
     cf->registerModule< NetworkModule >( NetworkComponents );
 }
