@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <UTQLResponse name="zmq_receiver" xsi:schemaLocation="http://ar.in.tum.de/ubitrack/utql http://ar.in.tum.de/files/ubitrack/utql/utql_types.xsd" xmlns="http://ar.in.tum.de/ubitrack/utql" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <Pattern name="ZMQSourcePose" displayName="test_pose" id="test_pose">
+    <Pattern name="ZMQPushSourcePose" displayName="test_pose" id="test_pose">
         <Output>
             <Node name="A" id="node_1">
                 <GuiPos x="448" y="258"/>
@@ -14,7 +14,7 @@
             </Edge>
         </Output>
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSourcePose"/>
+            <UbitrackLib class="ZMQPushSourcePose"/>
             <Attribute xsi:type="utql:PrimitiveAttributeType" name="socketUrl" value="tcp://127.0.0.1:9977" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
             <Attribute xsi:type="utql:PrimitiveAttributeType" name="bindTo" value="true" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
             <Attribute xsi:type="utql:PrimitiveAttributeType" name="trackman-guipos" value="0 0" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>

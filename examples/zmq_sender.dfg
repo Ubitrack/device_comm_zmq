@@ -26,7 +26,7 @@
             <Attribute xsi:type="utql:PrimitiveAttributeType" name="trackman-guipos" value="0 0" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
         </DataflowConfiguration>
     </Pattern>
-    <Pattern name="ZMQSinkPose" displayName="test_pose" id="test_pose">
+    <Pattern name="ZMQPushSinkPose" displayName="test_pose" id="test_pose">
         <Input>
             <Node name="A" id="node_1">
                 <GuiPos x="463" y="237"/>
@@ -42,7 +42,7 @@
             </Edge>
         </Input>
         <DataflowConfiguration>
-            <UbitrackLib class="ZMQSinkPose"/>
+            <UbitrackLib class="ZMQPushSinkPose"/>
             <Attribute xsi:type="utql:PrimitiveAttributeType" name="socketUrl" value="tcp://127.0.0.1:9977" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
             <Attribute xsi:type="utql:PrimitiveAttributeType" name="bindTo" value="false" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
             <Attribute xsi:type="utql:PrimitiveAttributeType" name="trackman-guipos" value="0 170" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
