@@ -49,8 +49,8 @@ static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.ZMQNe
 
 // static zmq context as singleton
 boost::shared_ptr<boost::asio::io_service> NetworkModule::m_ioservice;
+boost::shared_ptr<boost::asio::deadline_timer> NetworkModule::m_ioserviceKeepAlive;
 boost::atomic<int> NetworkModule::m_ioservice_users(0);
-boost::atomic<int> NetworkModule::m_async_subscribers(0);
 
 NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_ptr< Graph::UTQLSubgraph > pConfig, FactoryHelper* pFactory )
     : Module< NetworkModuleKey, NetworkComponentKey, NetworkModule, NetworkComponentBase >( moduleKey, pFactory )
@@ -182,6 +182,10 @@ void NetworkModule::startModule()
 			boost::atomic_thread_fence(boost::memory_order_acquire);
 			LOG4CPP_INFO( logger, "Create IOService" );
 			m_ioservice.reset(new boost::asio::io_service());
+			m_ioserviceKeepAlive.reset(new boost::asio::deadline_timer(*m_ioservice));
+            watchdogTimer();
+            LOG4CPP_INFO( logger, "Start IOService Tread" );
+            m_NetworkThread = boost::shared_ptr< boost::thread >( new boost::thread( boost::bind( &boost::asio::io_service::run, m_ioservice.get() ) ) );
 		}
         m_socket = boost::shared_ptr< azmq::socket >( new azmq::socket(*m_ioservice, socket_type) );
 
@@ -215,23 +219,9 @@ void NetworkModule::startModule()
         if (m_has_pushsource) {
             LOG4CPP_DEBUG( logger, "Starting listening for push messages" );
             receivePushMessage();
-
-            // need to start the io_service after the first subscriber has been added
-            if (m_async_subscribers.fetch_add(1, boost::memory_order_relaxed) == 0) {
-                boost::atomic_thread_fence(boost::memory_order_acquire);
-                LOG4CPP_INFO( logger, "Start IOService Tread" );
-                m_NetworkThread = boost::shared_ptr< boost::thread >( new boost::thread( boost::bind( &boost::asio::io_service::run, m_ioservice.get() ) ) );
-            }
         } else if (m_has_pullsink) {
             LOG4CPP_DEBUG( logger, "Starting listening for pull requests" );
             handlePullRequest();
-
-            // need to start the io_service after the first subscriber has been added
-            if (m_async_subscribers.fetch_add(1, boost::memory_order_relaxed) == 0) {
-                boost::atomic_thread_fence(boost::memory_order_acquire);
-                LOG4CPP_INFO( logger, "Start IOService Tread" );
-                m_NetworkThread = boost::shared_ptr< boost::thread >( new boost::thread( boost::bind( &boost::asio::io_service::run, m_ioservice.get() ) ) );
-            }
         }
 
         LOG4CPP_DEBUG( logger, "ZMQ Network module started" );
@@ -263,6 +253,14 @@ void NetworkModule::stopModule()
 		}
 	}
     LOG4CPP_DEBUG( logger, "ZMQ Network Stopped" );
+}
+
+void NetworkModule::watchdogTimer() {
+    if (m_verbose) {
+        LOG4CPP_DEBUG( logger, "IOService Alive" );
+    }
+    m_ioserviceKeepAlive->expires_from_now(boost::posix_time::seconds(1));
+    m_ioserviceKeepAlive->async_wait(boost::bind(&NetworkModule::watchdogTimer, this));
 }
 
 void NetworkModule::receivePushMessage() {

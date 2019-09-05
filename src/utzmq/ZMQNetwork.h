@@ -155,6 +155,8 @@ public:
     void receivePushMessage();
     void handlePullRequest();
 
+    void watchdogTimer();
+
     inline bool getFixTimestamp() {
         return m_fixTimestamp;
     }
@@ -173,8 +175,8 @@ protected:
 
     // globally shared between all zmq modules
     static boost::shared_ptr<boost::asio::io_service> m_ioservice;
+    static boost::shared_ptr<boost::asio::deadline_timer> m_ioserviceKeepAlive;
 	static boost::atomic<int> m_ioservice_users;
-	static boost::atomic<int> m_async_subscribers;
 
     boost::shared_ptr<azmq::socket> m_socket;
 
