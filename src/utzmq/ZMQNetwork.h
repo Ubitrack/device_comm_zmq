@@ -78,9 +78,17 @@
 
 
 #include <utSerialization/Serialization.h>
+
 #ifdef HAVE_OPENCV
 #include <utVision/ImageSerialization.h>
 #endif // HAVE_OPENCV
+
+#ifdef HAVE_MSGPACK
+bool msgpack_reference_func(msgpack::type::object_type /*type*/, std::size_t /*len*/, void*) {
+    return true;
+}
+#endif // HAVE_MSGPACK
+
 
 // have a logger..
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.ZMQNetwork" ) );
@@ -585,13 +593,17 @@ protected:
             LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource " << m_name << " - " << ec.message());
             return EventType();
         } else {
-            if (m_verbose)
-            LOG4CPP_DEBUG( logger, "Response requested on ZMQSource " << m_name );
+            if (m_verbose) {
+                LOG4CPP_DEBUG( logger, "Response requested on ZMQSource " << m_name );
+            }
         }
 
         //
         // deserialize packet
         //
+        if (m_verbose) {
+            LOG4CPP_DEBUG( logger, "Response received on ZMQSource " << m_name << " - received: " << sz2 << " size: " << rcv_buf.size() );
+        }
 
         if (sm == Serialization::PROTOCOL_BOOST_BINARY) {
             typedef boost::iostreams::basic_array_source<char> Device;
@@ -602,7 +614,7 @@ protected:
             std::string name;
             Serialization::BoostArchive::deserialize(ar_message, name);
             if (name != m_name) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - names do not match" << m_name << " != " << name);
+                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - names do not match: "<< m_name << " != " << name);
                 return EventType();
             }
             if (m_verbose) {
@@ -619,7 +631,7 @@ protected:
             int measurementType;
             Serialization::BoostArchive::deserialize(ar_message, measurementType);
             if (measurementType != (int)getMeasurementType()) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - measurement types do not match" << getMeasurementType() << " != " << measurementType);
+                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - measurement types do not match: "<< getMeasurementType() << " != " << measurementType);
                 return EventType();
             }
 
@@ -629,16 +641,14 @@ protected:
             return mm;
 
         } else if (sm == Serialization::PROTOCOL_BOOST_TEXT) {
-            // @todo find a way to do this without copying !!!
-            std::string input_data_( (char*)rcv_buf.data(), rcv_buf.size() );
-            std::istringstream buffer(input_data_);
+            std::istringstream buffer(const_cast<char*>(static_cast<const char*>(rcv_buf.data())), rcv_buf.size());
             boost::archive::text_iarchive ar_message(buffer);
 
             // parse_boost_text packet
             std::string name;
             Serialization::BoostArchive::deserialize(ar_message, name);
             if (name != m_name) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - names do not match" << m_name << " != " << name);
+                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - names do not match: "<< m_name << " != " << name);
                 return EventType();
             }
             if (m_verbose) {
@@ -655,7 +665,7 @@ protected:
             int measurementType;
             Serialization::BoostArchive::deserialize(ar_message, measurementType);
             if (measurementType != (int)getMeasurementType()) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - measurement types do not match" << getMeasurementType() << " != " << measurementType);
+                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - measurement types do not match: "<< getMeasurementType() << " != " << measurementType);
                 return EventType();
             }
 
@@ -665,9 +675,9 @@ protected:
             return mm;
 #ifdef HAVE_MSGPACK
         } else if (sm == Serialization::PROTOCOL_MSGPACK) {
+            // this is using the incorrect api .. unpacker delegates memory management to msgpack
             msgpack::unpacker pac;
             pac.reserve_buffer(rcv_buf.size());
-            // @todo find a way to do this without copying !!!
             memcpy(pac.buffer(), rcv_buf.data(), rcv_buf.size() );
             pac.buffer_consumed(rcv_buf.size());
 
@@ -675,7 +685,7 @@ protected:
             std::string name;
             Serialization::MsgpackArchive::deserialize(pac, name);
             if (name != m_name) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - names do not match" << m_name << " != " << name);
+                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - names do not match: "<< m_name << " != " << name);
                 return EventType();
             }
             if (m_verbose) {
@@ -692,7 +702,7 @@ protected:
             int measurementType;
             Serialization::MsgpackArchive::deserialize(pac, measurementType);
             if (measurementType != (int)getMeasurementType()) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - measurement types do not match" << getMeasurementType() << " != " << measurementType);
+                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - measurement types do not match: "<< getMeasurementType() << " != " << measurementType);
                 return EventType();
             }
 
@@ -738,33 +748,42 @@ public:
     }
 
 
-    bool serialize_boost_archive(boost::archive::binary_oarchive& ar, Measurement::Timestamp ts)
+    bool serialize_boost_archive(boost::archive::binary_oarchive& ar, Measurement::Timestamp ts) override
     {
         try {
             Serialization::BoostArchive::serialize(ar, m_inPort.get(ts));
             return true;
-        } catch (const Util::Exception& ) {
+        } catch (const Util::Exception& e) {
+            LOG4CPP_ERROR(logger, "Error serializing measurement: " << e.what());
+        } catch (const std::exception &e) {
+            LOG4CPP_ERROR(logger, "Error serializing measurement: " << e.what());
         }
         return false;
     }
 
-    bool serialize_boost_archive(boost::archive::text_oarchive& ar, Measurement::Timestamp ts)
+    bool serialize_boost_archive(boost::archive::text_oarchive& ar, Measurement::Timestamp ts) override
     {
         try {
             Serialization::BoostArchive::serialize(ar, m_inPort.get(ts));
             return true;
-        } catch (const Util::Exception& ) {
+        } catch (const Util::Exception& e) {
+            LOG4CPP_ERROR(logger, "Error serializing measurement: " << e.what());
+        } catch (const std::exception &e) {
+            LOG4CPP_ERROR(logger, "Error serializing measurement: " << e.what());
         }
         return false;
     }
 
 #ifdef HAVE_MSGPACK
-    virtual bool serialize_msgpack_archive(msgpack::packer<std::ostringstream>& pac, Measurement::Timestamp ts)
+    bool serialize_msgpack_archive(msgpack::packer<std::ostringstream>& pac, Measurement::Timestamp ts) override
     {
         try {
             Serialization::MsgpackArchive::serialize(pac, m_inPort.get(ts));
             return true;
-        } catch (const Util::Exception& ) {
+        } catch (const Util::Exception& e) {
+            LOG4CPP_ERROR(logger, "Error serializing measurement: " << e.what());
+        } catch (const std::exception &e) {
+            LOG4CPP_ERROR(logger, "Error serializing measurement: " << e.what());
         }
         return false;
     }
