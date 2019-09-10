@@ -49,6 +49,9 @@
 
 
 #include <string>
+#if __cplusplus > 201402L
+#include <string_view>
+#endif
 #include <cstdlib>
 
 #include <boost/shared_ptr.hpp>
@@ -641,7 +644,13 @@ protected:
             return mm;
 
         } else if (sm == Serialization::PROTOCOL_BOOST_TEXT) {
-            std::istringstream buffer(const_cast<char*>(static_cast<const char*>(rcv_buf.data())), rcv_buf.size());
+#if __cplusplus > 201402L
+            // C__17 code allows us to not copy the data easily
+            std::istringstream buffer(std::string_view(const_cast<char*>(static_cast<const char*>(rcv_buf.data())), rcv_buf.size()));
+#else
+            std::string message_str(static_cast<const char*>(rcv_buf.data()), rcv_buf.size());
+            std::istringstream buffer(message_str);
+#endif
             boost::archive::text_iarchive ar_message(buffer);
 
             // parse_boost_text packet

@@ -305,7 +305,13 @@ void NetworkModule::receivePushMessage() {
                         LOG4CPP_WARN( logger, "ZMQPushSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
                     }
                 } else if (m_serializationMethod == Serialization::PROTOCOL_BOOST_TEXT) {
-                    std::istringstream buffer(const_cast<char*>(static_cast<const char*>(message.data())), message.size());
+#if __cplusplus > 201402L
+                    // C__17 code allows us to not copy the data easily
+                    std::istringstream buffer(std::string_view(const_cast<char*>(static_cast<const char*>(message.data())), message.size()));
+#else
+                    std::string message_str(static_cast<const char*>(message.data()), message.size());
+                    std::istringstream buffer(message_str);
+#endif
                     boost::archive::text_iarchive ar_message(buffer);
 
                     // parse_boost_binary packet
@@ -442,7 +448,13 @@ void NetworkModule::handlePullRequest() {
                         LOG4CPP_WARN( logger, "ZMQPullSource is requesting with id=\"" << request_component_name << "\", found no corresponding ZMQPullSink pattern with same id."  );
                     }
                 } else if (m_serializationMethod == Serialization::PROTOCOL_BOOST_TEXT) {
-                    std::istringstream buffer(const_cast<char*>(static_cast<const char*>(message.data())), message.size());
+#if __cplusplus > 201402L
+                    // C__17 code allows us to not copy the data easily
+                    std::istringstream buffer(std::string_view(const_cast<char*>(static_cast<const char*>(message.data())), message.size()));
+#else
+                    std::string message_str(static_cast<const char*>(message.data()), message.size());
+                    std::istringstream buffer(message_str);
+#endif
                     boost::archive::text_iarchive ar_message(buffer);
 
                     // parse_boost_binary packet
