@@ -40,7 +40,7 @@
 #include <boost/array.hpp>
 
 #include <log4cpp/Category.hh>
-
+#include <msgpack/v1/vrefbuffer.hpp>
 
 
 namespace Ubitrack { namespace Drivers {
@@ -526,6 +526,7 @@ void NetworkModule::handlePullRequest() {
                     } else if (m_verbose) {
                         LOG4CPP_WARN( logger, "ZMQPullSource is requesting with id=\"" << request_component_name << "\", found no corresponding ZMQPullSink pattern with same id."  );
                     }
+#endif // HAVE_MSGPACK
                 } else {
                     LOG4CPP_ERROR( logger, "Invalid serialization method." );
                 }
@@ -533,10 +534,10 @@ void NetworkModule::handlePullRequest() {
             catch ( const std::exception& e )
             {
                 LOG4CPP_ERROR( logger, "Caught exception " << e.what() );
-                // std::string msgdata((char*)message.data(), message.size());
-                // LOG4CPP_DEBUG( logger, "Message Data: " << std::hex << msgdata);
+                if (m_verbose) {
+                    LOG4CPP_TRACE(logger, printf_azmq_message_content(message));
+                }
             }
-#endif // HAVE_MSGPACK
         } else {
             LOG4CPP_ERROR( logger, "Error receiving zmq message" << error.message());
         }

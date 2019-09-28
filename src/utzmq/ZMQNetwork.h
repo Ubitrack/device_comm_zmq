@@ -62,6 +62,7 @@
 #include <sstream>
 #include <iostream>
 #include <istream>
+#include <iomanip>
 
 #include <boost/array.hpp>
 
@@ -92,6 +93,24 @@ bool msgpack_reference_func(msgpack::type::object_type /*type*/, std::size_t /*l
 }
 #endif // HAVE_MSGPACK
 
+std::string char_to_hex(const unsigned char c)
+{
+    static const char* const lut = "0123456789ABCDEF";
+    std::string result;
+    result += lut[c >> 4];
+    result += lut[c & 15];
+    return result;
+}
+
+std::string printf_azmq_message_content(const azmq::message& message) {
+    std::ostringstream oss;
+    for (size_t i=0; i<message.size(); i++) {
+        oss << char_to_hex(static_cast<const char *>(message.data())[i]) << " ";
+    }
+    oss << std::endl;
+    return oss.str();
+}
+
 
 // have a logger..
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.ZMQNetwork" ) );
@@ -102,6 +121,7 @@ namespace Ubitrack { namespace Drivers {
 enum PullResponseStatus {PULL_RESPONSE_SUCCESS, PULL_RESPONSE_ERROR};
 
 using namespace Dataflow;
+
 
 // forward declaration
 class NetworkComponentBase;
@@ -572,8 +592,13 @@ protected:
         // synchronous request for measurement
         //
 
-        auto snd_buf = boost::asio::const_buffer(reqstream.str().data(), reqstream.str().size());
-        auto sz1 = m_socket->send(snd_buf, 0, ec);
+        auto snd_msg = azmq::message(reqstream.str());
+
+        if (m_verbose) {
+            LOG4CPP_TRACE(logger, printf_azmq_message_content(snd_msg));
+        }
+
+        auto sz1 = m_socket->send(snd_msg, 0, ec);
         if (ec != boost::system::error_code()) {
             LOG4CPP_ERROR( logger, "Error requesting message on ZMQSource " << m_name << " - " << ec.message());
             return EventType();
