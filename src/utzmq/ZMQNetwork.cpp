@@ -199,9 +199,9 @@ void NetworkModule::startModule()
             if (m_has_pushsource) {
                 m_socket->set_option(azmq::socket::subscribe(""));
             }
-//            if (m_has_pullsource) {
-//                m_socket->set_option(m_receiveTimeout);
-//            }
+            if (m_has_pullsource) {
+                m_socket->set_option(m_receiveTimeout);
+            }
         }
         catch (boost::system::system_error &e) {
             std::ostringstream log;
