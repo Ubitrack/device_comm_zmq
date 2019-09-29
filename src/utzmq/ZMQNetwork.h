@@ -467,11 +467,11 @@ protected:
             return;
         }
 
-        // blackmagic .. remove const from ostringstream result without copying ..
-        auto const_message_str = new std::string(stream->str().data(), stream->str().size());
-        auto message_ptr = const_cast<std::string*>(const_message_str);
-
-        azmq::message message(azmq::nocopy, boost::asio::buffer(*message_ptr), (void*)stream_ptr, [](void *buf, void *hint){
+        // we're casting to a mutable buffer here in order to comply with the required azmq::message interface to provide a hint for deletion ...
+        azmq::message message(azmq::nocopy,
+                boost::asio::mutable_buffer(const_cast<void*>(static_cast<const void*>(stream->str().data())), stream->str().size()),
+                (void*)stream_ptr,
+                [](void *buf, void *hint){
             if (hint != nullptr) {
                 auto b = static_cast<std::shared_ptr<std::ostringstream>*>(hint);
                 delete b;
