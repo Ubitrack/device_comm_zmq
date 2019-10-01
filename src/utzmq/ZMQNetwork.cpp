@@ -168,8 +168,10 @@ void NetworkModule::startModule()
             socket_type = ZMQ_PUB;
         } else if (m_has_pushsource) {
             socket_type = ZMQ_SUB;
-        } else if (m_has_pullsink || m_has_pullsource) {
-            socket_type = ZMQ_DEALER;
+        } else if (m_has_pullsink) {
+            socket_type = ZMQ_REP;
+        } else if (m_has_pullsource) {
+            socket_type = ZMQ_REQ;
         } else {
             UBITRACK_THROW("Configuration Error: ZMQNetwork has no Sinks or Sources.");
         }
