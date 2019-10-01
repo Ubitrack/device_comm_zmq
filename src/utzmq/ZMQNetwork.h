@@ -92,25 +92,46 @@ bool msgpack_reference_func(msgpack::type::object_type /*type*/, std::size_t /*l
     return true;
 }
 #endif // HAVE_MSGPACK
-
-std::string char_to_hex(const unsigned char c)
-{
-    static const char* const lut = "0123456789ABCDEF";
-    std::string result;
-    result += lut[c >> 4];
-    result += lut[c & 15];
-    return result;
-}
-
-std::string printf_azmq_message_content(const azmq::message& message) {
-    std::ostringstream oss;
-    for (size_t i=0; i<message.size(); i++) {
-        oss << char_to_hex(static_cast<const char *>(message.data())[i]) << " ";
+namespace {
+    std::string char_to_hex(const unsigned char c)
+    {
+        static const char* const lut = "0123456789ABCDEF";
+        std::string result;
+        result += lut[c >> 4];
+        result += lut[c & 15];
+        return result;
     }
-    oss << std::endl;
-    return oss.str();
-}
 
+    std::string printf_azmq_message_content(const azmq::message& message) {
+        std::ostringstream oss;
+        for (size_t i=0; i<message.size(); i++) {
+            oss << char_to_hex(static_cast<const char *>(message.data())[i]) << " ";
+        }
+        oss << std::endl;
+        return oss.str();
+    }
+
+    class zmq_message_unpacker {
+    public:
+        explicit zmq_message_unpacker(const azmq::message& msg)
+        : m_data_ptr(static_cast<const char*>(msg.data())),
+        m_size(msg.size())
+        {}
+
+        bool next(msgpack::object_handle& result) {
+            if (m_offset < m_size) {
+                result = msgpack::unpack(m_data_ptr, m_size, m_offset);
+                return true;
+            }
+            return false;
+        }
+    private:
+        const char* m_data_ptr{nullptr};
+        size_t m_size{0};
+        size_t m_offset{0};
+    };
+
+}
 
 // have a logger..
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Drivers.ZMQNetwork" ) );
@@ -273,10 +294,10 @@ public:
     }
 
 #ifdef HAVE_MSGPACK
-    virtual void parse_msgpack_archive(msgpack::unpacker& pac, Measurement::Timestamp recvtime)
+    virtual void parse_msgpack_archive(zmq_message_unpacker& pac, Measurement::Timestamp recvtime)
     {}
 
-    virtual bool serialize_msgpack_archive(msgpack::packer<std::ostringstream>& pac, Measurement::Timestamp ts)
+    virtual bool serialize_msgpack_archive(msgpack::packer<msgpack::sbuffer>& pac, Measurement::Timestamp ts)
     {
         return false;
     }
@@ -334,7 +355,7 @@ public:
     }
 
 #ifdef HAVE_MSGPACK
-    void parse_msgpack_archive(msgpack::unpacker& pac, Measurement::Timestamp recvtime) override
+    void parse_msgpack_archive(zmq_message_unpacker& pac, Measurement::Timestamp recvtime) override
     {
         EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
         Measurement::Timestamp sendtime;
@@ -426,16 +447,16 @@ protected:
     // receive a new pose from the dataflow
     void eventIn( const EventType& m )
     {
-        // needed to avoid copying the message before sending...
-        auto stream_ptr = new boost::shared_ptr<std::ostringstream>(new std::ostringstream);
-        auto stream = *stream_ptr;
+        // the message to be sent
+        azmq::message message;
+
         std::string suffix("\n");
-        Measurement::Timestamp sendtime;
-        sendtime = Measurement::now();
+        Measurement::Timestamp sendtime = Measurement::now();
 
         Serialization::SerializationProtocol sm = getModule().getSerializationMethod();
         if (sm == Serialization::SerializationProtocol::PROTOCOL_BOOST_BINARY) {
-            boost::archive::binary_oarchive bpacket( *stream );
+            std::ostringstream stream;
+            boost::archive::binary_oarchive bpacket( stream );
 
             Serialization::BoostArchive::serialize(bpacket, m_name);
             Serialization::BoostArchive::serialize(bpacket, static_cast<int>(getMeasurementType()));
@@ -443,8 +464,11 @@ protected:
             Serialization::BoostArchive::serialize(bpacket, sendtime);
             Serialization::BoostArchive::serialize(bpacket, suffix);
 
+            message = azmq::message(stream.str());
+
         } else if (sm == Serialization::SerializationProtocol::PROTOCOL_BOOST_TEXT) {
-            boost::archive::text_oarchive tpacket( *stream );
+            std::ostringstream stream;
+            boost::archive::text_oarchive tpacket( stream );
 
             Serialization::BoostArchive::serialize(tpacket, m_name);
             Serialization::BoostArchive::serialize(tpacket, static_cast<int>(getMeasurementType()));
@@ -452,31 +476,36 @@ protected:
             Serialization::BoostArchive::serialize(tpacket, sendtime);
             Serialization::BoostArchive::serialize(tpacket, suffix);
 
+            message = azmq::message(stream.str());
+
 #ifdef HAVE_MSGPACK
         } else if (sm == Serialization::SerializationProtocol::PROTOCOL_MSGPACK) {
-            msgpack::packer<std::ostringstream> pk(stream.get());
+            // needed to avoid copying the message before sending...
+            auto result_buffer_ptr = new std::shared_ptr<msgpack::sbuffer>(new msgpack::sbuffer() );
+            auto result_buffer = *result_buffer_ptr;
+            msgpack::packer<msgpack::sbuffer> pk(*result_buffer);
 
             Serialization::MsgpackArchive::serialize(pk, m_name);
             Serialization::MsgpackArchive::serialize(pk, static_cast<int>(getMeasurementType()));
             Serialization::MsgpackArchive::serialize(pk, m);
             Serialization::MsgpackArchive::serialize(pk, sendtime);
-#endif // HAVE_MSGPACK
+
+            message = azmq::message(azmq::nocopy,
+                                    boost::asio::buffer(result_buffer->data(), result_buffer->size()),
+                                    (void*)result_buffer_ptr,
+                                    [](void *buf, void *hint){
+                                        if (hint != nullptr) {
+                                            auto b = static_cast<std::shared_ptr<msgpack::sbuffer> *>(hint);
+                                            delete b;
+                                        }
+                                    });
+
+        #endif // HAVE_MSGPACK
 
         } else {
             LOG4CPP_ERROR( logger, "Invalid serialization protocol." );
             return;
         }
-
-        // we're casting to a mutable buffer here in order to comply with the required azmq::message interface to provide a hint for deletion ...
-        azmq::message message(azmq::nocopy,
-                boost::asio::mutable_buffer(const_cast<void*>(static_cast<const void*>(stream->str().data())), stream->str().size()),
-                (void*)stream_ptr,
-                [](void *buf, void *hint){
-            if (hint != nullptr) {
-                auto b = static_cast<std::shared_ptr<std::ostringstream>*>(hint);
-                delete b;
-            }
-        });
 
         if (m_socket) {
 #ifdef ENABLE_EVENT_TRACING
@@ -528,7 +557,7 @@ public:
     }
 
 #ifdef HAVE_MSGPACK
-    virtual EventType parse_msgpack_archive(msgpack::unpacker& pac)
+    virtual EventType parse_msgpack_archive(zmq_message_unpacker& pac)
     {
         EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
         Serialization::MsgpackArchive::deserialize(pac, mm);
@@ -551,36 +580,41 @@ protected:
     {
 
         boost::system::error_code ec;
-
-
         //
         // Serialize request
         //
 
-        std::ostringstream reqstream;
+        azmq::message snd_msg;
 
         Serialization::SerializationProtocol sm = getModule().getSerializationMethod();
         if (sm == Serialization::SerializationProtocol::PROTOCOL_BOOST_BINARY) {
+            std::ostringstream reqstream;
             boost::archive::binary_oarchive bpacket(reqstream );
 
             Serialization::BoostArchive::serialize(bpacket, m_name);
             Serialization::BoostArchive::serialize(bpacket, static_cast<int>(getMeasurementType()));
             Serialization::BoostArchive::serialize(bpacket, t);
+            snd_msg = azmq::message(reqstream.str());
 
         } else if (sm == Serialization::SerializationProtocol::PROTOCOL_BOOST_TEXT) {
+            std::ostringstream reqstream;
             boost::archive::text_oarchive tpacket(reqstream );
 
             Serialization::BoostArchive::serialize(tpacket, m_name);
             Serialization::BoostArchive::serialize(tpacket, static_cast<int>(getMeasurementType()));
             Serialization::BoostArchive::serialize(tpacket, t);
+            snd_msg = azmq::message(reqstream.str());
 
 #ifdef HAVE_MSGPACK
         } else if (sm == Serialization::SerializationProtocol::PROTOCOL_MSGPACK) {
-            msgpack::packer<std::ostringstream> pk(reqstream);
+            msgpack::sbuffer snd_buf;
+            msgpack::packer<msgpack::sbuffer> pk(snd_buf);
 
             Serialization::MsgpackArchive::serialize(pk, m_name);
             Serialization::MsgpackArchive::serialize(pk, static_cast<int>(getMeasurementType()));
             Serialization::MsgpackArchive::serialize(pk, t);
+
+            snd_msg = azmq::message(std::string(snd_buf.data(), snd_buf.size()));
 
 #endif // HAVE_MSGPACK
 
@@ -592,7 +626,6 @@ protected:
         // synchronous request for measurement
         //
 
-        auto snd_msg = azmq::message(reqstream.str());
 
         if (m_verbose) {
             LOG4CPP_TRACE(logger, printf_azmq_message_content(snd_msg));
@@ -709,12 +742,7 @@ protected:
             return mm;
 #ifdef HAVE_MSGPACK
         } else if (sm == Serialization::PROTOCOL_MSGPACK) {
-            // this is using the incorrect api .. unpacker delegates memory management to msgpack
-            msgpack::unpacker pac;
-            pac.reserve_buffer(rcv_buf.size());
-            memcpy(pac.buffer(), rcv_buf.data(), rcv_buf.size() );
-            pac.buffer_consumed(rcv_buf.size());
-
+            zmq_message_unpacker pac(rcv_buf);
 
             std::string name;
             Serialization::MsgpackArchive::deserialize(pac, name);
@@ -809,7 +837,7 @@ public:
     }
 
 #ifdef HAVE_MSGPACK
-    bool serialize_msgpack_archive(msgpack::packer<std::ostringstream>& pac, Measurement::Timestamp ts) override
+    bool serialize_msgpack_archive(msgpack::packer<msgpack::sbuffer>& pac, Measurement::Timestamp ts) override
     {
         try {
             Serialization::MsgpackArchive::serialize(pac, m_inPort.get(ts));

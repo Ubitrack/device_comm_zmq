@@ -337,11 +337,7 @@ void NetworkModule::receivePushMessage() {
                     }
 #ifdef HAVE_MSGPACK
                 } else if (m_serializationMethod == Serialization::PROTOCOL_MSGPACK) {
-                    // this is using the incorrect api .. unpacker delegates memory management to msgpack
-                    msgpack::unpacker pac;
-                    pac.reserve_buffer(message.size());
-                    memcpy(pac.buffer(), message.data(), message.size() );
-                    pac.buffer_consumed(message.size());
+                    zmq_message_unpacker pac(message);
 
                     // parse_boost_binary packet
                     std::string name;
@@ -391,13 +387,12 @@ void NetworkModule::handlePullRequest() {
     }
     m_socket->async_receive([this] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
 
-        // needed to avoid copying the message before sending...
-        auto resstream_ptr = new boost::shared_ptr<std::ostringstream>(new std::ostringstream);
-        auto resstream = *resstream_ptr;
         std::string suffix("\n");
 
         bool have_valid_request{false};
         std::string request_component_name{"undefined"};
+
+        azmq::message snd_buf;
 
         if (!error) {
             if (m_verbose) {
@@ -409,6 +404,8 @@ void NetworkModule::handlePullRequest() {
                 // handle request
 
                 if (m_serializationMethod == Serialization::PROTOCOL_BOOST_BINARY) {
+                    std::ostringstream resstream;
+
                     typedef boost::iostreams::basic_array_source<char> Device;
                     boost::iostreams::stream_buffer<Device> buffer((char*)message.data(), message.size());
                     boost::archive::binary_iarchive ar_message(buffer);
@@ -432,7 +429,7 @@ void NetworkModule::handlePullRequest() {
                             Measurement::Timestamp ts(0);
                             Serialization::BoostArchive::deserialize(ar_message, ts);
 
-                            boost::archive::binary_oarchive bpacket(*resstream );
+                            boost::archive::binary_oarchive bpacket(resstream );
                             Serialization::BoostArchive::serialize(bpacket, request_component_name);
                             Serialization::BoostArchive::serialize(bpacket, static_cast<int>(PULL_RESPONSE_SUCCESS));
                             Serialization::BoostArchive::serialize(bpacket, static_cast<int>(comp->getMeasurementType()));
@@ -447,7 +444,13 @@ void NetworkModule::handlePullRequest() {
                     } else if (m_verbose) {
                         LOG4CPP_WARN( logger, "ZMQPullSource is requesting with id=\"" << request_component_name << "\", found no corresponding ZMQPullSink pattern with same id."  );
                     }
+
+                    // assemble message
+                    snd_buf = azmq::message(resstream.str());
+
                 } else if (m_serializationMethod == Serialization::PROTOCOL_BOOST_TEXT) {
+                    std::ostringstream resstream;
+
 #if __cplusplus > 201402L
                     // C__17 code allows us to not copy the data easily
                     std::istringstream buffer(std::string_view(const_cast<char*>(static_cast<const char*>(message.data())), message.size()));
@@ -476,7 +479,7 @@ void NetworkModule::handlePullRequest() {
                             Measurement::Timestamp ts(0);
                             Serialization::BoostArchive::deserialize(ar_message, ts);
 
-                            boost::archive::text_oarchive tpacket(*resstream);
+                            boost::archive::text_oarchive tpacket(resstream);
                             Serialization::BoostArchive::serialize(tpacket, request_component_name);
                             Serialization::BoostArchive::serialize(tpacket, static_cast<int>(PULL_RESPONSE_SUCCESS));
                             Serialization::BoostArchive::serialize(tpacket, static_cast<int>(comp->getMeasurementType()));
@@ -488,13 +491,16 @@ void NetworkModule::handlePullRequest() {
                     } else if (m_verbose) {
                         LOG4CPP_WARN( logger, "ZMQPullSource is requesting with id=\"" << request_component_name << "\", found no corresponding ZMQPullSink pattern with same id."  );
                     }
+                    // assemble message
+                    snd_buf = azmq::message(resstream.str());
+
 #ifdef HAVE_MSGPACK
                 } else if (m_serializationMethod == Serialization::PROTOCOL_MSGPACK) {
-                    // this is using the incorrect api .. unpacker delegates memory management to msgpack
-                    msgpack::unpacker pac;
-                    pac.reserve_buffer(message.size());
-                    memcpy(pac.buffer(), message.data(), message.size() );
-                    pac.buffer_consumed(message.size());
+                    // needed to avoid copying the message before sending...
+                    auto result_buffer_ptr = new std::shared_ptr<msgpack::sbuffer>(new msgpack::sbuffer() );
+                    auto result_buffer = *result_buffer_ptr;
+
+                    zmq_message_unpacker pac(message);
 
                     // parse_boost_binary packet
                     std::string name;
@@ -515,7 +521,7 @@ void NetworkModule::handlePullRequest() {
                             Measurement::Timestamp ts(0);
                             Serialization::MsgpackArchive::deserialize(pac, ts);
 
-                            msgpack::packer<std::ostringstream> pk(resstream.get());
+                            msgpack::packer<msgpack::sbuffer> pk(*result_buffer);
                             Serialization::MsgpackArchive::serialize(pk, request_component_name);
                             Serialization::MsgpackArchive::serialize(pk, static_cast<int>(PULL_RESPONSE_SUCCESS));
                             Serialization::MsgpackArchive::serialize(pk, static_cast<int>(comp->getMeasurementType()));
@@ -526,6 +532,18 @@ void NetworkModule::handlePullRequest() {
                     } else if (m_verbose) {
                         LOG4CPP_WARN( logger, "ZMQPullSource is requesting with id=\"" << request_component_name << "\", found no corresponding ZMQPullSink pattern with same id."  );
                     }
+
+                    // we're casting to a mutable buffer here in order to comply with the required azmq::message interface to provide a hint for deletion ...
+                    snd_buf = azmq::message(azmq::nocopy,
+                                          boost::asio::buffer(result_buffer->data(), result_buffer->size()),
+                                          reinterpret_cast<void*>(result_buffer_ptr),
+                                          [](void *buf, void *hint){
+                                              if (hint != nullptr) {
+                                                  auto b = static_cast<std::shared_ptr<msgpack::sbuffer>*>(hint);
+                                                  delete b;
+                                              }
+                                          });
+
 #endif // HAVE_MSGPACK
                 } else {
                     LOG4CPP_ERROR( logger, "Invalid serialization method." );
@@ -547,17 +565,6 @@ void NetworkModule::handlePullRequest() {
             boost::system::error_code ec;
             if (have_valid_request) {
 
-                // we're casting to a mutable buffer here in order to comply with the required azmq::message interface to provide a hint for deletion ...
-                azmq::message snd_buf(azmq::nocopy,
-                        boost::asio::mutable_buffer(const_cast<void*>(static_cast<const void*>(resstream->str().data())), resstream->str().size()),
-                        (void*)resstream_ptr,
-                        [](void *buf, void *hint){
-                    if (hint != nullptr) {
-                        auto b = static_cast<std::shared_ptr<std::ostringstream>*>(hint);
-                        delete b;
-                    }
-                });
-
                 m_socket->async_send(snd_buf, [&] (boost::system::error_code const& ec, size_t bytes_transferred) {
                     if (ec != boost::system::error_code()) {
                         LOG4CPP_ERROR( logger, "Error sending reply  on ZMQPullSink " << request_component_name << " - " << ec.message());
@@ -567,26 +574,24 @@ void NetworkModule::handlePullRequest() {
                     }
                 });
             } else {
-                // need to delete resstream_ptr to avoid memory leak here.
-                delete resstream_ptr;
 
                 // we dont have a valid request = need to tell our client about this..
                 LOG4CPP_WARN(logger, "invalid request for: " << request_component_name);
 
-                std::ostringstream errorstream;
+                std::ostringstream error_stream;
 
                 if (m_serializationMethod == Serialization::PROTOCOL_BOOST_BINARY) {
-                    boost::archive::binary_oarchive bpacket(errorstream );
+                    boost::archive::binary_oarchive bpacket(error_stream );
                     Serialization::BoostArchive::serialize(bpacket, request_component_name);
                     Serialization::BoostArchive::serialize(bpacket, static_cast<int>(PULL_RESPONSE_ERROR));
 
                 } else if (m_serializationMethod == Serialization::PROTOCOL_BOOST_TEXT) {
-                    boost::archive::text_oarchive tpacket(errorstream);
+                    boost::archive::text_oarchive tpacket(error_stream);
                     Serialization::BoostArchive::serialize(tpacket, request_component_name);
                     Serialization::BoostArchive::serialize(tpacket, static_cast<int>(PULL_RESPONSE_ERROR));
 #ifdef HAVE_MSGPACK
                 } else if (m_serializationMethod == Serialization::PROTOCOL_MSGPACK) {
-                    msgpack::packer<std::ostringstream> pk(errorstream);
+                    msgpack::packer<std::ostringstream> pk(error_stream);
                     Serialization::MsgpackArchive::serialize(pk, request_component_name);
                     Serialization::MsgpackArchive::serialize(pk, static_cast<int>(PULL_RESPONSE_ERROR));
 #endif // HAVE_MSGPACK
@@ -594,8 +599,8 @@ void NetworkModule::handlePullRequest() {
                     LOG4CPP_ERROR( logger, "Invalid serialization method." );
                 }
 
-                auto snd_buf = boost::asio::const_buffer(errorstream.str().data(), errorstream.str().size());
-                auto sz1 = m_socket->send(snd_buf, 0, ec);
+                auto snd_buf_err = boost::asio::const_buffer(error_stream.str().data(), error_stream.str().size());
+                auto sz1 = m_socket->send(snd_buf_err, 0, ec);
                 if (ec != boost::system::error_code()) {
                     LOG4CPP_ERROR( logger, "Error sending error message  on ZMQPullSink " << request_component_name << " - " << ec.message());
                 } else {
