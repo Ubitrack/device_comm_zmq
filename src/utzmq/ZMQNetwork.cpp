@@ -62,7 +62,7 @@ NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_p
     , m_has_pushsource(false)
     , m_has_pullsink(false)
     , m_has_pullsource(false)
-    , m_receiveTimeout(500) // 50 ms receive timeout
+    , m_receiveTimeout(50) // 50 ms receive timeout
 {
     if ( pConfig->m_DataflowAttributes.hasAttribute( "bindTo" ) )
     {
@@ -163,15 +163,14 @@ void NetworkModule::startModule()
         }
 
         // select socket type
-        int socket_type;
         if (m_has_pushsink) {
-            socket_type = ZMQ_PUB;
+            m_socket_type = ZMQ_PUB;
         } else if (m_has_pushsource) {
-            socket_type = ZMQ_SUB;
+            m_socket_type = ZMQ_SUB;
         } else if (m_has_pullsink) {
-            socket_type = ZMQ_REP;
+            m_socket_type = ZMQ_REP;
         } else if (m_has_pullsource) {
-            socket_type = ZMQ_REQ;
+            m_socket_type = ZMQ_REQ;
         } else {
             UBITRACK_THROW("Configuration Error: ZMQNetwork has no Sinks or Sources.");
         }
@@ -189,30 +188,8 @@ void NetworkModule::startModule()
             LOG4CPP_INFO( logger, "Start IOService Tread" );
             m_NetworkThread = boost::shared_ptr< boost::thread >( new boost::thread( boost::bind( &boost::asio::io_service::run, m_ioservice.get() ) ) );
 		}
-        m_socket = boost::shared_ptr< azmq::socket >( new azmq::socket(*m_ioservice, socket_type) );
 
-        try {
-            if (m_bindTo) {
-                m_socket->bind(m_moduleKey.get().c_str());
-            } else {
-                m_socket->connect(m_moduleKey.get().c_str());
-            }
-            // only for ZMQ_SUB sockets
-            if (m_has_pushsource) {
-                m_socket->set_option(azmq::socket::subscribe(""));
-            }
-            if (m_has_pullsource) {
-                m_socket->set_option(m_receiveTimeout);
-            }
-        }
-        catch (boost::system::system_error &e) {
-            std::ostringstream log;
-            log << "Error initializing ZMQNetwork: " << std::endl;
-            log << "address: "  << m_moduleKey.get() << std::endl;
-            log << e.what() << std::endl;
-            LOG4CPP_ERROR( logger, log.str() );
-            UBITRACK_THROW("Error Initializing ZMQNetwork");
-        }
+        initSocket();
 
         for ( ComponentList::iterator it = allComponents.begin(); it != allComponents.end(); it++ ) {
             (*it)->setupComponent(m_socket);
@@ -241,7 +218,7 @@ void NetworkModule::stopModule()
 
         ComponentList allComponents( getAllComponents() );
 
-        for ( ComponentList::iterator it = allComponents.begin(); it != allComponents.end(); it++ ) {
+        for ( auto it = allComponents.begin(); it != allComponents.end(); it++ ) {
             (*it)->teardownComponent();
         }
         m_socket.reset();
@@ -257,6 +234,37 @@ void NetworkModule::stopModule()
     LOG4CPP_DEBUG( logger, "ZMQ Network Stopped" );
 }
 
+void NetworkModule::initSocket() {
+    if (m_verbose) {
+        LOG4CPP_DEBUG( logger, "Resetting Socket" );
+    }
+    m_socket = boost::shared_ptr< azmq::socket >( new azmq::socket(*m_ioservice, m_socket_type) );
+
+    try {
+        if (m_bindTo) {
+            m_socket->bind(m_moduleKey.get().c_str());
+        } else {
+            m_socket->connect(m_moduleKey.get().c_str());
+        }
+        // only for ZMQ_SUB sockets
+        if (m_has_pushsource) {
+            m_socket->set_option(azmq::socket::subscribe(""));
+        }
+        if (m_has_pullsource) {
+            m_socket->set_option(m_receiveTimeout);
+        }
+    }
+    catch (boost::system::system_error &e) {
+        std::ostringstream log;
+        log << "Error initializing ZMQNetwork: " << std::endl;
+        log << "address: "  << m_moduleKey.get() << std::endl;
+        log << e.what() << std::endl;
+        LOG4CPP_ERROR( logger, log.str() );
+        UBITRACK_THROW("Error Initializing ZMQNetwork");
+    }
+}
+
+
 void NetworkModule::watchdogTimer() {
     if (m_verbose) {
         LOG4CPP_DEBUG( logger, "IOService Alive" );
@@ -269,6 +277,7 @@ void NetworkModule::receivePushMessage() {
     if (m_verbose) {
         LOG4CPP_DEBUG( logger, "Schedule async receive .." );
     }
+
     m_socket->async_receive([this] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
         if (!error) {
             Measurement::Timestamp ts = Measurement::now();
