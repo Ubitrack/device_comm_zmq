@@ -62,7 +62,7 @@ NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_p
     , m_has_pushsource(false)
     , m_has_pullsink(false)
     , m_has_pullsource(false)
-    , m_receiveTimeout(50) // 50 ms receive timeout
+    , m_receiveTimeout(500) // 50 ms receive timeout
 {
     if ( pConfig->m_DataflowAttributes.hasAttribute( "bindTo" ) )
     {
@@ -183,7 +183,7 @@ void NetworkModule::startModule()
 		if (m_ioservice_users.fetch_add(1, boost::memory_order_relaxed) == 0) {
 			boost::atomic_thread_fence(boost::memory_order_acquire);
 			LOG4CPP_INFO( logger, "Create IOService" );
-			m_ioservice.reset(new boost::asio::io_service());
+			m_ioservice.reset(new boost::asio::io_service(8));
 			m_ioserviceKeepAlive.reset(new boost::asio::deadline_timer(*m_ioservice));
             watchdogTimer();
             LOG4CPP_INFO( logger, "Start IOService Tread" );
