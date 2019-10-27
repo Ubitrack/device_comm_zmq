@@ -270,7 +270,7 @@ void NetworkModule::watchdogTimer() {
     if (m_verbose) {
         LOG4CPP_DEBUG( logger, "IOService Alive" );
     }
-    if (m_running) {
+    if (m_ioservice_users > 0) {
         m_ioserviceKeepAlive->expires_from_now(boost::posix_time::seconds(1));
         m_ioserviceKeepAlive->async_wait(boost::bind(&NetworkModule::watchdogTimer, this));
     }
