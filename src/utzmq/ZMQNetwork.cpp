@@ -270,8 +270,10 @@ void NetworkModule::watchdogTimer() {
     if (m_verbose) {
         LOG4CPP_DEBUG( logger, "IOService Alive" );
     }
-    m_ioserviceKeepAlive->expires_from_now(boost::posix_time::seconds(1));
-    m_ioserviceKeepAlive->async_wait(boost::bind(&NetworkModule::watchdogTimer, this));
+    if (m_running) {
+        m_ioserviceKeepAlive->expires_from_now(boost::posix_time::seconds(1));
+        m_ioserviceKeepAlive->async_wait(boost::bind(&NetworkModule::watchdogTimer, this));
+    }
 }
 
 void NetworkModule::receivePushMessage() {
