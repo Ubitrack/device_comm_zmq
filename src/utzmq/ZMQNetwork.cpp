@@ -225,6 +225,7 @@ void NetworkModule::stopModule()
 		if (m_ioservice_users.fetch_sub(1, boost::memory_order_release) == 1) {
 			boost::atomic_thread_fence(boost::memory_order_acquire);
 			LOG4CPP_INFO( logger, "Stop IOService" );
+			m_ioserviceKeepAlive->cancel();
             m_ioservice->stop();
             m_NetworkThread->join();
             m_NetworkThread.reset();
