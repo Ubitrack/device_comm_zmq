@@ -221,6 +221,12 @@ public:
         return m_serializationMethod;
     }
 
+    void initSocket();
+
+    boost::shared_ptr<azmq::socket>& getSocket() {
+        return m_socket;
+    }
+
 protected:
 
     boost::shared_ptr< boost::thread > m_NetworkThread;
@@ -230,6 +236,7 @@ protected:
     static boost::shared_ptr<boost::asio::deadline_timer> m_ioserviceKeepAlive;
 	static boost::atomic<int> m_ioservice_users;
 
+    int m_socket_type;
     boost::shared_ptr<azmq::socket> m_socket;
 
     bool m_bindTo;
@@ -269,12 +276,12 @@ public:
 
     virtual void setupComponent(boost::shared_ptr<azmq::socket> &sock)
     {
-        m_socket = sock;
+//        m_socket = sock;
     }
 
     virtual void teardownComponent()
     {
-        m_socket.reset();
+//        m_socket.reset();
     }
 
     virtual void parse_boost_archive(boost::archive::binary_iarchive& ar, Measurement::Timestamp recvtime)
@@ -313,7 +320,7 @@ public:
 
 
 protected:
-    boost::shared_ptr<azmq::socket> m_socket;
+//    boost::shared_ptr<azmq::socket> m_socket;
     bool m_fixTimestamp;
     bool m_verbose;
 
@@ -507,11 +514,12 @@ protected:
             return;
         }
 
-        if (m_socket) {
+        auto socket = getModule().getSocket();
+        if (socket) {
 #ifdef ENABLE_EVENT_TRACING
             TRACEPOINT_MEASUREMENT_RECEIVE(getEventDomain(), m.time(), getName().c_str(), "NetworkPushSink")
 #endif
-            m_socket->async_send(message, [&] (boost::system::error_code const& ec, size_t bytes_transferred) {
+            socket->async_send(message, [&] (boost::system::error_code const& ec, size_t bytes_transferred) {
                 if (ec != boost::system::error_code()) {
                     LOG4CPP_ERROR( logger, "Error sending message on ZMQSink " << m_name << " - " << ec.message());
                 } else {
@@ -579,6 +587,13 @@ protected:
     EventType request( Measurement::Timestamp t )
     {
 
+        auto socket = getModule().getSocket();
+        if (!socket) {
+            // this should log ... but we're in the header ..
+            return EventType();
+        }
+
+
         boost::system::error_code ec;
         //
         // Serialize request
@@ -631,7 +646,7 @@ protected:
             LOG4CPP_TRACE(logger, printf_azmq_message_content(snd_msg));
         }
 
-        auto sz1 = m_socket->send(snd_msg, 0, ec);
+        auto sz1 = socket->send(snd_msg, 0, ec);
         if (ec != boost::system::error_code()) {
             LOG4CPP_ERROR( logger, "Error requesting message on ZMQSource " << m_name << " - " << ec.message());
             return EventType();
@@ -644,137 +659,146 @@ protected:
         TRACEPOINT_MEASUREMENT_CREATE(getEventDomain(), t, getName().c_str(), "NetworkPullSource")
 #endif
 
-        //
-        // synchronous wait for measurement
-        //
-        azmq::message rcv_buf;
-        auto sz2 = m_socket->receive(rcv_buf, 0, ec);
-        // EAGAIN => timeout
-        if (ec != boost::system::error_code()) {
-            LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource " << m_name << " - " << ec.message() << " value: " << ec.value());
-            return EventType();
-        } else {
+        try {
+            //
+            // synchronous wait for measurement
+            //
+            azmq::message rcv_buf;
+            auto sz2 = socket->receive(rcv_buf, 0, ec);
+            // EAGAIN => timeout
+            if (ec != boost::system::error_code()) {
+                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource " << m_name << " - " << ec.message());
+                socket->cancel();
+                getModule().initSocket();
+                return EventType();
+            } else {
+                if (m_verbose) {
+                    LOG4CPP_DEBUG( logger, "Response requested on ZMQSource " << m_name );
+                }
+            }
+
+            //
+            // deserialize packet
+            //
             if (m_verbose) {
-                LOG4CPP_DEBUG( logger, "Response requested on ZMQSource " << m_name );
-            }
-        }
-
-        //
-        // deserialize packet
-        //
-        if (m_verbose) {
-            LOG4CPP_DEBUG( logger, "Response received on ZMQSource " << m_name << " - received: " << sz2 << " size: " << rcv_buf.size() );
-        }
-
-        if (sm == Serialization::PROTOCOL_BOOST_BINARY) {
-            typedef boost::iostreams::basic_array_source<char> Device;
-            boost::iostreams::stream_buffer<Device> buffer((char*)rcv_buf.data(), rcv_buf.size());
-            boost::archive::binary_iarchive ar_message(buffer);
-
-            // parse_boost_binary packet
-            std::string name;
-            Serialization::BoostArchive::deserialize(ar_message, name);
-            if (name != m_name) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - names do not match: "<< m_name << " != " << name);
-                return EventType();
-            }
-            if (m_verbose) {
-                LOG4CPP_DEBUG( logger, "Message for component " << name );
+                LOG4CPP_DEBUG( logger, "Response received on ZMQSource " << m_name << " - received: " << sz2 << " size: " << rcv_buf.size() );
             }
 
-            int status;
-            Serialization::BoostArchive::deserialize(ar_message, status);
-            if (status != PULL_RESPONSE_SUCCESS) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - unsuccessful");
-                return EventType();
-            }
+            if (sm == Serialization::PROTOCOL_BOOST_BINARY) {
+                typedef boost::iostreams::basic_array_source<char> Device;
+                boost::iostreams::stream_buffer<Device> buffer((char*)rcv_buf.data(), rcv_buf.size());
+                boost::archive::binary_iarchive ar_message(buffer);
 
-            int measurementType;
-            Serialization::BoostArchive::deserialize(ar_message, measurementType);
-            if (measurementType != (int)getMeasurementType()) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - measurement types do not match: "<< getMeasurementType() << " != " << measurementType);
-                return EventType();
-            }
+                // parse_boost_binary packet
+                std::string name;
+                Serialization::BoostArchive::deserialize(ar_message, name);
+                if (name != m_name) {
+                    LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - names do not match: "<< m_name << " != " << name);
+                    return EventType();
+                }
+                if (m_verbose) {
+                    LOG4CPP_DEBUG( logger, "Message for component " << name );
+                }
 
-            EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
-            Serialization::BoostArchive::deserialize(ar_message, mm);
-            // check timestamp ??
-            return mm;
+                int status;
+                Serialization::BoostArchive::deserialize(ar_message, status);
+                if (status != PULL_RESPONSE_SUCCESS) {
+                    LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - unsuccessful");
+                    return EventType();
+                }
 
-        } else if (sm == Serialization::PROTOCOL_BOOST_TEXT) {
+                int measurementType;
+                Serialization::BoostArchive::deserialize(ar_message, measurementType);
+                if (measurementType != (int)getMeasurementType()) {
+                    LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - measurement types do not match: "<< getMeasurementType() << " != " << measurementType);
+                    return EventType();
+                }
+
+                EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
+                Serialization::BoostArchive::deserialize(ar_message, mm);
+                // check timestamp ??
+                return mm;
+
+            } else if (sm == Serialization::PROTOCOL_BOOST_TEXT) {
 #if __cplusplus > 201402L
-            // C__17 code allows us to not copy the data easily
+                // C__17 code allows us to not copy the data easily
             std::istringstream buffer(std::string_view(const_cast<char*>(static_cast<const char*>(rcv_buf.data())), rcv_buf.size()));
 #else
-            std::string message_str(static_cast<const char*>(rcv_buf.data()), rcv_buf.size());
-            std::istringstream buffer(message_str);
+                std::string message_str(static_cast<const char*>(rcv_buf.data()), rcv_buf.size());
+                std::istringstream buffer(message_str);
 #endif
-            boost::archive::text_iarchive ar_message(buffer);
+                boost::archive::text_iarchive ar_message(buffer);
 
-            // parse_boost_text packet
-            std::string name;
-            Serialization::BoostArchive::deserialize(ar_message, name);
-            if (name != m_name) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - names do not match: "<< m_name << " != " << name);
-                return EventType();
-            }
-            if (m_verbose) {
-                LOG4CPP_DEBUG( logger, "Message for component " << name );
-            }
+                // parse_boost_text packet
+                std::string name;
+                Serialization::BoostArchive::deserialize(ar_message, name);
+                if (name != m_name) {
+                    LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - names do not match: "<< m_name << " != " << name);
+                    return EventType();
+                }
+                if (m_verbose) {
+                    LOG4CPP_DEBUG( logger, "Message for component " << name );
+                }
 
-            int status;
-            Serialization::BoostArchive::deserialize(ar_message, status);
-            if (status != PULL_RESPONSE_SUCCESS) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - unsuccessful");
-                return EventType();
-            }
+                int status;
+                Serialization::BoostArchive::deserialize(ar_message, status);
+                if (status != PULL_RESPONSE_SUCCESS) {
+                    LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - unsuccessful");
+                    return EventType();
+                }
 
-            int measurementType;
-            Serialization::BoostArchive::deserialize(ar_message, measurementType);
-            if (measurementType != (int)getMeasurementType()) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - measurement types do not match: "<< getMeasurementType() << " != " << measurementType);
-                return EventType();
-            }
+                int measurementType;
+                Serialization::BoostArchive::deserialize(ar_message, measurementType);
+                if (measurementType != (int)getMeasurementType()) {
+                    LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - measurement types do not match: "<< getMeasurementType() << " != " << measurementType);
+                    return EventType();
+                }
 
-            EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
-            Serialization::BoostArchive::deserialize(ar_message, mm);
-            // check timestamp ??
-            return mm;
+                EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
+                Serialization::BoostArchive::deserialize(ar_message, mm);
+                // check timestamp ??
+                return mm;
 #ifdef HAVE_MSGPACK
-        } else if (sm == Serialization::PROTOCOL_MSGPACK) {
-            zmq_message_unpacker pac(rcv_buf);
+            } else if (sm == Serialization::PROTOCOL_MSGPACK) {
+                zmq_message_unpacker pac(rcv_buf);
 
-            std::string name;
-            Serialization::MsgpackArchive::deserialize(pac, name);
-            if (name != m_name) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - names do not match: "<< m_name << " != " << name);
-                return EventType();
-            }
-            if (m_verbose) {
-                LOG4CPP_DEBUG( logger, "Message for component " << name );
-            }
+                std::string name;
+                Serialization::MsgpackArchive::deserialize(pac, name);
+                if (name != m_name) {
+                    LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - names do not match: "<< m_name << " != " << name);
+                    return EventType();
+                }
+                if (m_verbose) {
+                    LOG4CPP_DEBUG( logger, "Message for component " << name );
+                }
 
-            int status;
-            Serialization::MsgpackArchive::deserialize(pac,  status);
-            if (status != PULL_RESPONSE_SUCCESS) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - unsuccessful");
-                return EventType();
-            }
+                int status;
+                Serialization::MsgpackArchive::deserialize(pac,  status);
+                if (status != PULL_RESPONSE_SUCCESS) {
+                    LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - unsuccessful");
+                    return EventType();
+                }
 
-            int measurementType;
-            Serialization::MsgpackArchive::deserialize(pac, measurementType);
-            if (measurementType != (int)getMeasurementType()) {
-                LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - measurement types do not match: "<< getMeasurementType() << " != " << measurementType);
-                return EventType();
-            }
+                int measurementType;
+                Serialization::MsgpackArchive::deserialize(pac, measurementType);
+                if (measurementType != (int)getMeasurementType()) {
+                    LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource - measurement types do not match: "<< getMeasurementType() << " != " << measurementType);
+                    return EventType();
+                }
 
-            EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
-            Serialization::MsgpackArchive::deserialize(pac, mm);
-            // check timestamp ??
-            return mm;
+                EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
+                Serialization::MsgpackArchive::deserialize(pac, mm);
+                // check timestamp ??
+                return mm;
 #endif // HAVE_MSGPACK
-        } else {
-            LOG4CPP_ERROR( logger, "Invalid serialization method." );
+            } else {
+                LOG4CPP_ERROR( logger, "Invalid serialization method." );
+            }
+
+        } catch (std::exception &e) {
+            LOG4CPP_ERROR(logger, "Error while receiving response: "<< e.what() <<" - reset connection");
+            socket->cancel();
+            getModule().initSocket();
         }
 
         LOG4CPP_ERROR(logger, "ZMQPullSource - something went wrong - did not receive data");
