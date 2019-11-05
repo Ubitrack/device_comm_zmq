@@ -62,7 +62,8 @@ NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_p
     , m_has_pushsource(false)
     , m_has_pullsink(false)
     , m_has_pullsource(false)
-    , m_receiveTimeout(50) // 50 ms receive timeout
+    , m_receiveTimeout(1000) // 1s receive timeout for now
+    // @todo: need lower value and pirate pattern to reinitialize sockets
 {
     if ( pConfig->m_DataflowAttributes.hasAttribute( "bindTo" ) )
     {

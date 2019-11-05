@@ -651,7 +651,7 @@ protected:
         auto sz2 = m_socket->receive(rcv_buf, 0, ec);
         // EAGAIN => timeout
         if (ec != boost::system::error_code()) {
-            LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource " << m_name << " - " << ec.message());
+            LOG4CPP_ERROR( logger, "Error receiving response on ZMQSource " << m_name << " - " << ec.message() << " value: " << ec.value());
             return EventType();
         } else {
             if (m_verbose) {
