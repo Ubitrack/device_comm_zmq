@@ -18,16 +18,17 @@
                 <Attribute name="type" value="Button" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceEvent"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -42,21 +43,19 @@
                 <Attribute name="type" value="Distance" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceDistance"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
-
-
-
 
     <Pattern name="ZMQPushSourcePosition2D" displayName="ZMQ PushSource (Position 2D)">
         <Description><h:p>This pattern receives 2D position data via the selected transport from a ZMQPushSinkPosition2D having the same ID</h:p></Description>
@@ -69,16 +68,17 @@
                 <Attribute name="type" value="2DPosition" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourcePosition2D"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -93,16 +93,17 @@
                 <Attribute name="type" value="3DPosition" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourcePosition"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -117,22 +118,19 @@
                 <Attribute name="type" value="6D" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourcePose"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
-
-
-
-
 
     <Pattern name="ZMQPushSourceErrorPosition2" displayName="ZMQ PushSource (ErrorPosition2)">
         <Description><h:p>This pattern receives position data via the selected transport from a ZMQPushSinkPosition2 having the same ID</h:p></Description>
@@ -145,16 +143,17 @@
                 <Attribute name="type" value="2DPositionError" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceErrorPosition2"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -169,16 +168,17 @@
                 <Attribute name="type" value="3DPositionError" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceErrorPosition"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -193,20 +193,19 @@
                 <Attribute name="type" value="6DError" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceErrorPose"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
-
-
 
 	<Pattern name="ZMQPushSourceRotation" displayName="ZMQ PushSource (Rotation)">
         <Description><h:p>This pattern receives rotation data via the selected transport from a ZMQPushSinkRotation having the same ID</h:p></Description>
@@ -219,19 +218,19 @@
                 <Attribute name="type" value="3DRotation" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceRotation"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
-
 
     <Pattern name="ZMQPushSourceMatrix3x3" displayName="ZMQ PushSource (Matrix 3x3)">
         <Description><h:p>This pattern receives a 3x3 matrix via the selected transport from a <h:code>ZMQPushSinkMatrix3x3</h:code> having the same pattern ID</h:p></Description>
@@ -244,16 +243,17 @@
                 <Attribute name="type" value="3x3Matrix" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceMatrix3x3"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -268,16 +268,17 @@
                 <Attribute name="type" value="3x4Matrix" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceMatrix3x4"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -292,19 +293,19 @@
                 <Attribute name="type" value="4x4Matrix" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceMatrix4x4"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
-
 
     <Pattern name="ZMQPushSourceVector4D" displayName="ZMQ PushSource (Vector4D)">
         <Description><h:p>This pattern receives a list of 4D vector via the selected transport from a ZMQPushSinkVector4D having the same ID</h:p></Description>
@@ -317,20 +318,19 @@
                 <Attribute name="type" value="4DVector" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceVector4D"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
-
-
 
     <Pattern name="ZMQPushSource2DPositionList" displayName="ZMQ PushSource (2DPositionList)">
         <Description><h:p>This pattern receives a list of 2D positions data via the selected transport from a ZMQPushSinkPositionList2 having the same ID</h:p></Description>
@@ -343,16 +343,17 @@
                 <Attribute name="type" value="2DPositionList" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourcePositionList2"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -367,16 +368,17 @@
                 <Attribute name="type" value="3DPositionList" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourcePositionList"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -391,20 +393,19 @@
                 <Attribute name="type" value="PoseList" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourcePoseList"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
-
-
 
     <Pattern name="ZMQPushSource2DErrorPositionList" displayName="ZMQ PushSource (2DErrorPositionList)">
         <Description><h:p>This pattern receives a list of 2D error positions data via the selected transport from a ZMQPushSinkErrorPositionList2 having the same ID</h:p></Description>
@@ -417,16 +418,17 @@
                 <Attribute name="type" value="2DErrorPositionList" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceErrorPositionList2"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -441,16 +443,17 @@
                 <Attribute name="type" value="3DErrorPositionList" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceErrorPositionList"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
 
@@ -465,20 +468,19 @@
                 <Attribute name="type" value="ErrorPoseList" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceErrorPoseList"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
-
-
 
     <Pattern name="ZMQPushSourceCameraIntrinsics" displayName="ZMQ PushSource (CameraIntrinsics)">
         <Description><h:p>This pattern receives CameraIntrinsics via the selected transport from a <h:code>ZMQPushSinkCameraIntrinsics</h:code> having the same pattern ID</h:p></Description>
@@ -491,20 +493,20 @@
                 <Attribute name="type" value="Intrinsics" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceCameraIntrinsics"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
-	
-   
+
     <Pattern name="ZMQPushSourceImage" displayName="ZMQ PushSource (Image)">
         <Description><h:p>This pattern receives a Image via the selected transport from a <h:code>ZMQPushSinkEvent</h:code> having the same pattern ID</h:p></Description>
         
@@ -516,19 +518,20 @@
                 <Attribute name="type" value="Image" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
             </Edge>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
         </Output>
         
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPushSourceImage"/>
-            <Attribute name="socketUrl" displayName="Socket URL" default="tcp://127.0.0.1:9977" xsi:type="StringAttributeDeclarationType">
-            </Attribute>
-            <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
-            <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
         </DataflowConfiguration>
     </Pattern>
-   
+
 
     
     <!-- Attribute declarations -->

@@ -52,34 +52,49 @@ boost::shared_ptr<boost::asio::io_service> NetworkModule::m_ioservice;
 boost::shared_ptr<boost::asio::deadline_timer> NetworkModule::m_ioserviceKeepAlive;
 boost::atomic<int> NetworkModule::m_ioservice_users(0);
 
-NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_ptr< Graph::UTQLSubgraph > pConfig, FactoryHelper* pFactory )
+NetworkModule::NetworkModule( const NetworkModuleKey& moduleKey, boost::shared_ptr< Graph::UTQLSubgraph > subgraph, FactoryHelper* pFactory )
     : Module< NetworkModuleKey, NetworkComponentKey, NetworkModule, NetworkComponentBase >( moduleKey, pFactory )
     , m_bindTo(false)
     , m_fixTimestamp(true)
     , m_verbose(true)
-    , m_serializationMethod(Serialization::PROTOCOL_BOOST_BINARY)
+    , m_serializationMethod(Serialization::PROTOCOL_MSGPACK)
     , m_has_pushsink(false)
     , m_has_pushsource(false)
     , m_has_pullsink(false)
     , m_has_pullsource(false)
-    , m_receiveTimeout(1000) // 1s receive timeout for now
-    // @todo: need lower value and pirate pattern to reinitialize sockets
+    , m_receiveTimeout(500) // 1s receive timeout for now
+
 {
-    if ( pConfig->m_DataflowAttributes.hasAttribute( "bindTo" ) )
+    // check if correct node is available
+    if( !subgraph->hasNode( "ZMQSocket" ) )
     {
-        m_bindTo = pConfig->m_DataflowAttributes.getAttributeString( "bindTo" ) == "true";
+        LOG4CPP_ERROR( logger, "Cannot start ZMQ module, \"ZMQSocket\"-node is missing in dfg. Please migrate your dfg using trackman or manually." );
+        UBITRACK_THROW( "Cannot start ZMQ module, \"ZMQSocket\"-node is missing in dfg. Please migrate your dfg using trackman or manually." );
     }
-    if ( pConfig->m_DataflowAttributes.hasAttribute( "fixTimestamp" ) )
+
+    auto pConfig = subgraph->getNode("ZMQSocket");
+
+    if ( pConfig->hasAttribute( "bindTo" ) )
     {
-        m_fixTimestamp = pConfig->m_DataflowAttributes.getAttributeString( "fixTimestamp" ) == "true";
+        m_bindTo = pConfig->getAttributeString( "bindTo" ) == "true";
     }
-    if ( pConfig->m_DataflowAttributes.hasAttribute( "verbose" ) )
+    if ( pConfig->hasAttribute( "requestTimeout" ) )
     {
-        m_verbose = pConfig->m_DataflowAttributes.getAttributeString( "verbose" ) == "true";
+        int receiveTimeout{0};
+        pConfig->getAttributeData( "requestTimeout", receiveTimeout);
+        m_receiveTimeout = receiveTimeout;
     }
-    if ( pConfig->m_DataflowAttributes.hasAttribute( "serialization_method" ) )
+    if ( pConfig->hasAttribute( "fixTimestamp" ) )
     {
-        std::string sm_text = pConfig->m_DataflowAttributes.getAttributeString( "serialization_method" );
+        m_fixTimestamp = pConfig->getAttributeString( "fixTimestamp" ) == "true";
+    }
+    if ( pConfig->hasAttribute( "verbose" ) )
+    {
+        m_verbose = pConfig->getAttributeString( "verbose" ) == "true";
+    }
+    if ( pConfig->hasAttribute( "serialization_method" ) )
+    {
+        std::string sm_text = pConfig->getAttributeString( "serialization_method" );
         if (sm_text  == "boost_binary") {
             m_serializationMethod = Serialization::PROTOCOL_BOOST_BINARY;
         } else if (sm_text  == "boost_text") {
@@ -273,7 +288,7 @@ void NetworkModule::watchdogTimer() {
     }
     if (m_ioservice_users > 0) {
         m_ioserviceKeepAlive->expires_from_now(boost::posix_time::seconds(1));
-        m_ioserviceKeepAlive->async_wait(boost::bind(&NetworkModule::watchdogTimer, this));
+        m_ioserviceKeepAlive->async_wait(boost::bind(&NetworkModule::watchdogTimer, shared_from_this()));
     }
 }
 
@@ -282,7 +297,8 @@ void NetworkModule::receivePushMessage() {
         LOG4CPP_DEBUG( logger, "Schedule async receive .." );
     }
 
-    m_socket->async_receive([this] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
+    auto self(shared_from_this());
+    m_socket->async_receive([this, self] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
         if (!error) {
             Measurement::Timestamp ts = Measurement::now();
 
@@ -375,6 +391,7 @@ void NetworkModule::receivePushMessage() {
                     } else if (m_verbose) {
                         LOG4CPP_WARN( logger, "ZMQPushSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
                     }
+#endif // HAVE_MSGPACK
                 } else {
                     LOG4CPP_ERROR( logger, "Invalid serialization method." );
                 }
@@ -383,7 +400,6 @@ void NetworkModule::receivePushMessage() {
             {
                 LOG4CPP_ERROR( logger, "Caught exception " << e.what() );
             }
-#endif // HAVE_MSGPACK
 
 
         } else {
@@ -400,7 +416,9 @@ void NetworkModule::handlePullRequest() {
     if (m_verbose) {
         LOG4CPP_DEBUG( logger, "Schedule async request handler" );
     }
-    m_socket->async_receive([this] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
+
+    auto self(shared_from_this());
+    m_socket->async_receive([this, self] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
 
         std::string suffix("\n");
 

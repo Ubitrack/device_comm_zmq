@@ -55,6 +55,7 @@
 #include <cstdlib>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include <boost/asio.hpp>
 #include <azmq/socket.hpp>
@@ -148,12 +149,11 @@ using namespace Dataflow;
 class NetworkComponentBase;
 
 class NetworkModuleKey
-    : public DataflowConfigurationAttributeKey< std::string >
+    : public NodeAttributeKey< std::string >
 {
 public:
     NetworkModuleKey( boost::shared_ptr< Graph::UTQLSubgraph > subgraph )
-        : DataflowConfigurationAttributeKey< std::string >( subgraph, "socketUrl", "tcp://127.0.0.1:9977" )
-    { }
+        : NodeAttributeKey< std::string >( subgraph, "ZMQSocket", "socketUrl", "tcp://127.0.0.1:9977" ) { }
 };
 
 
@@ -183,7 +183,7 @@ public:
  * owns ioservice
  */
 class NetworkModule
-    : public Module< NetworkModuleKey, NetworkComponentKey, NetworkModule, NetworkComponentBase >
+    : public Module< NetworkModuleKey, NetworkComponentKey, NetworkModule, NetworkComponentBase >, public boost::enable_shared_from_this<NetworkModule>
 {
 public:
 
@@ -204,9 +204,9 @@ public:
     virtual void stopModule();
 
 
+    // asio callbacks
     void receivePushMessage();
     void handlePullRequest();
-
     void watchdogTimer();
 
     inline bool getFixTimestamp() {
@@ -276,12 +276,10 @@ public:
 
     virtual void setupComponent(boost::shared_ptr<azmq::socket> &sock)
     {
-//        m_socket = sock;
     }
 
     virtual void teardownComponent()
     {
-//        m_socket.reset();
     }
 
     virtual void parse_boost_archive(boost::archive::binary_iarchive& ar, Measurement::Timestamp recvtime)
@@ -320,7 +318,6 @@ public:
 
 
 protected:
-//    boost::shared_ptr<azmq::socket> m_socket;
     bool m_fixTimestamp;
     bool m_verbose;
 
