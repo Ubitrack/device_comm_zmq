@@ -288,7 +288,9 @@ void NetworkModule::watchdogTimer() {
     }
     if (m_ioservice_users > 0) {
         m_ioserviceKeepAlive->expires_from_now(boost::posix_time::seconds(1));
-        m_ioserviceKeepAlive->async_wait(boost::bind(&NetworkModule::watchdogTimer, shared_from_this()));
+        // shared_from_this does not easily work with class hierarchies :((
+//        m_ioserviceKeepAlive->async_wait(boost::bind(&NetworkModule::watchdogTimer, shared_from_this()));
+        m_ioserviceKeepAlive->async_wait(boost::bind(&NetworkModule::watchdogTimer, this));
     }
 }
 
@@ -297,8 +299,10 @@ void NetworkModule::receivePushMessage() {
         LOG4CPP_DEBUG( logger, "Schedule async receive .." );
     }
 
-    auto self(shared_from_this());
-    m_socket->async_receive([this, self] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
+    // shared_from_this does not easily work with class hierarchies :((
+//    auto self(shared_from_this());
+//    m_socket->async_receive([this, self] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
+    m_socket->async_receive([this] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
         if (!error) {
             Measurement::Timestamp ts = Measurement::now();
 
@@ -417,8 +421,10 @@ void NetworkModule::handlePullRequest() {
         LOG4CPP_DEBUG( logger, "Schedule async request handler" );
     }
 
-    auto self(shared_from_this());
-    m_socket->async_receive([this, self] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
+    // shared_from_this does not easily work with class hierarchies :((
+//    auto self(shared_from_this());
+//    m_socket->async_receive([this, self] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
+    m_socket->async_receive([this] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
 
         std::string suffix("\n");
 
