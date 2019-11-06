@@ -13,11 +13,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The button event pushed via zmq</h:p></Description>
-                <Attribute name="type" value="Button" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -26,6 +21,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The button event pushed via zmq</h:p></Description>
+                <Attribute name="type" value="Button" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
 
@@ -40,11 +40,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The distance pushed via zmq</h:p></Description>
-                <Attribute name="type" value="Distance" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -53,6 +48,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The distance pushed via zmq</h:p></Description>
+                <Attribute name="type" value="Distance" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
         <DataflowConfiguration>
@@ -66,11 +66,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The 2D position pushed via zmq</h:p></Description>
-                <Attribute name="type" value="2DPosition" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -79,6 +74,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The 2D position pushed via zmq</h:p></Description>
+                <Attribute name="type" value="2DPosition" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
         <DataflowConfiguration>
@@ -92,11 +92,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The position pushed via zmq</h:p></Description>
-                <Attribute name="type" value="3DPosition" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -105,6 +100,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The position pushed via zmq</h:p></Description>
+                <Attribute name="type" value="3DPosition" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
         <DataflowConfiguration>
@@ -118,11 +118,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The pose pushed via zmq</h:p></Description>
-                <Attribute name="type" value="6D" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -131,6 +126,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The pose pushed via zmq</h:p></Description>
+                <Attribute name="type" value="6D" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
         
         <DataflowConfiguration>
@@ -144,11 +144,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The position2 pushed via zmq</h:p></Description>
-                <Attribute name="type" value="2DPositionError" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -157,6 +152,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The position2 pushed via zmq</h:p></Description>
+                <Attribute name="type" value="2DPositionError" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
         <DataflowConfiguration>
@@ -170,11 +170,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The position pushed via zmq</h:p></Description>
-                <Attribute name="type" value="3DPositionError" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -183,6 +178,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The position pushed via zmq</h:p></Description>
+                <Attribute name="type" value="3DPositionError" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
         <DataflowConfiguration>
@@ -196,11 +196,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The errorpose pushed via zmq</h:p></Description>
-                <Attribute name="type" value="6DError" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -209,6 +204,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The errorpose pushed via zmq</h:p></Description>
+                <Attribute name="type" value="6DError" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
         
         <DataflowConfiguration>
@@ -222,11 +222,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The rotation pushed via zmq</h:p></Description>
-                <Attribute name="type" value="3DRotation" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -235,6 +230,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The rotation pushed via zmq</h:p></Description>
+                <Attribute name="type" value="3DRotation" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
         
         <DataflowConfiguration>
@@ -248,11 +248,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The 3x3 matrix pushed via zmq</h:p></Description>
-                <Attribute name="type" value="3x3Matrix" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -261,6 +256,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The 3x3 matrix pushed via zmq</h:p></Description>
+                <Attribute name="type" value="3x3Matrix" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
         <DataflowConfiguration>
@@ -274,11 +274,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The 3x4 matrix pushed via zmq</h:p></Description>
-                <Attribute name="type" value="3x4Matrix" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -287,6 +282,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The 3x4 matrix pushed via zmq</h:p></Description>
+                <Attribute name="type" value="3x4Matrix" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
         <DataflowConfiguration>
@@ -300,11 +300,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The 4x4 matrix pushed via zmq</h:p></Description>
-                <Attribute name="type" value="4x4Matrix" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -313,6 +308,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The 4x4 matrix pushed via zmq</h:p></Description>
+                <Attribute name="type" value="4x4Matrix" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
         <DataflowConfiguration>
@@ -326,11 +326,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The 4D vector pushed via zmq</h:p></Description>
-                <Attribute name="type" value="4DVector" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -339,6 +334,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The 4D vector pushed via zmq</h:p></Description>
+                <Attribute name="type" value="4DVector" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
         <DataflowConfiguration>
@@ -352,11 +352,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The 2D positionlist pushed via zmq</h:p></Description>
-                <Attribute name="type" value="2DPositionList" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -365,6 +360,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The 2D positionlist pushed via zmq</h:p></Description>
+                <Attribute name="type" value="2DPositionList" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
         <DataflowConfiguration>
@@ -378,11 +378,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The positionlist pushed via zmq</h:p></Description>
-                <Attribute name="type" value="3DPositionList" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -391,6 +386,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The positionlist pushed via zmq</h:p></Description>
+                <Attribute name="type" value="3DPositionList" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
         <DataflowConfiguration>
@@ -404,11 +404,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The poselist pushed via zmq</h:p></Description>
-                <Attribute name="type" value="PoseList" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -417,6 +412,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The poselist pushed via zmq</h:p></Description>
+                <Attribute name="type" value="PoseList" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
         
         <DataflowConfiguration>
@@ -430,11 +430,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The 2D error positionlist pushed via zmq</h:p></Description>
-                <Attribute name="type" value="2DErrorPositionList" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -443,6 +438,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The 2D error positionlist pushed via zmq</h:p></Description>
+                <Attribute name="type" value="2DErrorPositionList" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
         <DataflowConfiguration>
@@ -456,11 +456,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The error positionlist pushed via zmq</h:p></Description>
-                <Attribute name="type" value="3DErrorPositionList" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -469,6 +464,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The error positionlist pushed via zmq</h:p></Description>
+                <Attribute name="type" value="3DErrorPositionList" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
         <DataflowConfiguration>
@@ -482,11 +482,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The error poselist pushed via zmq</h:p></Description>
-                <Attribute name="type" value="ErrorPoseList" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -495,6 +490,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The error poselist pushed via zmq</h:p></Description>
+                <Attribute name="type" value="ErrorPoseList" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
 
         <DataflowConfiguration>
@@ -508,11 +508,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The CameraIntrinsics pushed via zmq</h:p></Description>
-                <Attribute name="type" value="Intrinsics" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -521,6 +516,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The CameraIntrinsics pushed via zmq</h:p></Description>
+                <Attribute name="type" value="Intrinsics" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
         
         <DataflowConfiguration>
@@ -534,11 +534,6 @@
         <Output>
             <Node name="A" displayName="A"/>
             <Node name="B" displayName="B"/>
-            <Edge name="Output" source="A" destination="B" displayName="Output">
-                <Description><h:p>The Image pushed via zmq</h:p></Description>
-                <Attribute name="type" value="Image" xsi:type="EnumAttributeReferenceType"/>
-                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
-            </Edge>
             <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
                 <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
                 <Attribute name="requestTimeout" displayName="Request Timeout" default="500" xsi:type="IntAttributeDeclarationType"/>
@@ -547,6 +542,11 @@
                 <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
                 <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
             </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The Image pushed via zmq</h:p></Description>
+                <Attribute name="type" value="Image" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="pull" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
         </Output>
         
         <DataflowConfiguration>
