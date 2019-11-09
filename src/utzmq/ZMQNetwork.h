@@ -182,7 +182,7 @@ public:
  * owns ioservice
  */
 class NetworkModule
-    : public Module< NetworkModuleKey, NetworkComponentKey, NetworkModule, NetworkComponentBase >, public boost::enable_shared_from_this<NetworkModule>
+    : public Module< NetworkModuleKey, NetworkComponentKey, NetworkModule, NetworkComponentBase >
 {
 public:
 
@@ -206,7 +206,7 @@ public:
     // asio callbacks
     void receivePushMessage();
     void handlePullRequest();
-    void watchdogTimer();
+    void watchdogTimer(const boost::system::error_code& error);
 
     inline bool getFixTimestamp() {
         return m_fixTimestamp;

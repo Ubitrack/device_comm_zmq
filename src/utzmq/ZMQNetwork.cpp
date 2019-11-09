@@ -200,7 +200,7 @@ void NetworkModule::startModule()
 			LOG4CPP_INFO( logger, "Create IOService" );
 			m_ioservice.reset(new boost::asio::io_service(8));
 			m_ioserviceKeepAlive.reset(new boost::asio::deadline_timer(*m_ioservice));
-            watchdogTimer();
+            watchdogTimer(boost::system::error_code());
             LOG4CPP_INFO( logger, "Start IOService Tread" );
             m_NetworkThread = boost::shared_ptr< boost::thread >( new boost::thread( boost::bind( &boost::asio::io_service::run, m_ioservice.get() ) ) );
 		}
@@ -282,15 +282,16 @@ void NetworkModule::initSocket() {
 }
 
 
-void NetworkModule::watchdogTimer() {
+void NetworkModule::watchdogTimer(const boost::system::error_code& error) {
+    if (error) {
+        return;
+    }
     if (m_verbose) {
         LOG4CPP_DEBUG( logger, "IOService Alive" );
     }
     if (m_ioservice_users > 0) {
         m_ioserviceKeepAlive->expires_from_now(boost::posix_time::seconds(1));
-        // shared_from_this does not easily work with class hierarchies :((
-//        m_ioserviceKeepAlive->async_wait(boost::bind(&NetworkModule::watchdogTimer, shared_from_this()));
-        m_ioserviceKeepAlive->async_wait(boost::bind(&NetworkModule::watchdogTimer, this));
+        m_ioserviceKeepAlive->async_wait(boost::bind(&NetworkModule::watchdogTimer, shared_from_base<NetworkModule>(), _1));
     }
 }
 
@@ -299,10 +300,8 @@ void NetworkModule::receivePushMessage() {
         LOG4CPP_DEBUG( logger, "Schedule async receive .." );
     }
 
-    // shared_from_this does not easily work with class hierarchies :((
-//    auto self(shared_from_this());
-//    m_socket->async_receive([this, self] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
-    m_socket->async_receive([this] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
+    auto self(shared_from_base<NetworkModule>());
+    m_socket->async_receive([this, self] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
         if (!error) {
             Measurement::Timestamp ts = Measurement::now();
 
@@ -419,10 +418,8 @@ void NetworkModule::handlePullRequest() {
         LOG4CPP_DEBUG( logger, "Schedule async request handler" );
     }
 
-    // shared_from_this does not easily work with class hierarchies :((
-//    auto self(shared_from_this());
-//    m_socket->async_receive([this, self] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
-    m_socket->async_receive([this] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
+    auto self(shared_from_base<NetworkModule>());
+    m_socket->async_receive([this, self] (const boost::system::error_code& error, azmq::message& message, size_t bytes_transferred) {
 
         std::string suffix("\n");
 
