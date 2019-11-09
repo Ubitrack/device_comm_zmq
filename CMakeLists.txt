@@ -8,10 +8,6 @@ conan_basic_setup(TARGETS)
 include(GNUInstallDirs)
 include(cmake/UbitrackConfig)
 
-if(WITH_MSGPACK)
-  set(UBITRACK_COMPILE_DEFINITIONS ${UBITRACK_COMPILE_DEFINITIONS} "HAVE_MSGPACK")
-endif(WITH_MSGPACK)
-
 add_subdirectory(src/utzmq)
 
 ubitrack_install_utql("doc/utql/*.xml" "doc/utql/*/*.xml"  "doc/utql/*/*/*.xml")

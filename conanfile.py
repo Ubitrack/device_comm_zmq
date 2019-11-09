@@ -11,8 +11,9 @@ class UbitrackCoreConan(ConanFile):
 
     short_paths = True
     settings = "os", "compiler", "build_type", "arch"
-    options = {"with_msgpack": [True, False],
-                "workspaceBuild" : [True, False],}
+    options = {
+        "workspaceBuild": [True, False],
+    }
     generators = "cmake"
 
     default_options = {
@@ -20,7 +21,6 @@ class UbitrackCoreConan(ConanFile):
         "ubitrack_vision:shared" : True,
         "ubitrack_dataflow:shared" : True,
         "zmq:shared" : True,
-        "with_msgpack" : True,
         "workspaceBuild" : False,
         }
 
@@ -39,18 +39,10 @@ class UbitrackCoreConan(ConanFile):
 
         self.requires("zmq/[>=4.3.2]@camposs/stable")
         self.requires("azmq/1.0.3@camposs/stable")
+        self.requires("msgpack/[>=3.2.0]@camposs/stable")
 
-        if self.options.with_msgpack:
-            self.requires("msgpack/[>=3.2.0]@camposs/stable")
-
-    # def imports(self):
-    #     self.copy(pattern="*.dll", dst="bin", src="bin") # From bin to bin
-    #     self.copy(pattern="*.dylib*", dst="lib", src="lib") 
-    #     self.copy(pattern="*.so*", dst="lib", src="lib") 
-       
     def build(self):
         cmake = CMake(self)
-        cmake.definitions["WITH_MSGPACK"] = self.options.with_msgpack
         cmake.configure()
         cmake.build()
         cmake.install()

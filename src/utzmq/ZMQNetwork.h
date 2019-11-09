@@ -88,11 +88,10 @@
 #include <utVision/ImageSerialization.h>
 #endif // HAVE_OPENCV
 
-#ifdef HAVE_MSGPACK
 bool msgpack_reference_func(msgpack::type::object_type /*type*/, std::size_t /*len*/, void*) {
     return true;
 }
-#endif // HAVE_MSGPACK
+
 namespace {
     std::string char_to_hex(const unsigned char c)
     {
@@ -298,7 +297,6 @@ public:
         return false;
     }
 
-#ifdef HAVE_MSGPACK
     virtual void parse_msgpack_archive(zmq_message_unpacker& pac, Measurement::Timestamp recvtime)
     {}
 
@@ -306,7 +304,6 @@ public:
     {
         return false;
     }
-#endif
 
     virtual NetworkComponentBase::ComponentType getComponentType() {
         return NetworkComponentBase::NOT_DEFINED;
@@ -358,7 +355,6 @@ public:
         send_message(mm, recvtime, sendtime);
     }
 
-#ifdef HAVE_MSGPACK
     void parse_msgpack_archive(zmq_message_unpacker& pac, Measurement::Timestamp recvtime) override
     {
         EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
@@ -368,7 +364,6 @@ public:
 
         send_message(mm, recvtime, sendtime);
     }
-#endif // HAVE_MSGPACK
 
     ComponentType getComponentType() override {
         return NetworkComponentBase::PUSH_SOURCE;
@@ -482,7 +477,6 @@ protected:
 
             message = azmq::message(stream.str());
 
-#ifdef HAVE_MSGPACK
         } else if (sm == Serialization::SerializationProtocol::PROTOCOL_MSGPACK) {
             // needed to avoid copying the message before sending...
             auto result_buffer_ptr = new std::shared_ptr<msgpack::sbuffer>(new msgpack::sbuffer() );
@@ -503,9 +497,6 @@ protected:
                                             delete b;
                                         }
                                     });
-
-        #endif // HAVE_MSGPACK
-
         } else {
             LOG4CPP_ERROR( logger, "Invalid serialization protocol." );
             return;
@@ -561,7 +552,6 @@ public:
         return mm;
     }
 
-#ifdef HAVE_MSGPACK
     virtual EventType parse_msgpack_archive(zmq_message_unpacker& pac)
     {
         EventType mm( boost::shared_ptr< typename EventType::value_type >( new typename EventType::value_type() ) );
@@ -569,7 +559,6 @@ public:
 
         return mm;
     }
-#endif // HAVE_MSGPACK
 
     ComponentType getComponentType() override {
         return NetworkComponentBase::PULL_SOURCE;
@@ -617,7 +606,6 @@ protected:
             Serialization::BoostArchive::serialize(tpacket, t);
             snd_msg = azmq::message(reqstream.str());
 
-#ifdef HAVE_MSGPACK
         } else if (sm == Serialization::SerializationProtocol::PROTOCOL_MSGPACK) {
             msgpack::sbuffer snd_buf;
             msgpack::packer<msgpack::sbuffer> pk(snd_buf);
@@ -627,9 +615,6 @@ protected:
             Serialization::MsgpackArchive::serialize(pk, t);
 
             snd_msg = azmq::message(std::string(snd_buf.data(), snd_buf.size()));
-
-#endif // HAVE_MSGPACK
-
         } else {
             LOG4CPP_ERROR( logger, "Invalid serialization protocol." );
             return EventType();
@@ -755,7 +740,6 @@ protected:
                 Serialization::BoostArchive::deserialize(ar_message, mm);
                 // check timestamp ??
                 return mm;
-#ifdef HAVE_MSGPACK
             } else if (sm == Serialization::PROTOCOL_MSGPACK) {
                 zmq_message_unpacker pac(rcv_buf);
 
@@ -787,7 +771,6 @@ protected:
                 Serialization::MsgpackArchive::deserialize(pac, mm);
                 // check timestamp ??
                 return mm;
-#endif // HAVE_MSGPACK
             } else {
                 LOG4CPP_ERROR( logger, "Invalid serialization method." );
             }
@@ -857,7 +840,6 @@ public:
         return false;
     }
 
-#ifdef HAVE_MSGPACK
     bool serialize_msgpack_archive(msgpack::packer<msgpack::sbuffer>& pac, Measurement::Timestamp ts) override
     {
         try {
@@ -870,7 +852,6 @@ public:
         }
         return false;
     }
-#endif // HAVE_MSGPACK
 
 
 protected:

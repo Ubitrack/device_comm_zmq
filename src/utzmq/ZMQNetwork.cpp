@@ -370,7 +370,6 @@ void NetworkModule::receivePushMessage() {
                     } else if (m_verbose) {
                         LOG4CPP_WARN( logger, "ZMQPushSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
                     }
-#ifdef HAVE_MSGPACK
                 } else if (m_serializationMethod == Serialization::PROTOCOL_MSGPACK) {
                     zmq_message_unpacker pac(message);
 
@@ -395,7 +394,6 @@ void NetworkModule::receivePushMessage() {
                     } else if (m_verbose) {
                         LOG4CPP_WARN( logger, "ZMQPushSink is sending with id=\"" << name << "\", found no corresponding ZMQSource pattern with same id."  );
                     }
-#endif // HAVE_MSGPACK
                 } else {
                     LOG4CPP_ERROR( logger, "Invalid serialization method." );
                 }
@@ -533,7 +531,6 @@ void NetworkModule::handlePullRequest() {
                     // assemble message
                     snd_buf = azmq::message(resstream.str());
 
-#ifdef HAVE_MSGPACK
                 } else if (m_serializationMethod == Serialization::PROTOCOL_MSGPACK) {
                     // needed to avoid copying the message before sending...
                     auto result_buffer_ptr = new std::shared_ptr<msgpack::sbuffer>(new msgpack::sbuffer() );
@@ -583,7 +580,6 @@ void NetworkModule::handlePullRequest() {
                                               }
                                           });
 
-#endif // HAVE_MSGPACK
                 } else {
                     LOG4CPP_ERROR( logger, "Invalid serialization method." );
                 }
@@ -628,12 +624,10 @@ void NetworkModule::handlePullRequest() {
                     boost::archive::text_oarchive tpacket(error_stream);
                     Serialization::BoostArchive::serialize(tpacket, request_component_name);
                     Serialization::BoostArchive::serialize(tpacket, static_cast<int>(PULL_RESPONSE_ERROR));
-#ifdef HAVE_MSGPACK
                 } else if (m_serializationMethod == Serialization::PROTOCOL_MSGPACK) {
                     msgpack::packer<std::ostringstream> pk(error_stream);
                     Serialization::MsgpackArchive::serialize(pk, request_component_name);
                     Serialization::MsgpackArchive::serialize(pk, static_cast<int>(PULL_RESPONSE_ERROR));
-#endif // HAVE_MSGPACK
                 } else {
                     LOG4CPP_ERROR( logger, "Invalid serialization method." );
                 }
