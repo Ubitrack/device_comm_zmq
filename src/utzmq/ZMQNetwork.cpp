@@ -951,6 +951,7 @@ UBITRACK_REGISTER_COMPONENT( Dataflow::ComponentFactory* const cf ) {
     NetworkComponents.push_back( "ZMQPushSourcePositionList" );
     NetworkComponents.push_back( "ZMQPushSourcePositionList2" );
     NetworkComponents.push_back( "ZMQPushSourceEvent" );
+    NetworkComponents.push_back( "ZMQPushSourceEventList" );
     NetworkComponents.push_back( "ZMQPushSourceMatrix3x3" );
     NetworkComponents.push_back( "ZMQPushSourceMatrix3x4" );
     NetworkComponents.push_back( "ZMQPushSourceMatrix4x4" );
@@ -977,6 +978,7 @@ UBITRACK_REGISTER_COMPONENT( Dataflow::ComponentFactory* const cf ) {
     NetworkComponents.push_back( "ZMQPushSinkPositionList" );
     NetworkComponents.push_back( "ZMQPushSinkPositionList2" );
     NetworkComponents.push_back( "ZMQPushSinkEvent" );
+    NetworkComponents.push_back( "ZMQPushSinkEventList" );
     NetworkComponents.push_back( "ZMQPushSinkMatrix3x3" );
     NetworkComponents.push_back( "ZMQPushSinkMatrix3x4" );
     NetworkComponents.push_back( "ZMQPushSinkMatrix4x4" );
@@ -1003,6 +1005,7 @@ UBITRACK_REGISTER_COMPONENT( Dataflow::ComponentFactory* const cf ) {
     NetworkComponents.push_back( "ZMQPullSourcePositionList" );
     NetworkComponents.push_back( "ZMQPullSourcePositionList2" );
     NetworkComponents.push_back( "ZMQPullSourceEvent" );
+    NetworkComponents.push_back( "ZMQPullSourceEventList" );
     NetworkComponents.push_back( "ZMQPullSourceMatrix3x3" );
     NetworkComponents.push_back( "ZMQPullSourceMatrix3x4" );
     NetworkComponents.push_back( "ZMQPullSourceMatrix4x4" );
@@ -1029,6 +1032,7 @@ UBITRACK_REGISTER_COMPONENT( Dataflow::ComponentFactory* const cf ) {
     NetworkComponents.push_back( "ZMQPullSinkPositionList" );
     NetworkComponents.push_back( "ZMQPullSinkPositionList2" );
     NetworkComponents.push_back( "ZMQPullSinkEvent" );
+    NetworkComponents.push_back( "ZMQPullSinkEventList" );
     NetworkComponents.push_back( "ZMQPullSinkMatrix3x3" );
     NetworkComponents.push_back( "ZMQPullSinkMatrix3x4" );
     NetworkComponents.push_back( "ZMQPullSinkMatrix4x4" );

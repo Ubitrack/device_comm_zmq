@@ -32,6 +32,31 @@
         </DataflowConfiguration>
     </Pattern>
 
+    <Pattern name="ZMQPushSourceEventList" displayName="ZMQ PushSource (EventList)">
+        <Description><h:p>This pattern receives a button list event via the selected transport from a <h:code>ZMQPushSinkEventList</h:code> having the same pattern ID</h:p></Description>
+
+        <Output>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://localhost:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
+            <Edge name="Output" source="A" destination="B" displayName="Output">
+                <Description><h:p>The button list event pushed via zmq</h:p></Description>
+                <Attribute name="type" value="ButtonList" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="mode" value="push" xsi:type="EnumAttributeReferenceType"/>
+            </Edge>
+        </Output>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPushSourceEventList"/>
+        </DataflowConfiguration>
+    </Pattern>
+
     <Pattern name="ZMQPushSourceDistance" displayName="ZMQ PushSource (Distance)">
         <Description><h:p>This pattern receives a distance via the selected transport from a <h:code>ZMQPushSinkDistance</h:code> having the same pattern ID</h:p></Description>
 

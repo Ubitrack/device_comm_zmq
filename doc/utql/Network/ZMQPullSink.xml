@@ -10,7 +10,7 @@
 
 
     <Pattern name="ZMQPullSinkEvent" displayName="ZMQ PullSink (Event)">
-        <Description><h:p>This pattern transmits a button event via the selected transport to a ZMQPullSourcePosition2List having the same ID.</h:p></Description>
+        <Description><h:p>This pattern transmits a button event via the selected transport to a ZMQPullSourceEvent having the same ID.</h:p></Description>
 
         <Input>
             <Node name="A" displayName="A"/>
@@ -34,6 +34,34 @@
 
         <DataflowConfiguration>
             <UbitrackLib class="ZMQPullSinkEvent"/>
+        </DataflowConfiguration>
+    </Pattern>
+
+    <Pattern name="ZMQPullSinkEventList" displayName="ZMQ PullSink (EventList)">
+        <Description><h:p>This pattern transmits a button list event via the selected transport to a ZMQPullSourceEventList having the same ID.</h:p></Description>
+
+        <Input>
+            <Node name="A" displayName="A"/>
+            <Node name="B" displayName="B"/>
+            <Edge name="Input" source="A" destination="B" displayName="Input">
+                <Description><h:p>The button list event received via zmq</h:p></Description>
+                <Predicate>type=='ButtonList'&amp;&amp;mode=='pull'</Predicate>
+
+            </Edge>
+        </Input>
+
+        <Output>
+            <Node name="ZMQSocket" displayName="ZMQ Socket Module configuration">
+                <Attribute name="socketUrl" displayName="Socket URL" default="tcp://0.0.0.0:9977" xsi:type="StringAttributeDeclarationType"/>
+                <Attribute name="bindTo" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="fixTimestamp" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="verbose" xsi:type="EnumAttributeReferenceType"/>
+                <Attribute name="serialization_method" xsi:type="EnumAttributeReferenceType"/>
+            </Node>
+        </Output>
+
+        <DataflowConfiguration>
+            <UbitrackLib class="ZMQPullSinkEventList"/>
         </DataflowConfiguration>
     </Pattern>
 
